@@ -1,3 +1,32 @@
+"""
+This methods are utilities to create unique tokens. This tokens are created
+based in an alphabet, in this case is a 62 character alphabets:
+The token starts with digit(0-9), then small letters(a-z) and then cap
+letters (A-Z) so: 0-9a-zA-Z
+
+for example from low to high:
+    - 0000
+    - 0001
+    - 000a
+    - 000A
+    - 001a
+    - 001A
+    - ZZZZ
+
+Also the created tokens have a minimun length so if the minimun length is 4
+the token 1 will be 0001.
+
+The tokens can be referenced in decimal style from 0 to X example
+0:      0000
+1:      0001
+9:      0009
+10:     000a
+61:     000Z
+62:     0010
+100:    001c
+   
+In summary convert from base 10 to base length of the given alphabet
+"""
 import math
 
 from settings import START_URL_TOKEN_LENGTH, ALPHABET
@@ -5,18 +34,7 @@ from linkshortener.exceptions import LinkShortenerLengthError
 
 
 def next_token(current=None):
-    """Generates the next token based on a current token (start in
-    START_URL_TOKEN_LENGHT chars).
-    The token starts with digit(0-9), then small letters(a-z) and then cap
-    letters (A-Z) so for example from low to high:
-        - 0000
-        - 0001
-        - 000a
-        - 000A
-        - 001a
-        - 001A
-        - ZZZZ
-        - 00000
+    """Generates the next token based on a current token
 
     : param current: the previous token to the one that needs to be generated
     """
@@ -90,7 +108,7 @@ def token_to_counter(token):
     :param token: The token string
     """
 
-    #Remove right 0's
+    #Remove left 0's
     token = token.lstrip("0")
 
     #split each character and reverse
@@ -98,6 +116,7 @@ def token_to_counter(token):
     token.reverse()
 
     result = 0
+
     #Translate
     #(Xn * (length ^ n)) + (Xn-1 * (length ^ n-1)) ... (X0 * (length ^ 0))
     for it, char in enumerate(token):
