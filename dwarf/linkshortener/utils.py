@@ -1,3 +1,5 @@
+import math
+
 from settings import START_URL_TOKEN_LENGTH, ALPHABET
 from linkshortener.exceptions import LinkShortenerLengthError
 
@@ -49,3 +51,56 @@ def next_token(current=None):
             result += ALPHABET[0]
 
         return result
+
+
+def counter_to_token(counter):
+    """Translates a numeric counter to the alphabet representation
+
+    :param counter: The counter integer
+    """
+
+    if counter != 0:
+        result = ""
+
+        it = math.log(counter,  len(ALPHABET))  # Log X in base 62
+        it = int(it)  # round down and converto to integer
+
+        #start from the most significant digit until the last one
+
+        for i in range(it, -1, -1):
+            length = len(ALPHABET) ** i
+            number = counter // length
+            counter = counter % length
+
+            result += ALPHABET[number]
+
+        # Fill with 0's if necessary
+        if len(result) < START_URL_TOKEN_LENGTH:
+            result = ALPHABET[0] * (START_URL_TOKEN_LENGTH - len(result)) +\
+                                                                    result
+    else:
+        result = ALPHABET[0] * START_URL_TOKEN_LENGTH
+
+    return result
+
+
+def token_to_counter(token):
+    """Translates an alphabet token to a decimal numeric number
+
+    :param token: The token string
+    """
+
+    #Remove right 0's
+    token = token.lstrip("0")
+
+    #split each character and reverse
+    token = list(token)
+    token.reverse()
+
+    result = 0
+    #Translate
+    #(Xn * (length ^ n)) + (Xn-1 * (length ^ n-1)) ... (X0 * (length ^ 0))
+    for it, char in enumerate(token):
+        result += ALPHABET.index(char) * (len(ALPHABET) ** it)
+
+    return result

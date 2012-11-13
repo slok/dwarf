@@ -31,3 +31,25 @@ class UtilTest(TestCase):
 
         for i in test_data:
             self.assertEquals(i[1], utils.next_token(i[0]))
+
+    #Based on counter checks
+
+    test_data = (
+                        ("0000", 0), ("0005", 5), ("0006", 6), ("0009", 9),
+                        ("000a", 10), ("000s", 28), ("000E", 40), ("000Z", 61),
+                        ("001C", 100), ("000s", 28), ("000E", 40), ("000Z", 61),
+                        ("0q0U", 100000),
+                    )
+
+    def test_start_counter_translation(self):
+        counter = 0
+        self.assertEquals("0000", utils.counter_to_token(counter))
+
+    def test_counter_translation(self):
+        for i in UtilTest.test_data:
+            self.assertEquals(i[0], utils.counter_to_token(i[1]))
+
+    def test_number_translation(self):
+
+        for i in UtilTest.test_data:
+            self.assertEquals(i[1], utils.token_to_counter(i[0]))
