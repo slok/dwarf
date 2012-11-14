@@ -1,7 +1,12 @@
+import random
+
 from django.test import TestCase
+from django.conf import settings
+import redis
 
 from linkshortener import utils
-from linkshortener.exceptions import LinkShortenerLengthError
+from linkshortener.exceptions import LinkShortenerLengthError, ShortLinkError
+from linkshortener.models import ShortLink
 
 
 class UtilTest(TestCase):
@@ -52,3 +57,69 @@ class UtilTest(TestCase):
 
         for i in UtilTest.test_data:
             self.assertEquals(i[1], utils.token_to_counter(i[0]))
+
+
+class ShortLinkModelTest(TestCase):
+
+    def test_shortlink_basic_object(self):
+        url = "xlarrakoetxea.org"
+        token = utils.counter_to_token(random.randrange(0, 100000))
+
+        # Setters
+        sl = ShortLink()
+        sl.token = token
+        sl.url = url
+
+        # Getters
+        self.assertEquals(url, sl.url)
+        self.assertEquals(token, sl.token)
+
+    def test_stored_counter_set_get(self):
+        counter = random.randrange(0, 100000)
+        ShortLink.set_counter(counter)
+        self.assertEquals(counter, ShortLink.get_counter())
+
+    def test_increment_stored_counter(self):
+        counter = random.randrange(0, 100000)
+        times = random.randrange(0, 100)
+
+        ShortLink.set_counter(counter)
+        for i in range(times):
+            self.assertEquals(counter + i + 1, ShortLink.incr_counter())
+        self.assertEquals(counter + times, ShortLink.get_counter())
+
+    def test_save_shortLink(self):
+        counter = random.randrange(0, 100000)
+        url = "xlarrakoetxea.org"
+
+        # Save the links
+        sl = ShortLink()
+        sl.url = url
+        sl.token = counter
+        sl.save()
+
+        r = redis.StrictRedis(host=settings.REDIS_HOST,
+                             port=settings.REDIS_PORT,
+                             db=settings.REDIS_DB)
+
+        # Construct the Keys
+        rtk = ShortLink.REDIS_TOKEN_KEY.format(counter)
+        ruk = ShortLink.REDIS_URL_KEY.format(url)
+
+        # Check
+        self.assertEquals(url, r.get(rtk))
+        self.assertEquals(counter, int(r.get(ruk)))
+
+    def test_save_shortLink_error(self):
+        counter = random.randrange(0, 100000)
+        url = "xlarrakoetxea.org"
+        sl = ShortLink()
+
+        self.assertRaises(ShortLinkError, sl.save)
+
+        sl.url = url
+        self.assertRaises(ShortLinkError, sl.save)
+
+        sl.url = None
+        sl.token = counter
+        self.assertRaises(ShortLinkError, sl.save)

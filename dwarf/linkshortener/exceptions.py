@@ -7,3 +7,7 @@ class LinkShortenerError(DwarfException):
 
 class LinkShortenerLengthError(LinkShortenerError):
     pass
+
+
+class ShortLinkError(LinkShortenerError):
+    pass

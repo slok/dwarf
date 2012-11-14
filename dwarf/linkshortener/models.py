@@ -1,3 +1,80 @@
-from django.db import models
+from django.conf import settings
+import redis
 
-# Create your models here.
+from exceptions import ShortLinkError
+
+
+def get_redis_connection():
+    return redis.StrictRedis(host=settings.REDIS_HOST,
+                             port=settings.REDIS_PORT,
+                             db=settings.REDIS_DB)
+
+
+class ShortLink():
+
+    REDIS_COUNTER_KEY = "linkshortener:urls:counter"
+    REDIS_TOKEN_KEY = "ShortLink:{0}:token"
+    REDIS_URL_KEY = "ShortLink:{0}:url"
+
+    def __init__(self):
+        self._token = None
+        self._url = None
+        self._friends = None
+
+    @property
+    def token(self):
+        return self._token
+
+    @token.setter
+    def token(self, value):
+        self._token = value
+
+    @property
+    def url(self):
+        return self._url
+
+    @url.setter
+    def url(self, value):
+        self._url = value
+
+    def _find_by_token(self):
+        raise NotImplementedError
+
+    def _find_by_url(self):
+        raise NotImplementedError
+
+    def save(self):
+
+        if not self.token or not self.url:
+            raise ShortLinkError("Token or url are empty")
+
+        r = get_redis_connection()
+
+        # Do all in pipeline
+        pipe = r.pipeline()
+
+        # Save token and url
+        pipe.set(ShortLink.REDIS_TOKEN_KEY.format(self.token), self.url)
+        pipe.set(ShortLink.REDIS_URL_KEY.format(self.url), self.token)
+
+        return pipe.execute()
+
+    @classmethod
+    def get_counter(cls):
+        r = get_redis_connection()
+        return int(r.get(ShortLink.REDIS_COUNTER_KEY))
+
+    @classmethod
+    def set_counter(cls, counter):
+        r = get_redis_connection()
+        r.set(ShortLink.REDIS_COUNTER_KEY, counter)
+
+    @classmethod
+    def incr_counter(cls):
+        r = get_redis_connection()
+        return r.incr(ShortLink.REDIS_COUNTER_KEY)
+
+    @classmethod
+    def decr_counter(cls):
+        r = get_redis_connection()
+        return r.decr(ShortLink.REDIS_COUNTER_KEY)
