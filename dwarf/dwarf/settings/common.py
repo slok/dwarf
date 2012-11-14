@@ -1,14 +1,41 @@
-# Django settings for dwarf project.
+from os.path import abspath, dirname, basename
 
-DEBUG = True
+
+#-------------------------PATH CONFIGURATION-----------------------------------
+# Absolute filesystem path to the Django project directory:
+# Two levels (../../) -> two dirnames
+DJANGO_ROOT = dirname(dirname(abspath(__file__)))
+
+# Absolute filesystem path to the top-level project folder:
+#Three dirnames up from thsi file (../../../)
+SITE_ROOT = dirname(DJANGO_ROOT)
+
+# Site name:
+SITE_NAME = basename(DJANGO_ROOT)
+
+# Add our project to our pythonpath, this way we don't need to type our project
+# name in our dotted import paths:
+#path.append(DJANGO_ROOT)
+#------------------------END PATH CONFIGURATION--------------------------------
+
+
+#------------------------DEBUG CONFIGURATION-----------------------------------
+DEBUG = False
+
 TEMPLATE_DEBUG = DEBUG
+#-----------------------END DEBUG CONFIGURATION--------------------------------
 
+
+#-----------------------MANAGERS CONFIGURATION---------------------------------
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
 
 MANAGERS = ADMINS
+#---------------------END MANAGERS CONFIGURATION-------------------------------
 
+
+#-----------------------DATABASE CONFIGURATION---------------------------------
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
@@ -19,7 +46,10 @@ DATABASES = {
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
+#---------------------END DATABASE CONFIGURATION-------------------------------
 
+
+#-----------------------LOCALE CONFIGURATION-----------------------------------
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -42,7 +72,9 @@ USE_L10N = True
 
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
+#-----------------------END LOCALE CONFIGURATION-------------------------------
 
+#--------------------------MEDIA CONFIGURATION---------------------------------
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
 MEDIA_ROOT = ''
@@ -51,7 +83,10 @@ MEDIA_ROOT = ''
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 MEDIA_URL = ''
+#------------------------END MEDIA CONFIGURATION-------------------------------
 
+
+#-------------------------STATIC CONFIGURATION---------------------------------
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
@@ -76,10 +111,16 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
+#---------------------END STATIC CONFIGURATION---------------------------------
 
+
+#-----------------------SECRET KEY CONFIGURATION-------------------------------
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '+0$=sj6m5$c3_(jr+dp7mq$npd+f*hx$dn1z4=p1hr^qc*4o6#'
+#-----------------------END SECRET KEY CONFIGURATION---------------------------
 
+
+#-----------------------TEMPLATE CONFIGURATION---------------------------------
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -87,6 +128,15 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+TEMPLATE_DIRS = (
+    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
+)
+#---------------------END TEMPLATE CONFIGURATION-------------------------------
+
+
+#-----------------------MIDDLEWARE CONFIGURATION-------------------------------
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -96,32 +146,47 @@ MIDDLEWARE_CLASSES = (
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
+#---------------------END MIDDLEWARE CONFIGURATION-----------------------------
 
+
+#--------------------------URL CONFIGURATION-----------------------------------
 ROOT_URLCONF = 'dwarf.urls'
+#------------------------END URL CONFIGURATION---------------------------------
 
+
+#-------------------------WSGI CONFIGURATION-----------------------------------
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'dwarf.wsgi.application'
+#-----------------------END WSGI CONFIGURATION---------------------------------
 
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
 
-INSTALLED_APPS = (
+#-------------------------APPS CONFIGURATION-----------------------------------
+DJANGO_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'linkshortener'
+
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
 
+THIRD_PARTY_APPS = (
+)
+
+LOCAL_APPS = (
+    'linkshortener',
+)
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+#-----------------------END APPS CONFIGURATION---------------------------------
+
+
+#-----------------------LOGGING CONFIGURATION----------------------------------
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
@@ -150,3 +215,22 @@ LOGGING = {
         },
     }
 }
+
+#######################THIRD PARTY CONFIGURATION###############################
+
+#----------------------END LOGGING CONFIGURATION-------------------------------
+
+
+#-------------------------REDIS CONFIGURATION----------------------------------
+#-----------------------END REDIS CONFIGURATION--------------------------------
+
+
+#-------------------------CELERY CONFIGURATION---------------------------------
+#----------------------END CELERY CONFIGURATION--------------------------------
+
+############################LOCAL CONFIGURATION################################
+
+#-----------------------LINK SHORTENER CONFIGURATION---------------------------
+#START_URL_TOKEN_LENGTH = 4
+#ALPHABET = None
+#---------------------END LINK SHORTENER CONFIGURATION-------------------------
