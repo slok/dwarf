@@ -2,6 +2,7 @@ from django.conf import settings
 import redis
 
 from exceptions import ShortLinkError
+from utils import counter_to_token, token_to_counter
 
 
 def get_redis_connection():
@@ -10,16 +11,29 @@ def get_redis_connection():
                              db=settings.REDIS_DB)
 
 
-class ShortLink():
+class ShortLink(object):
 
     REDIS_COUNTER_KEY = "linkshortener:urls:counter"
     REDIS_TOKEN_KEY = "ShortLink:{0}:token"
     REDIS_URL_KEY = "ShortLink:{0}:url"
 
     def __init__(self):
+        self._counter = None
         self._token = None
         self._url = None
         self._friends = None
+
+    def __str__(self):
+        return "[<{0}> <{1}> <{2}>]".format(self._counter, self.token, self.url)
+
+    @property
+    def counter(self):
+        return self._counter
+
+    @counter.setter
+    def counter(self, value):
+        self._counter = value
+        self._token = counter_to_token(value)
 
     @property
     def token(self):
@@ -28,6 +42,7 @@ class ShortLink():
     @token.setter
     def token(self, value):
         self._token = value
+        self._counter = token_to_counter(value)
 
     @property
     def url(self):
@@ -49,6 +64,7 @@ class ShortLink():
         aux_self = ShortLink()
         if token:
             aux_self.token = token
+            aux_self._counter = token_to_counter(token)
             aux_self.url = aux_self._find_by_token()
         else:
             raise NotImplementedError

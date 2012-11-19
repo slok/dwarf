@@ -63,16 +63,28 @@ class ShortLinkModelTest(TestCase):
 
     def test_shortlink_basic_object(self):
         url = "xlarrakoetxea.org"
-        token = utils.counter_to_token(random.randrange(0, 100000))
+        counter = random.randrange(0, 100000)
+        token = utils.counter_to_token(counter)
 
-        # Setters
+        # Setters from counter
         sl = ShortLink()
-        sl.token = token
+        sl.counter = counter
         sl.url = url
 
         # Getters
         self.assertEquals(url, sl.url)
+        self.assertEquals(counter, sl.counter)
         self.assertEquals(token, sl.token)
+
+        # Setters from token
+        sl2 = ShortLink()
+        sl2.token = token
+        sl2.url = url
+
+        # Getters
+        self.assertEquals(url, sl2.url)
+        self.assertEquals(counter, sl2.counter)
+        self.assertEquals(token, sl2.token)
 
     def test_stored_counter_set_get(self):
         counter = random.randrange(0, 100000)
@@ -95,7 +107,7 @@ class ShortLinkModelTest(TestCase):
         # Save the links
         sl = ShortLink()
         sl.url = url
-        sl.token = counter
+        sl.counter = counter
         sl.save()
 
         r = redis.StrictRedis(host=settings.REDIS_HOST,
@@ -103,12 +115,12 @@ class ShortLinkModelTest(TestCase):
                              db=settings.REDIS_DB)
 
         # Construct the Keys
-        rtk = ShortLink.REDIS_TOKEN_KEY.format(counter)
+        rtk = ShortLink.REDIS_TOKEN_KEY.format(utils.counter_to_token(counter))
         ruk = ShortLink.REDIS_URL_KEY.format(url)
 
         # Check
         self.assertEquals(url, r.get(rtk))
-        self.assertEquals(counter, int(r.get(ruk)))
+        self.assertEquals(counter, utils.token_to_counter(r.get(ruk)))
 
     def test_save_shortLink_error(self):
         counter = random.randrange(0, 100000)
@@ -121,18 +133,9 @@ class ShortLinkModelTest(TestCase):
         self.assertRaises(ShortLinkError, sl.save)
 
         sl.url = None
-        sl.token = counter
+        sl.counter = counter
         self.assertRaises(ShortLinkError, sl.save)
 
     def test_get_shortLink_by_url(self):
-        counter = random.randrange(0, 100000)
-        url = "xlarrakoetxea.org"
-
-        sl = ShortLink()
-        sl.token = counter
-        sl.url = url
-
-        sl.save
-
-        ShortLink.find(token=counter)
+        raise NotImplementedError()
 
