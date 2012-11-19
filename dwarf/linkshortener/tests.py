@@ -10,6 +10,13 @@ from linkshortener.models import ShortLink
 
 
 class UtilTest(TestCase):
+
+    def setUp(self):
+        r = redis.StrictRedis(host=settings.REDIS_HOST,
+                             port=settings.REDIS_PORT,
+                             db=settings.REDIS_DB)
+        r.flushdb()
+
     def test_first_shortened_url_token(self):
         next = utils.next_token()
         self.assertEquals("0000", next)
