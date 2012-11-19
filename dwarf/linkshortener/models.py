@@ -29,6 +29,17 @@ class ShortLink(object):
                                                 self.token,
                                                 self.url)
 
+    def __cmp__(self, other):
+        if self._counter == other._counter and\
+            self._token == other._token and\
+            self._url == other._url:
+            return 0
+        elif self._counter < other._counter:
+                return -1
+        elif self._counter > other._counter:
+                return 1
+        return None
+
     @property
     def counter(self):
         return self._counter

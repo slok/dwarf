@@ -74,6 +74,24 @@ class ShortLinkModelTest(TestCase):
 
         self.assertEquals(format, str(sl))
 
+    def test_shortlink_basic_object_cmp(self):
+        short_links = []
+
+        for i in range(3):
+            sl = ShortLink()
+            sl.counter = i
+            sl.url = "xlarrakoetxea.org"
+            short_links.append(sl)
+
+        sl = ShortLink()
+        sl.counter = short_links[0].counter
+        sl.url = short_links[0].url
+
+        self.assertEquals(sl, short_links[0])
+        self.assertNotEquals(short_links[0], short_links[1])
+        self.assertLess(short_links[0], short_links[2])
+        self.assertGreater(short_links[2], short_links[1])
+
     def test_shortlink_basic_object(self):
         url = "xlarrakoetxea.org"
         counter = random.randrange(0, 100000)
