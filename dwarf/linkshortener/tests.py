@@ -123,3 +123,16 @@ class ShortLinkModelTest(TestCase):
         sl.url = None
         sl.token = counter
         self.assertRaises(ShortLinkError, sl.save)
+
+    def test_get_shortLink_by_url(self):
+        counter = random.randrange(0, 100000)
+        url = "xlarrakoetxea.org"
+
+        sl = ShortLink()
+        sl.token = counter
+        sl.url = url
+
+        sl.save
+
+        ShortLink.find(token=counter)
+

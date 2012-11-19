@@ -38,10 +38,20 @@ class ShortLink():
         self._url = value
 
     def _find_by_token(self):
-        raise NotImplementedError
+        r = get_redis_connection()
+        return r.get(self.token)
 
     def _find_by_url(self):
         raise NotImplementedError
+
+    @classmethod
+    def find(counter=None, token=None, url=None):
+        aux_self = ShortLink()
+        if token:
+            aux_self.token = token
+            aux_self.url = aux_self._find_by_token()
+        else:
+            raise NotImplementedError
 
     def save(self):
 
