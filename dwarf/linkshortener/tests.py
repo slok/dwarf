@@ -11,7 +11,7 @@ from linkshortener.models import ShortLink
 
 class UtilTest(TestCase):
 
-    def setUp(self):
+    def tearDown(self):
         r = redis.StrictRedis(host=settings.REDIS_HOST,
                              port=settings.REDIS_PORT,
                              db=settings.REDIS_DB)
@@ -67,6 +67,12 @@ class UtilTest(TestCase):
 
 
 class ShortLinkModelTest(TestCase):
+
+    def tearDown(self):
+        r = redis.StrictRedis(host=settings.REDIS_HOST,
+                             port=settings.REDIS_PORT,
+                             db=settings.REDIS_DB)
+        r.flushdb()
 
     def test_shortlink_basic_object_str(self):
         url = "xlarrakoetxea.org"
