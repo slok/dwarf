@@ -167,6 +167,26 @@ class ShortLinkModelTest(TestCase):
         sl.counter = counter
         self.assertRaises(ShortLinkError, sl.save)
 
-    def test_get_shortLink_by_url(self):
-        raise NotImplementedError()
+    def test_get_shortLink_by_counter(self):
+        counter = random.randrange(0, 100000)
+        url = "xlarrakoetxea.org"
+        sl = ShortLink()
+        sl.counter = counter
+        sl.url = url
+        sl.save()
 
+        sl2 = ShortLink.find(counter=counter)
+
+        self.assertEquals(sl, sl2)
+
+    def test_get_shortLink_by_token(self):
+        counter = random.randrange(0, 100000)
+        url = "xlarrakoetxea.org"
+        sl = ShortLink()
+        sl.token = utils.counter_to_token(counter)
+        sl.url = url
+        sl.save()
+
+        sl2 = ShortLink.find(counter=counter)
+
+        self.assertEquals(sl, sl2)

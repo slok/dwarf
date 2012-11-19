@@ -38,7 +38,8 @@ class ShortLink(object):
                 return -1
         elif self._counter > other._counter:
                 return 1
-        return None
+
+        raise ShortLinkError("Not enought data in object to compare")
 
     @property
     def counter(self):
@@ -68,20 +69,28 @@ class ShortLink(object):
 
     def _find_by_token(self):
         r = get_redis_connection()
-        return r.get(self.token)
+        return r.get(ShortLink.REDIS_TOKEN_KEY.format(self.token))
 
     def _find_by_url(self):
         raise NotImplementedError
 
     @classmethod
-    def find(counter=None, token=None, url=None):
+    def find(cls, counter=None, token=None, url=None):
         aux_self = ShortLink()
-        if token:
-            aux_self.token = token
-            aux_self._counter = token_to_counter(token)
+        if counter:
+            aux_self.counter = counter
+            aux_self.token = counter_to_token(counter)
             aux_self.url = aux_self._find_by_token()
+        elif token:
+            aux_self.token = token
+            aux_self.counter = token_to_counter(token)
+            aux_self.url = aux_self._find_by_token()
+        elif url:
+            pass
         else:
-            raise NotImplementedError
+            raise ShortLinkError("No enought data to search")
+
+        return aux_self
 
     def save(self):
 
