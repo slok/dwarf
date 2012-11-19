@@ -16,6 +16,7 @@ class ShortLink(object):
     REDIS_COUNTER_KEY = "linkshortener:urls:counter"
     REDIS_TOKEN_KEY = "ShortLink:{0}:token"
     REDIS_URL_KEY = "ShortLink:{0}:url"
+    OBJECT_STR_FORMAT = "[<{0}> <{1}> <{2}>]"
 
     def __init__(self):
         self._counter = None
@@ -24,7 +25,9 @@ class ShortLink(object):
         self._friends = None
 
     def __str__(self):
-        return "[<{0}> <{1}> <{2}>]".format(self._counter, self.token, self.url)
+        return ShortLink.OBJECT_STR_FORMAT.format(self._counter,
+                                                self.token,
+                                                self.url)
 
     @property
     def counter(self):

@@ -61,6 +61,19 @@ class UtilTest(TestCase):
 
 class ShortLinkModelTest(TestCase):
 
+    def test_shortlink_basic_object_str(self):
+        url = "xlarrakoetxea.org"
+        counter = random.randrange(0, 100000)
+        token = utils.counter_to_token(counter)
+
+        format = ShortLink.OBJECT_STR_FORMAT.format(counter, token, url)
+
+        sl = ShortLink()
+        sl.counter = counter
+        sl.url = url
+
+        self.assertEquals(format, str(sl))
+
     def test_shortlink_basic_object(self):
         url = "xlarrakoetxea.org"
         counter = random.randrange(0, 100000)
