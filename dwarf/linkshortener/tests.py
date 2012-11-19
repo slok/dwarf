@@ -163,8 +163,9 @@ class ShortLinkModelTest(TestCase):
         ruk = ShortLink.REDIS_URL_KEY.format(url)
 
         # Check
+        token = utils.counter_to_token(counter)
+        self.assertTrue(token in r.smembers(ruk))
         self.assertEquals(url, r.get(rtk))
-        self.assertEquals(counter, utils.token_to_counter(r.get(ruk)))
 
     def test_save_shortLink_error(self):
         counter = random.randrange(0, 100000)
@@ -203,3 +204,18 @@ class ShortLinkModelTest(TestCase):
         sl2 = ShortLink.find(token=sl.token)
 
         self.assertEquals(sl, sl2)
+
+    def test_get_shortLinks_by_url(self):
+        times = 10
+        counters = [random.randrange(0, 100000) for i in range(times)]
+        url = "xlarrakoetxea.org"
+
+        for i in counters:
+            sl = ShortLink()
+            sl.counter = i
+            sl.url = url
+            sl.save()
+
+        sls = ShortLink.find(url=sl.url)
+
+        self.assertEquals(len(counters), len(sls))

@@ -22,7 +22,6 @@ class ShortLink(object):
         self._counter = None
         self._token = None
         self._url = None
-        self._friends = None
 
     def __str__(self):
         return ShortLink.OBJECT_STR_FORMAT.format(self._counter,
@@ -72,7 +71,8 @@ class ShortLink(object):
         return r.get(ShortLink.REDIS_TOKEN_KEY.format(self.token))
 
     def _find_by_url(self):
-        raise NotImplementedError
+        r = get_redis_connection()
+        return r.smembers(ShortLink.REDIS_URL_KEY.format(self.url))
 
     @classmethod
     def find(cls, counter=None, token=None, url=None):
@@ -81,16 +81,24 @@ class ShortLink(object):
             aux_self.counter = counter
             aux_self.token = counter_to_token(counter)
             aux_self.url = aux_self._find_by_token()
+            return aux_self
         elif token:
             aux_self.token = token
             aux_self.counter = token_to_counter(token)
             aux_self.url = aux_self._find_by_token()
+            return aux_self
         elif url:
-            pass
-        else:
-            raise ShortLinkError("No enought data to search")
+            aux_self.url = url
+            tokens = aux_self._find_by_url()
+            short_links = []
+            for i in tokens:
+                sl = ShortLink()
+                sl.url = url
+                sl.token = i
+                short_links.append(sl)
+            return short_links
 
-        return aux_self
+        raise ShortLinkError("No enought data to search")
 
     def save(self):
 
@@ -102,9 +110,9 @@ class ShortLink(object):
         # Do all in pipeline
         pipe = r.pipeline()
 
-        # Save token and url
+        # Save token(key) and url(set)
         pipe.set(ShortLink.REDIS_TOKEN_KEY.format(self.token), self.url)
-        pipe.set(ShortLink.REDIS_URL_KEY.format(self.url), self.token)
+        pipe.sadd(ShortLink.REDIS_URL_KEY.format(self.url), self.token)
 
         return pipe.execute()
 
