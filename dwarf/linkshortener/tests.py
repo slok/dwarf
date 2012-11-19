@@ -194,6 +194,6 @@ class ShortLinkModelTest(TestCase):
         sl.url = url
         sl.save()
 
-        sl2 = ShortLink.find(counter=counter)
+        sl2 = ShortLink.find(token=sl.token)
 
         self.assertEquals(sl, sl2)
