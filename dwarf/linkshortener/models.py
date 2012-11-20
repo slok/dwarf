@@ -12,23 +12,34 @@ def get_redis_connection():
 
 
 class ShortLink(object):
+    """Model of a short link that represents a link in the database. This link
+    has the link iself, the id number assigned and the id number translation to
+    the token that will use the shortened links
+    """
 
+    # Class variables
     REDIS_COUNTER_KEY = "linkshortener:urls:counter"
     REDIS_TOKEN_KEY = "ShortLink:{0}:token"
     REDIS_URL_KEY = "ShortLink:{0}:url"
     OBJECT_STR_FORMAT = "[<{0}> <{1}> <{2}>]"
 
     def __init__(self):
+        """Constructor of the class"""
+
         self._counter = None
         self._token = None
         self._url = None
 
     def __str__(self):
+        """String representation of a shortLink object"""
+
         return ShortLink.OBJECT_STR_FORMAT.format(self._counter,
                                                 self.token,
                                                 self.url)
 
     def __cmp__(self, other):
+        """Comparation method of links, equals, lesser and greater"""
+
         if self._counter == other._counter and\
             self._token == other._token and\
             self._url == other._url:
@@ -67,15 +78,29 @@ class ShortLink(object):
         self._url = value
 
     def _find_by_token(self):
+        """Private method that searches a shortlink in the database by it's
+        token and returns a ShortLink instance"""
+
         r = get_redis_connection()
         return r.get(ShortLink.REDIS_TOKEN_KEY.format(self.token))
 
     def _find_by_url(self):
+        """Private method that searches all the shortlinks in the database by
+        their url and returns a list of ShortLink instances"""
+
         r = get_redis_connection()
         return r.smembers(ShortLink.REDIS_URL_KEY.format(self.url))
 
     @classmethod
     def find(cls, counter=None, token=None, url=None):
+        """Finds a shortlink or various shortlinks based on the counter,
+        token or url
+
+        :param counter: The counter of the link (numeric id)
+        :param token: The token calculated based on the counter id
+        :param url: The url of the stored ShortLink
+        """
+
         aux_self = ShortLink()
         if counter:
             aux_self.counter = counter
@@ -101,6 +126,7 @@ class ShortLink(object):
         raise ShortLinkError("No enought data to search")
 
     def save(self):
+        """Saves or updates the ShortLink instance in database"""
 
         if not self.token or not self.url:
             raise ShortLinkError("Token or url are empty")
@@ -118,20 +144,28 @@ class ShortLink(object):
 
     @classmethod
     def get_counter(cls):
+        """Gets the global counter of links stored in database"""
+
         r = get_redis_connection()
         return int(r.get(ShortLink.REDIS_COUNTER_KEY))
 
     @classmethod
     def set_counter(cls, counter):
+        """Sets the global counter of links stored in database"""
+
         r = get_redis_connection()
         r.set(ShortLink.REDIS_COUNTER_KEY, counter)
 
     @classmethod
     def incr_counter(cls):
+        """Increments the counter and returns the new counter incremented"""
+
         r = get_redis_connection()
         return r.incr(ShortLink.REDIS_COUNTER_KEY)
 
     @classmethod
     def decr_counter(cls):
+        """ Decrements the counter and returns the new counter incremented"""
+
         r = get_redis_connection()
         return r.decr(ShortLink.REDIS_COUNTER_KEY)
