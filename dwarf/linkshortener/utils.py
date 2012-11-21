@@ -47,7 +47,7 @@ def next_token(current=None):
             raise LinkShortenerLengthError()
 
         result = list(current)
-        #Check every char
+        #Check every char from left to right
         for index in range(len(current) - 1, -1, -1):
 
             char = current[index]
@@ -66,7 +66,7 @@ def next_token(current=None):
         # Maximun of combinations reached? add one more!
         # We know because the number is reseted to the start number
         if result == len(current) * ALPHABET[0]:
-            result += ALPHABET[0]
+            result = ALPHABET[1] + result
 
         return result
 

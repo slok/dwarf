@@ -42,14 +42,13 @@ class UtilTest(TestCase):
 
     def test_next_shortened_url_token_limits(self):
         test_data = (
-                        ("ZZZZZ", "000000"), ("ZZZZZZZZ", "000000000")
+                        ("ZZZZZ", "100000"), ("ZZZZZZZZ", "100000000")
                     )
 
         for i in test_data:
             self.assertEquals(i[1], utils.next_token(i[0]))
 
     #Based on counter checks
-
     test_data = (
                         ("0000", 0), ("0005", 5), ("0006", 6), ("0009", 9),
                         ("000a", 10), ("000s", 28), ("000E", 40), ("000Z", 61),
