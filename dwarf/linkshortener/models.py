@@ -6,9 +6,7 @@ from utils import counter_to_token, token_to_counter
 
 
 def get_redis_connection():
-    return redis.StrictRedis(host=settings.REDIS_HOST,
-                             port=settings.REDIS_PORT,
-                             db=settings.REDIS_DB)
+    return redis.StrictRedis(connection_pool=settings.REDIS_POOL)
 
 
 class ShortLink(object):

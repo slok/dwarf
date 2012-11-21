@@ -11,12 +11,14 @@ from linkshortener.models import ShortLink
 from linkshortener import tasks
 
 
+def get_redis_connection():
+    return redis.StrictRedis(connection_pool=settings.REDIS_POOL)
+
+
 class UtilTest(TestCase):
 
     def tearDown(self):
-        r = redis.StrictRedis(host=settings.REDIS_HOST,
-                             port=settings.REDIS_PORT,
-                             db=settings.REDIS_DB)
+        r = get_redis_connection()
         r.flushdb()
 
     def test_first_shortened_url_token(self):
@@ -71,9 +73,7 @@ class UtilTest(TestCase):
 class ShortLinkModelTest(TestCase):
 
     def tearDown(self):
-        r = redis.StrictRedis(host=settings.REDIS_HOST,
-                             port=settings.REDIS_PORT,
-                             db=settings.REDIS_DB)
+        r = get_redis_connection()
         r.flushdb()
 
     def test_shortlink_basic_object_str(self):
@@ -229,9 +229,7 @@ class ShortLinkModelTest(TestCase):
 class ShortLinkTasksTest(TestCase):
 
     def tearDown(self):
-        r = redis.StrictRedis(host=settings.REDIS_HOST,
-                             port=settings.REDIS_PORT,
-                             db=settings.REDIS_DB)
+        r = get_redis_connection()
         r.flushdb()
 
     def test_create_new_token(self):
