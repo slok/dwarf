@@ -176,6 +176,7 @@ DJANGO_APPS = (
 )
 
 THIRD_PARTY_APPS = (
+    'djcelery',
 )
 
 LOCAL_APPS = (
@@ -229,6 +230,11 @@ LOGGING = {
 
 
 #-------------------------CELERY CONFIGURATION---------------------------------
+import djcelery
+djcelery.setup_loader()
+#BROKER_URL = 'amqp://guest:guest@localhost:5672/'
+#CELERY_RESULT_BACKEND = "amqp"
+
 #----------------------END CELERY CONFIGURATION--------------------------------
 
 ############################LOCAL CONFIGURATION################################
