@@ -2,11 +2,13 @@ import random
 
 from django.test import TestCase
 from django.conf import settings
+from django.test.utils import override_settings
 import redis
 
 from linkshortener import utils
 from linkshortener.exceptions import LinkShortenerLengthError, ShortLinkError
 from linkshortener.models import ShortLink
+from linkshortener import tasks
 
 
 class UtilTest(TestCase):
@@ -219,3 +221,39 @@ class ShortLinkModelTest(TestCase):
         sls = ShortLink.find(url=sl.url)
 
         self.assertEquals(len(counters), len(sls))
+
+
+# Override testing settings in 1.4, run task test without workers
+# http://docs.celeryproject.org/en/latest/configuration.html#celery-always-eager
+@override_settings(CELERY_ALWAYS_EAGER=True)
+class ShortLinkTasksTest(TestCase):
+
+    def tearDown(self):
+        r = redis.StrictRedis(host=settings.REDIS_HOST,
+                             port=settings.REDIS_PORT,
+                             db=settings.REDIS_DB)
+        r.flushdb()
+
+    def test_create_new_token(self):
+        counter = random.randrange(100000)
+        url = "http://xlarrakoetxea{0}.org".format(random.randrange(100))
+
+        # Set the counter
+        ShortLink.set_counter(counter)
+
+        # Call the async task with celery
+        result = tasks.create_token.delay(url)
+        new_token = result.get()
+
+        #Check if the returned token is ok
+        self.assertEquals(utils.counter_to_token(counter + 1), new_token)
+        self.assertTrue(result.successful())
+
+        # Check if the link is stored in the database correctly
+        sl = ShortLink.find(url=url)[0]
+
+        sl2 = ShortLink()
+        sl2.url = url
+        sl2.counter = counter + 1
+
+        self.assertEquals(sl2, sl)
