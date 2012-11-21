@@ -19,8 +19,3 @@ def create_token(url):
 
     # Return the new token
     return sl.token
-
-
-@task()
-def add(x, y):
-    return x + y
