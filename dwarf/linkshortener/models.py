@@ -21,12 +21,31 @@ class ShortLink(object):
     REDIS_URL_KEY = "ShortLink:{0}:url"
     OBJECT_STR_FORMAT = "[<{0}> <{1}> <{2}>]"
 
-    def __init__(self):
-        """Constructor of the class"""
+    def __init__(self, counter=None, url=None, token=None, ):
+        """Constructor of the class. The counter has priority. If you pass the
+        counter and the token to the constructor (not only on of them) then the
+        token will be ignored because with the counter we translate to generate
+        the token also
 
-        self._counter = None
-        self._token = None
-        self._url = None
+        :param counter: The counter to translate the token
+        :param token: The token assigned to the url (will translate to counter)
+        :param url: The url identified by the token
+        """
+
+        # Use the getters to do the convertion operation
+        # If counter then the token is set by the counter setter
+        if counter:
+            self.counter = counter
+        else:
+            # If not counter then check token
+            # (the setter sets the proper counter)
+            if token:
+                self.token = token
+            else:
+                self._token = token
+                self._counter = counter
+
+        self._url = url
 
     def __str__(self):
         """String representation of a shortLink object"""

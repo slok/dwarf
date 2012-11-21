@@ -82,9 +82,7 @@ class ShortLinkModelTest(TestCase):
 
         format = ShortLink.OBJECT_STR_FORMAT.format(counter, token, url)
 
-        sl = ShortLink()
-        sl.counter = counter
-        sl.url = url
+        sl = ShortLink(counter=counter, url=url)
 
         self.assertEquals(format, str(sl))
 
@@ -92,14 +90,10 @@ class ShortLinkModelTest(TestCase):
         short_links = []
 
         for i in range(3):
-            sl = ShortLink()
-            sl.counter = i
-            sl.url = "xlarrakoetxea.org"
+            sl = ShortLink(counter=i, url="xlarrakoetxea.org")
             short_links.append(sl)
 
-        sl = ShortLink()
-        sl.counter = short_links[0].counter
-        sl.url = short_links[0].url
+        sl = ShortLink(counter=short_links[0].counter, url=short_links[0].url)
 
         self.assertEquals(sl, short_links[0])
         self.assertNotEquals(short_links[0], short_links[1])
@@ -112,9 +106,7 @@ class ShortLinkModelTest(TestCase):
         token = utils.counter_to_token(counter)
 
         # Setters from counter
-        sl = ShortLink()
-        sl.counter = counter
-        sl.url = url
+        sl = ShortLink(counter=counter, url=url)
 
         # Getters
         self.assertEquals(url, sl.url)
@@ -122,9 +114,7 @@ class ShortLinkModelTest(TestCase):
         self.assertEquals(token, sl.token)
 
         # Setters from token
-        sl2 = ShortLink()
-        sl2.token = token
-        sl2.url = url
+        sl2 = ShortLink(token=token, url=url)
 
         # Getters
         self.assertEquals(url, sl2.url)
@@ -150,9 +140,7 @@ class ShortLinkModelTest(TestCase):
         url = "xlarrakoetxea.org"
 
         # Save the links
-        sl = ShortLink()
-        sl.url = url
-        sl.counter = counter
+        sl = ShortLink(counter=counter, url=url)
         sl.save()
 
         r = redis.StrictRedis(host=settings.REDIS_HOST,
@@ -185,9 +173,7 @@ class ShortLinkModelTest(TestCase):
     def test_get_shortLink_by_counter(self):
         counter = random.randrange(0, 100000)
         url = "xlarrakoetxea.org"
-        sl = ShortLink()
-        sl.counter = counter
-        sl.url = url
+        sl = ShortLink(counter=counter, url=url)
         sl.save()
 
         sl2 = ShortLink.find(counter=counter)
@@ -197,9 +183,7 @@ class ShortLinkModelTest(TestCase):
     def test_get_shortLink_by_token(self):
         counter = random.randrange(0, 100000)
         url = "xlarrakoetxea.org"
-        sl = ShortLink()
-        sl.token = utils.counter_to_token(counter)
-        sl.url = url
+        sl = ShortLink(token=utils.counter_to_token(counter), url=url)
         sl.save()
 
         sl2 = ShortLink.find(token=sl.token)
@@ -212,9 +196,7 @@ class ShortLinkModelTest(TestCase):
         url = "xlarrakoetxea.org"
 
         for i in counters:
-            sl = ShortLink()
-            sl.counter = i
-            sl.url = url
+            sl = ShortLink(counter=i, url=url)
             sl.save()
 
         sls = ShortLink.find(url=sl.url)
@@ -249,8 +231,6 @@ class ShortLinkTasksTest(TestCase):
         # Check if the link is stored in the database correctly
         sl = ShortLink.find(url=url)[0]
 
-        sl2 = ShortLink()
-        sl2.url = url
-        sl2.counter = counter + 1
+        sl2 = ShortLink(counter=counter + 1, url=url)
 
         self.assertEquals(sl2, sl)
