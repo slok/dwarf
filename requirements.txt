@@ -2,3 +2,4 @@ django
 django-celery
 celery
 redis
+fabric
