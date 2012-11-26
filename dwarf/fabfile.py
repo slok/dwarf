@@ -17,7 +17,12 @@ def run_redis():
 
 def run_rabbitmq():
     with lcd(RABITTMQ_HOME + "/sbin"):
-        local("rabbitmq-server")
+        local("rabbitmq-server -detached")
+
+
+def stop_rabbitmq():
+    with lcd(RABITTMQ_HOME + "/sbin"):
+        local("rabbitmqctl stop")
 
 
 def start_worker():
