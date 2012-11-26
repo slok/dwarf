@@ -3,6 +3,7 @@ from redis import ConnectionPool
 from common import *
 
 DEBUG = True
+SECRET_KEY = '+0$=sj6m5$c3_(jr+dp7mq$npd+f*hx$dn1z4=p1hr^qc*4o6#'
 
 REDIS_HOST = "127.0.0.1"
 REDIS_PORT = 6379

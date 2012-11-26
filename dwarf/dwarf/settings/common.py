@@ -116,7 +116,7 @@ STATICFILES_FINDERS = (
 
 #-----------------------SECRET KEY CONFIGURATION-------------------------------
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '+0$=sj6m5$c3_(jr+dp7mq$npd+f*hx$dn1z4=p1hr^qc*4o6#'
+#SECRET_KEY = ''
 #-----------------------END SECRET KEY CONFIGURATION---------------------------
 
 
@@ -181,6 +181,7 @@ THIRD_PARTY_APPS = (
 
 LOCAL_APPS = (
     'linkshortener',
+    'simple',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
