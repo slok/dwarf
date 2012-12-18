@@ -229,6 +229,44 @@ class ShortLinkModelTest(TestCase):
 
         self.assertEquals(len(counters), len(sls))
 
+    def test_incr_clicks(self):
+        clicks = random.randrange(0, 100000)
+        counter = random.randrange(0, 100000)
+        url = "xlarrakoetxea.org"
+
+        sl = ShortLink(counter=counter, url=url, clicks=clicks)
+        sl.save()
+
+        #Increment
+        ShortLink.incr_clicks(sl.token)
+
+        #Increment manually the old one
+        sl.clicks = sl.clicks + 1
+
+        #Find
+        sls = ShortLink.find(token=sl.token)
+
+        self.assertEquals(sl, sls)
+
+    def test_decr_clicks(self):
+        clicks = random.randrange(0, 100000)
+        counter = random.randrange(0, 100000)
+        url = "xlarrakoetxea.org"
+
+        sl = ShortLink(counter=counter, url=url, clicks=clicks)
+        sl.save()
+
+        #Increment
+        ShortLink.decr_clicks(sl.token)
+
+        #Increment manually the old one
+        sl.clicks = sl.clicks - 1
+
+        #Find
+        sls = ShortLink.find(token=sl.token)
+
+        self.assertEquals(sl, sls)
+
 
 # Override testing settings in 1.4, run task test without workers
 # http://docs.celeryproject.org/en/latest/configuration.html#celery-always-eager
@@ -260,6 +298,5 @@ class ShortLinkTasksTest(TestCase):
         # creation_date is trap!! :P
         sl2 = ShortLink(counter=counter + 1, url=url,
                     creation_date=sl.creation_date)
-        print(sl)
 
         self.assertEquals(sl2, sl)

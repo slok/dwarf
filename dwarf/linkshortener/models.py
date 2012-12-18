@@ -69,15 +69,15 @@ class ShortLink(object):
     def __cmp__(self, other):
         """Comparation method of links, equals, lesser and greater"""
 
-        if self._counter == other._counter and\
-            self._token == other._token and\
-            self._url == other._url and\
-            self._creation_date == other._creation_date and\
-            self._clicks == other._clicks:
+        if self.counter == other.counter and\
+            self.token == other.token and\
+            self.url == other.url and\
+            self.creation_date == other.creation_date and\
+            self.clicks == other.clicks:
             return 0
-        elif self._counter < other._counter:
+        elif self.counter < other.counter:
                 return -1
-        elif self._counter > other._counter:
+        elif self.counter > other.counter:
                 return 1
 
         raise ShortLinkError("Not enought data in object to compare")
@@ -248,3 +248,26 @@ class ShortLink(object):
 
         r = get_redis_connection()
         return r.decr(ShortLink.REDIS_COUNTER_KEY)
+
+    @classmethod
+    def _incr_decr_clicks(cls, token, value):
+        """Increments/decrements the clicks of short link and returns the
+        new counter incremented"""
+
+        r = get_redis_connection()
+        key = ShortLink.REDIS_TOKEN_KEY.format(token)
+        return r.hincrby(key, 'clicks', value)
+
+    @classmethod
+    def incr_clicks(cls, token):
+        """Increments the clicks of short link and returns the new counter
+        incremented"""
+
+        return ShortLink._incr_decr_clicks(token, 1)
+
+    @classmethod
+    def decr_clicks(cls, token):
+        """Decrements the clicks of short link and returns the new counter
+        incremented"""
+
+        return ShortLink._incr_decr_clicks(token, -1)
