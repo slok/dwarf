@@ -1,3 +1,6 @@
+import calendar
+import time
+
 from django.conf import settings
 import redis
 
@@ -19,9 +22,10 @@ class ShortLink(object):
     REDIS_COUNTER_KEY = "linkshortener:urls:counter"
     REDIS_TOKEN_KEY = "ShortLink:{0}:token"
     REDIS_URL_KEY = "ShortLink:{0}:url"
-    OBJECT_STR_FORMAT = "[<{0}> <{1}> <{2}>]"
+    OBJECT_STR_FORMAT = "[<{0}> <{1}> <{2}> <{3}> <{4}>]"
 
-    def __init__(self, counter=None, url=None, token=None, ):
+    def __init__(self, counter=None, url=None, token=None, creation_date=None,
+                    clicks=0):
         """Constructor of the class. The counter has priority. If you pass the
         counter and the token to the constructor (not only on of them) then the
         token will be ignored because with the counter we translate to generate
@@ -30,6 +34,8 @@ class ShortLink(object):
         :param counter: The counter to translate the token
         :param token: The token assigned to the url (will translate to counter)
         :param url: The url identified by the token
+        :param creation_date: The link creation date (UNIX UTC/GMT format)
+        :param clicks: The clicks of the link
         """
 
         # Use the getters to do the convertion operation
@@ -46,13 +52,19 @@ class ShortLink(object):
                 self._counter = counter
 
         self._url = url
+        self.clicks = clicks
+        # UNIX format UTC/GMT
+        #self._creation_date = calendar.timegm(time.gmtime())
+        self._creation_date = creation_date
 
     def __str__(self):
         """String representation of a shortLink object"""
 
         return ShortLink.OBJECT_STR_FORMAT.format(self._counter,
                                                 self.token,
-                                                self.url)
+                                                self.url,
+                                                self._creation_date,
+                                                self._clicks)
 
     def __cmp__(self, other):
         """Comparation method of links, equals, lesser and greater"""
@@ -93,6 +105,22 @@ class ShortLink(object):
     @url.setter
     def url(self, value):
         self._url = value
+
+    @property
+    def clicks(self):
+        return self._clicks
+
+    @clicks.setter
+    def clicks(self, value):
+        self._clicks = value
+
+    @property
+    def creation_date(self):
+        return self._creation_date
+
+    @creation_date.setter
+    def creation_date(self, value):
+        self._creation_date = value
 
     def _find_by_token(self):
         """Private method that searches a shortlink in the database by it's

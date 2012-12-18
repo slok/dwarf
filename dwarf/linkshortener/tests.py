@@ -1,4 +1,6 @@
 import random
+import calendar
+import time
 
 from django.test import TestCase
 from django.conf import settings
@@ -79,8 +81,14 @@ class ShortLinkModelTest(TestCase):
         url = "xlarrakoetxea.org"
         counter = random.randrange(0, 100000)
         token = utils.counter_to_token(counter)
+        creation_date = None
+        clicks = 0
 
-        format = ShortLink.OBJECT_STR_FORMAT.format(counter, token, url)
+        format = ShortLink.OBJECT_STR_FORMAT.format(counter,
+                                                token,
+                                                url,
+                                                creation_date,
+                                                clicks)
 
         sl = ShortLink(counter=counter, url=url)
 
@@ -104,6 +112,8 @@ class ShortLinkModelTest(TestCase):
         url = "xlarrakoetxea.org"
         counter = random.randrange(0, 100000)
         token = utils.counter_to_token(counter)
+        creation_date = None
+        clicks = 0
 
         # Setters from counter
         sl = ShortLink(counter=counter, url=url)
@@ -112,14 +122,22 @@ class ShortLinkModelTest(TestCase):
         self.assertEquals(url, sl.url)
         self.assertEquals(counter, sl.counter)
         self.assertEquals(token, sl.token)
+        self.assertEquals(creation_date, sl.creation_date)
+        self.assertEquals(clicks, sl.clicks)
 
         # Setters from token
         sl2 = ShortLink(token=token, url=url)
+        creation_date = calendar.timegm(time.gmtime())
+        sl2.creation_date = creation_date
+        clicks = 5
+        sl2.clicks = clicks
 
         # Getters
         self.assertEquals(url, sl2.url)
         self.assertEquals(counter, sl2.counter)
         self.assertEquals(token, sl2.token)
+        self.assertEquals(creation_date, sl2.creation_date)
+        self.assertEquals(clicks, sl2.clicks)
 
     def test_stored_counter_set_get(self):
         counter = random.randrange(0, 100000)
