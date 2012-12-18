@@ -71,7 +71,9 @@ class ShortLink(object):
 
         if self._counter == other._counter and\
             self._token == other._token and\
-            self._url == other._url:
+            self._url == other._url and\
+            self._creation_date == other._creation_date and\
+            self._clicks == other._clicks:
             return 0
         elif self._counter < other._counter:
                 return -1
@@ -124,14 +126,17 @@ class ShortLink(object):
 
     def _find_by_token(self):
         """Private method that searches a shortlink in the database by it's
-        token and returns a ShortLink instance"""
+        token and returns a ShortLink redis raw data.
+        In this case returns a list with [url, creation_date, clicks]"""
 
         r = get_redis_connection()
-        return r.get(ShortLink.REDIS_TOKEN_KEY.format(self.token))
+        return_keys = ('url', 'creation_date', 'clicks')
+        return r.hmget(ShortLink.REDIS_TOKEN_KEY.format(self.token),
+                    return_keys)
 
     def _find_by_url(self):
         """Private method that searches all the shortlinks in the database by
-        their url and returns a list of ShortLink instances"""
+        their url and returns a list of ShortLink keys"""
 
         r = get_redis_connection()
         return r.smembers(ShortLink.REDIS_URL_KEY.format(self.url))
@@ -150,21 +155,42 @@ class ShortLink(object):
         if counter:
             aux_self.counter = counter
             aux_self.token = counter_to_token(counter)
-            aux_self.url = aux_self._find_by_token()
+            data = aux_self._find_by_token()
+            aux_self.url = data[0]
+            aux_self.creation_date = int(data[1])
+            try:
+                aux_self.clicks = int(data[2])
+            except ValueError:
+                aux_self.clicks = 0
+
             return aux_self
         elif token:
             aux_self.token = token
             aux_self.counter = token_to_counter(token)
-            aux_self.url = aux_self._find_by_token()
+            data = aux_self._find_by_token()
+            aux_self.url = data[0]
+            aux_self.creation_date = int(data[1])
+            try:
+                aux_self.clicks = int(data[2])
+            except ValueError:
+                aux_self.clicks = 0
+
             return aux_self
         elif url:
             aux_self.url = url
             tokens = aux_self._find_by_url()
             short_links = []
             for i in tokens:
+                aux_self.token = i
+                data = aux_self._find_by_token()
                 sl = ShortLink()
-                sl.url = url
                 sl.token = i
+                sl.url = data[0]
+                sl.creation_date = int(data[1])
+                try:
+                    sl.clicks = int(data[2])
+                except ValueError:
+                    sl.clicks = 0
                 short_links.append(sl)
             return short_links
 
@@ -181,8 +207,16 @@ class ShortLink(object):
         # Do all in pipeline
         pipe = r.pipeline()
 
-        # Save token(key) and url(set)
-        pipe.set(ShortLink.REDIS_TOKEN_KEY.format(self.token), self.url)
+        # Save token(Hash) and url(set)
+
+        #If there is not a date then take now
+        if not self.creation_date:
+            self.creation_date = calendar.timegm(time.gmtime())
+        mappings = {'url': self.url,
+                'creation_date': self.creation_date,
+                'clicks': self.clicks}
+
+        pipe.hmset(ShortLink.REDIS_TOKEN_KEY.format(self.token), mappings)
         pipe.sadd(ShortLink.REDIS_URL_KEY.format(self.url), self.token)
 
         return pipe.execute()

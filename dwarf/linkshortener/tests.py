@@ -156,9 +156,11 @@ class ShortLinkModelTest(TestCase):
     def test_save_shortLink(self):
         counter = random.randrange(0, 100000)
         url = "xlarrakoetxea.org"
-
+        creation_date = calendar.timegm(time.gmtime())
+        clicks = 20
         # Save the links
-        sl = ShortLink(counter=counter, url=url)
+        sl = ShortLink(counter=counter, url=url, creation_date=creation_date,
+                        clicks=clicks)
         sl.save()
 
         r = redis.StrictRedis(host=settings.REDIS_HOST,
@@ -172,7 +174,12 @@ class ShortLinkModelTest(TestCase):
         # Check
         token = utils.counter_to_token(counter)
         self.assertTrue(token in r.smembers(ruk))
-        self.assertEquals(url, r.get(rtk))
+        keys = ('url', 'creation_date', 'clicks')
+        data = [url, creation_date, clicks]
+        aux = r.hmget(rtk, keys)
+
+        data_result = [aux[0], int(aux[1]), int(aux[2])]
+        self.assertEquals(data, data_result)
 
     def test_save_shortLink_error(self):
         counter = random.randrange(0, 100000)
@@ -191,6 +198,7 @@ class ShortLinkModelTest(TestCase):
     def test_get_shortLink_by_counter(self):
         counter = random.randrange(0, 100000)
         url = "xlarrakoetxea.org"
+
         sl = ShortLink(counter=counter, url=url)
         sl.save()
 
@@ -249,6 +257,9 @@ class ShortLinkTasksTest(TestCase):
         # Check if the link is stored in the database correctly
         sl = ShortLink.find(url=url)[0]
 
-        sl2 = ShortLink(counter=counter + 1, url=url)
+        # creation_date is trap!! :P
+        sl2 = ShortLink(counter=counter + 1, url=url,
+                    creation_date=sl.creation_date)
+        print(sl)
 
         self.assertEquals(sl2, sl)
