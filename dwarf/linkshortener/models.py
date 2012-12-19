@@ -19,9 +19,9 @@ class ShortLink(object):
     """
 
     # Class variables
-    REDIS_COUNTER_KEY = "linkshortener:urls:counter"
-    REDIS_TOKEN_KEY = "ShortLink:{0}:token"
-    REDIS_URL_KEY = "ShortLink:{0}:url"
+    REDIS_COUNTER_KEY = "ShortLink:counter"
+    REDIS_TOKEN_KEY = "ShortLink:{0}"
+    REDIS_URL_KEY = "ShortLink:{0}:tokens"
     OBJECT_STR_FORMAT = "[<{0}> <{1}> <{2}> <{3}> <{4}>]"
 
     def __init__(self, counter=None, url=None, token=None, creation_date=None,
