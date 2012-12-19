@@ -12,7 +12,7 @@ from requestdataextractor.extractors import (detect_browser, detect_OS,
 from requestdataextractor.test_data import test_data
 
 
-class UtilTest(TestCase):
+class ExtractorTest(TestCase):
 
     def test_browser_detection(self):
         for i in test_data:
