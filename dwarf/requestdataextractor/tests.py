@@ -7,7 +7,7 @@ Replace this with more appropriate tests for your application.
 
 from django.test import TestCase
 
-from requestdataextractor.utils import (detect_browser, detect_OS,
+from requestdataextractor.extractors import (detect_browser, detect_OS,
                                         detect_browser_and_OS)
 from requestdataextractor.test_data import test_data
 
