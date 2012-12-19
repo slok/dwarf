@@ -183,6 +183,7 @@ LOCAL_APPS = (
     'linkshortener',
     'simple',
     'requestdataextractor',
+    'clickmanager'
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
