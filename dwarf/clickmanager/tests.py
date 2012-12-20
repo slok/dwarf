@@ -7,7 +7,9 @@ from django.conf import settings
 import redis
 
 from linkshortener import utils
+from linkshortener.models import ShortLink
 from clickmanager.models import Click
+from clickmanager.exceptions import ClickError
 
 
 def get_redis_connection():
@@ -15,6 +17,10 @@ def get_redis_connection():
 
 
 class ClickModelTest(TestCase):
+
+    def tearDown(self):
+        r = get_redis_connection()
+        r.flushdb()
 
     def test_click_basic_object(self):
         token = utils.counter_to_token(random.randrange(0, 100000))
@@ -76,3 +82,71 @@ class ClickModelTest(TestCase):
                                         browser, click_date, language, location)
 
         self.assertEquals(format, str(c))
+
+    def test_click_store(self):
+        token = utils.counter_to_token(random.randrange(0, 100000))
+        click_id = random.randrange(0, 100000)
+        SO = "linux"
+        browser = "firefox"
+        ip = "111.222.333.444"
+        click_date = calendar.timegm(time.gmtime())
+        language = "EN_us"
+        location = "US"
+
+        c = Click(click_id, token, ip, SO, browser, click_date, language,
+                    location)
+
+        c.save()
+
+        # Check the stored object
+        key = Click.REDIS_CLICK_KEY.format(token, click_id)
+        r = get_redis_connection()
+        values = r.hgetall(key)
+
+        self.assertEquals(SO, values['so'])
+        self.assertEquals(browser, values['browser'])
+        self.assertEquals(ip, values['ip'])
+        self.assertEquals(click_date, int(values['click_date']))
+        self.assertEquals(language, values['language'])
+        self.assertEquals(location, values['location'])
+
+    def test_click_store_error(self):
+        c = Click()
+        self.assertRaises(ClickError, c.save)
+
+    def test_click_store_autofields(self):
+
+        token = utils.counter_to_token(random.randrange(0, 100000))
+        url = "http://xlarrakoetxea.org"
+        SO = "linux"
+        ip = "111.222.333.444"
+        incr_times = random.randrange(0, 5)
+
+        #Store a link
+        sl = ShortLink(token=token, url=url)
+
+        for i in range(incr_times):
+            ShortLink.incr_clicks(token)
+
+        sl.save()
+
+        c = Click(token=token, so=SO, ip=ip)
+
+        c.save()
+
+        #The save method has set the click_date
+        click_date = c.click_date
+        self.assertIsNotNone(click_date)
+
+         # Check the stored object
+        key = Click.REDIS_CLICK_KEY.format(token, c.click_id)
+        r = get_redis_connection()
+        values = r.hgetall(key)
+
+        # Check the key is correctly set (this means that the counter has
+        # increased correctly)
+        correct_key = Click.REDIS_CLICK_KEY.format(token, incr_times + 1)
+        self.assertEquals(correct_key, key)
+
+        self.assertEquals(SO, values['so'])
+        self.assertEquals(ip, values['ip'])

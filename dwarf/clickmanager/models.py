@@ -1,6 +1,11 @@
+import time
+import calendar
 
 from django.conf import settings
 import redis
+
+from linkshortener.models import ShortLink
+from clickmanager.exceptions import ClickError
 
 
 def get_redis_connection():
@@ -107,3 +112,27 @@ class Click(object):
     @location.setter
     def location(self, value):
         self._location = value
+
+    def save(self):
+        r = get_redis_connection()
+
+        if not self.token:
+            raise ClickError("Not enought data to store click instance")
+
+        #if there isn't an identification then get the apropiate id
+        if not self.click_id:
+            self.click_id = ShortLink.incr_clicks(self.token)
+
+        #set the date if there isn't a date
+        if not self.click_date:
+            self.click_date = calendar.timegm(time.gmtime())
+
+        key = Click.REDIS_CLICK_KEY.format(self.token, self.click_id)
+        to_store = {'ip': self.ip,
+                'so': self.so,
+                'browser': self.browser,
+                'click_date': self.click_date,
+                'language': self.language,
+                'location': self.location}
+
+        r.hmset(key, to_store)
