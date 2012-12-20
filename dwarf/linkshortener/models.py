@@ -301,6 +301,10 @@ class ShortLink(object):
 
         r = get_redis_connection()
         key = ShortLink.REDIS_TOKEN_KEY.format(token)
+
+        if not r.exists(key):
+            raise ShortLinkNotFoundError("Token doesn't exists")
+
         return r.hincrby(key, 'clicks', value)
 
     @classmethod

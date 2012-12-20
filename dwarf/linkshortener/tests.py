@@ -281,6 +281,15 @@ class ShortLinkModelTest(TestCase):
         self.assertEquals(sl.clicks, sls.clicks)
         self.assertEquals(result, sls.clicks)
 
+    def test_decr_incr_clicks_error(self):
+        something = random.randrange(0, 100000)
+
+        self.assertRaises(ShortLinkNotFoundError,
+                    ShortLink.incr_clicks, something)
+
+        self.assertRaises(ShortLinkNotFoundError,
+                    ShortLink.decr_clicks, something)
+
 
 # Override testing settings in 1.4, run task test without workers
 # http://docs.celeryproject.org/en/latest/configuration.html#celery-always-eager
