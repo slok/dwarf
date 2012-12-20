@@ -110,6 +110,8 @@ class Click(object):
 
     @click_date.setter
     def click_date(self, value):
+        if not isinstance(value, int):
+            value = int(value)
         self._click_date = value
 
     @property
