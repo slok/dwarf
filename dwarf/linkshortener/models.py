@@ -271,7 +271,12 @@ class ShortLink(object):
         """Gets the global counter of links stored in database"""
 
         r = get_redis_connection()
-        return int(r.get(ShortLink.REDIS_COUNTER_KEY))
+        key = ShortLink.REDIS_COUNTER_KEY
+
+        if not r.exists(key):
+            raise ShortLinkNotFoundError("The counter doesn't exists")
+
+        return int(r.get(key))
 
     @classmethod
     def set_counter(cls, counter):
