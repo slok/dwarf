@@ -238,7 +238,7 @@ class ShortLinkModelTest(TestCase):
         sl.save()
 
         #Increment
-        ShortLink.incr_clicks(sl.token)
+        result = ShortLink.incr_clicks(sl.token)
 
         #Increment manually the old one
         sl.clicks = sl.clicks + 1
@@ -246,7 +246,8 @@ class ShortLinkModelTest(TestCase):
         #Find
         sls = ShortLink.find(token=sl.token)
 
-        self.assertEquals(sl, sls)
+        self.assertEquals(sl.clicks, sls.clicks)
+        self.assertEquals(result, sls.clicks)
 
     def test_decr_clicks(self):
         clicks = random.randrange(0, 100000)
@@ -256,16 +257,17 @@ class ShortLinkModelTest(TestCase):
         sl = ShortLink(counter=counter, url=url, clicks=clicks)
         sl.save()
 
-        #Increment
-        ShortLink.decr_clicks(sl.token)
+        #decrement
+        result = ShortLink.decr_clicks(sl.token)
 
-        #Increment manually the old one
+        #decrement manually the old one
         sl.clicks = sl.clicks - 1
 
         #Find
         sls = ShortLink.find(token=sl.token)
 
-        self.assertEquals(sl, sls)
+        self.assertEquals(sl.clicks, sls.clicks)
+        self.assertEquals(result, sls.clicks)
 
 
 # Override testing settings in 1.4, run task test without workers
