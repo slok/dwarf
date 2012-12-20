@@ -11,3 +11,7 @@ class LinkShortenerLengthError(LinkShortenerError):
 
 class ShortLinkError(LinkShortenerError):
     pass
+
+
+class ShortLinkNotFoundError(LinkShortenerError):
+    pass

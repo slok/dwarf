@@ -8,7 +8,8 @@ from django.test.utils import override_settings
 import redis
 
 from linkshortener import utils
-from linkshortener.exceptions import LinkShortenerLengthError, ShortLinkError
+from linkshortener.exceptions import (LinkShortenerLengthError, ShortLinkError,
+                                    ShortLinkNotFoundError)
 from linkshortener.models import ShortLink
 from linkshortener import tasks
 
@@ -228,6 +229,17 @@ class ShortLinkModelTest(TestCase):
         sls = ShortLink.find(url=sl.url)
 
         self.assertEquals(len(counters), len(sls))
+
+    def test_get_shortLink_not_found(self):
+        something = random.randrange(0, 100000)
+        self.assertRaises(ShortLinkNotFoundError, ShortLink.find,
+                        something, None, None)
+
+        self.assertRaises(ShortLinkNotFoundError, ShortLink.find,
+                        None, str(something), None)
+
+        self.assertRaises(ShortLinkNotFoundError, ShortLink.find,
+                        None, None, something)
 
     def test_incr_clicks(self):
         clicks = random.randrange(0, 100000)

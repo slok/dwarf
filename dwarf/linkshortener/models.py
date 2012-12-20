@@ -4,7 +4,7 @@ import time
 from django.conf import settings
 import redis
 
-from exceptions import ShortLinkError
+from exceptions import ShortLinkError, ShortLinkNotFoundError
 from utils import counter_to_token, token_to_counter
 
 
@@ -156,6 +156,21 @@ class ShortLink(object):
             aux_self.counter = counter
             aux_self.token = counter_to_token(counter)
             data = aux_self._find_by_token()
+            #Not found...
+
+            if not data:
+                raise ShortLinkNotFoundError("Short link not found")
+
+            #Check again (maybe we have a list with all Nones)
+            nothing = True
+            for i in data:
+                if i:
+                    nothing = False
+                    break
+
+            if nothing:
+                raise ShortLinkNotFoundError("Short link not found")
+
             aux_self.url = data[0]
             aux_self.creation_date = int(data[1])
             try:
@@ -168,6 +183,21 @@ class ShortLink(object):
             aux_self.token = token
             aux_self.counter = token_to_counter(token)
             data = aux_self._find_by_token()
+
+            #Not found...
+            if not data:
+                raise ShortLinkNotFoundError("Short link not found")
+
+            #Check again (maybe we have a list with all Nones)
+            nothing = True
+            for i in data:
+                if i:
+                    nothing = False
+                    break
+
+            if nothing:
+                raise ShortLinkNotFoundError("Short link not found")
+
             aux_self.url = data[0]
             aux_self.creation_date = int(data[1])
             try:
@@ -179,6 +209,21 @@ class ShortLink(object):
         elif url:
             aux_self.url = url
             tokens = aux_self._find_by_url()
+
+            #Not found...
+            if not tokens:
+                ShortLinkNotFoundError("Short links not found")
+
+             #Check again (maybe we have a list with all Nones)
+            nothing = True
+            for i in tokens:
+                if i:
+                    nothing = False
+                    break
+
+            if nothing:
+                raise ShortLinkNotFoundError("Short link not found")
+
             short_links = []
             for i in tokens:
                 aux_self.token = i
