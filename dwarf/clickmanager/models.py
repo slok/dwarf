@@ -20,6 +20,8 @@ class Click(object):
     # Class variables
     REDIS_CLICK_KEY = "Click:{0}:{1}"
     OBJECT_STR_FORMAT = "[<{0}> <{1}> <{2}> <{3}> <{4}> <{5}> <{6}> <{7}>]"
+    FIELDS = ("click_id", "token", "ip", "so", "browser", "click_date",
+            "language", "location")
 
     def __init__(self, click_id=None, token=None, ip=None, so=None,
                 browser=None, click_date=None, language=None, location=None):
@@ -145,12 +147,13 @@ class Click(object):
             self.click_date = calendar.timegm(time.gmtime())
 
         key = Click.REDIS_CLICK_KEY.format(self.token, self.click_id)
-        to_store = {'ip': self.ip,
-                'so': self.so,
-                'browser': self.browser,
-                'click_date': self.click_date,
-                'language': self.language,
-                'location': self.location}
+
+        #Create the data
+        to_store = {}
+        for i in Click.FIELDS:
+            value = getattr(self, i)
+            if value:
+                to_store[i] = value
 
         r.hmset(key, to_store)
 
@@ -169,19 +172,20 @@ class Click(object):
         if not values:
             raise ClickNotFoundError()
         else:
-            #Get values, if not exist then None
-            token = token
-            click_id = click_id
-            ip = values.get('ip')
-            so = values.get('so')
-            browser = values.get('browser', 7)
-            click_date = values.get('click_date')
-            click_date = click_date if not click_date else int(click_date)
-            language = values.get('language')
-            location = values.get('location')
+            #Get values
+            c = Click()
+            for i in Click.FIELDS:
+                try:
+                    value = values.get(i)
+                    setattr(c, i, value)
+                #Doesn't exist the value, so None (not use the setter)
+                except AttributeError:
+                    pass
+            #Now set the token and the click_id
+            c.token = token
+            c.click_id = click_id
 
-            return Click(click_id, token, ip, so, browser, click_date,
-                language, location)
+            return c
 
     @classmethod
     def findall(cls, token):
