@@ -83,6 +83,20 @@ class ClickModelTest(TestCase):
 
         self.assertEquals(format, str(c))
 
+    def test_click_basic_object_cmp(self):
+        clicks = []
+
+        for i in range(3):
+            c = Click(token=i, click_id=i)
+            clicks.append(c)
+
+        c2 = Click(token=clicks[0].token, click_id=clicks[0].click_id)
+
+        self.assertEquals(c2, clicks[0])
+        self.assertNotEquals(clicks[0], clicks[1])
+        self.assertLess(clicks[0], clicks[2])
+        self.assertGreater(clicks[2], clicks[1])
+
     def test_click_store(self):
         token = utils.counter_to_token(random.randrange(0, 100000))
         click_id = random.randrange(0, 100000)

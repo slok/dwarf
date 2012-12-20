@@ -47,7 +47,22 @@ class Click(object):
 
     def __cmp__(self, other):
         """Comparation method of clicks, equals, lesser and greater"""
-        pass
+
+        if self.token == other.token and\
+            self.click_id == other.click_id and\
+            self.ip == other.ip and\
+            self.so == other.so and\
+            self.click_date == other.click_date and\
+            self.language == other.language and\
+            self.location == other.location and\
+            self.browser == other.browser:
+            return 0
+        elif self.click_id < other.click_id:
+                return -1
+        elif self.click_id > other.click_id:
+                return 1
+
+        raise ClickError("Not enought data in object to compare")
 
     @property
     def click_id(self):
