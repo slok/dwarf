@@ -163,3 +163,25 @@ class ClickModelTest(TestCase):
 
         self.assertEquals(SO, values['so'])
         self.assertEquals(ip, values['ip'])
+
+    def test_click_find(self):
+        token = utils.counter_to_token(random.randrange(0, 100000))
+        SO = "linux"
+        ip = "111.222.333.444"
+        browser = "firefox"
+        click_date = calendar.timegm(time.gmtime())
+        language = "EN_us"
+        location = "US"
+
+        c = Click(token=token, so=SO, ip=ip, browser=browser,
+                click_date=click_date, language=language, location=location)
+        c.save()
+
+        c2 = Click.find(token, c.click_id)
+        self.assertEquals(c, c2)
+
+    def test_click_find_error(self):
+        self.assertRaises(ClickError, Click.find, None, None)
+
+    def test_click_find_not_found_error(self):
+        pass

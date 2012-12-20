@@ -5,7 +5,7 @@ from django.conf import settings
 import redis
 
 from linkshortener.models import ShortLink
-from clickmanager.exceptions import ClickError
+from clickmanager.exceptions import ClickError, ClickNotFoundError
 
 
 def get_redis_connection():
@@ -151,3 +151,37 @@ class Click(object):
                 'location': self.location}
 
         r.hmset(key, to_store)
+
+    @classmethod
+    def find(cls, token, click_id):
+        if not token or not click_id:
+            raise ClickError("Not enought data to find a Click instance")
+
+        #Prepare de key (our query :P)
+        key = Click.REDIS_CLICK_KEY.format(token, click_id)
+        r = get_redis_connection()
+
+        #Get values from the database
+        values = r.hgetall(key)
+
+        if not values:
+            raise ClickNotFoundError()
+        else:
+            #Get values, if not exist then None
+            token = token
+            click_id = click_id
+            ip = values.get('ip')
+            so = values.get('so')
+            browser = values.get('browser', 7)
+            click_date = values.get('click_date')
+            click_date = click_date if not click_date else int(click_date)
+            language = values.get('language')
+            location = values.get('location')
+
+            return Click(click_id, token, ip, so, browser, click_date,
+                language, location)
+
+    @classmethod
+    def findall(cls, token):
+        if not token:
+            raise ClickError("Not enought data to find a Click instance")

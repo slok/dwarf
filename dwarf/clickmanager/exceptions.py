@@ -7,3 +7,7 @@ class ClickManagerError(DwarfException):
 
 class ClickError(ClickManagerError):
     pass
+
+
+class ClickNotFoundError(ClickManagerError):
+    pass
