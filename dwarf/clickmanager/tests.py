@@ -120,15 +120,14 @@ class ClickModelTest(TestCase):
         url = "http://xlarrakoetxea.org"
         SO = "linux"
         ip = "111.222.333.444"
-        incr_times = random.randrange(0, 5)
+        incr_times = 4
 
         #Store a link
         sl = ShortLink(token=token, url=url)
+        sl.save()
 
         for i in range(incr_times):
             ShortLink.incr_clicks(token)
-
-        sl.save()
 
         c = Click(token=token, so=SO, ip=ip)
 
