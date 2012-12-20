@@ -236,7 +236,7 @@ class ShortLinkModelTest(TestCase):
                         something, None, None)
 
         self.assertRaises(ShortLinkNotFoundError, ShortLink.find,
-                        None, str(something), None)
+                        None, something, None)
 
         self.assertRaises(ShortLinkNotFoundError, ShortLink.find,
                         None, None, something)

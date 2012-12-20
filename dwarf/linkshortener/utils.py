@@ -76,6 +76,8 @@ def counter_to_token(counter):
 
     :param counter: The counter integer
     """
+    if not isinstance(counter, int):
+        counter = int(counter)
 
     if counter != 0:
         result = ""
@@ -107,6 +109,9 @@ def token_to_counter(token):
 
     :param token: The token string
     """
+
+    if not isinstance(token, str):
+        token = str(token)
 
     #Remove left 0's
     token = token.lstrip("0")
