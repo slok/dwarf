@@ -213,10 +213,14 @@ class ShortLink(object):
     def save(self):
         """Saves or updates the ShortLink instance in database"""
 
-        if not self.token or not self.url:
+        if not self.url:
             raise ShortLinkError("Token or url are empty")
 
         r = get_redis_connection()
+
+        #If not token or counter then we need to get the apropiate one (last)
+        if not self.token and not self.counter:
+            self.counter = ShortLink.incr_counter()
 
         # Do all in pipeline
         pipe = r.pipeline()

@@ -184,17 +184,30 @@ class ShortLinkModelTest(TestCase):
 
     def test_save_shortLink_error(self):
         counter = random.randrange(0, 100000)
-        url = "xlarrakoetxea.org"
         sl = ShortLink()
 
-        self.assertRaises(ShortLinkError, sl.save)
-
-        sl.url = url
         self.assertRaises(ShortLinkError, sl.save)
 
         sl.url = None
         sl.counter = counter
         self.assertRaises(ShortLinkError, sl.save)
+
+    def test_save_shortLink_autofield(self):
+        times = random.randrange(1, 100)
+        url = "xlarrakoetxea.org"
+
+        # Set the shor link counter
+        for i in range(times):
+            ShortLink.incr_counter()
+
+        # Save
+        sl = ShortLink()
+        sl.url = url
+        sl.save()
+
+        # Check the correct counter
+        sl2 = ShortLink.find(counter=times + 1)
+        self.assertEquals(sl, sl2)
 
     def test_get_shortLink_by_counter(self):
         counter = random.randrange(0, 100000)
