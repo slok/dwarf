@@ -9,7 +9,7 @@ import redis
 from linkshortener import utils
 from linkshortener.models import ShortLink
 from clickmanager.models import Click
-from clickmanager.exceptions import ClickError
+from clickmanager.exceptions import ClickError, ClickNotFoundError
 
 
 def get_redis_connection():
@@ -172,6 +172,10 @@ class ClickModelTest(TestCase):
         click_date = calendar.timegm(time.gmtime())
         language = "EN_us"
         location = "US"
+        url = "http://xlarrakoetxea.org"
+
+        sl = ShortLink(token=token, url=url)
+        sl.save()
 
         c = Click(token=token, so=SO, ip=ip, browser=browser,
                 click_date=click_date, language=language, location=location)
@@ -184,4 +188,5 @@ class ClickModelTest(TestCase):
         self.assertRaises(ClickError, Click.find, None, None)
 
     def test_click_find_not_found_error(self):
-        pass
+        something = random.randrange(0, 100000)
+        self.assertRaises(ClickNotFoundError, Click.find, something, something)
