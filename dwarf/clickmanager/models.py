@@ -5,6 +5,7 @@ from django.conf import settings
 import redis
 
 from linkshortener.models import ShortLink
+from linkshortener.exceptions import ShortLinkNotFoundError
 from clickmanager.exceptions import ClickError, ClickNotFoundError
 
 
@@ -133,6 +134,10 @@ class Click(object):
         self._location = value
 
     def save(self):
+        """ Save a click in the database. If the instance doens't have the 
+        click_id the method will get the correct value, based on the Short link
+        click counter"""
+
         r = get_redis_connection()
 
         if not self.token:
@@ -159,6 +164,12 @@ class Click(object):
 
     @classmethod
     def find(cls, token, click_id):
+        """Finds a click based on the token and clicks id (incremental id)
+
+        :param token: the token that represents the clicks
+        :param click_id: the id that represents a (unique with the token) click
+        """
+
         if not token or not click_id:
             raise ClickError("Not enought data to find a Click instance")
 
@@ -189,5 +200,25 @@ class Click(object):
 
     @classmethod
     def findall(cls, token):
+        """Finds all the click instances of a given token. Returns a set of
+        Click instances
+
+        :param token: the token that is associated to the clicks
+        """
+
         if not token:
             raise ClickError("Not enought data to find a Click instance")
+
+        # Get the max counters
+        counter = 0
+        try:
+            short_link = ShortLink.find(token=token)
+            counter = short_link.clicks
+        except ShortLinkNotFoundError:
+            raise ClickNotFoundError("Shortlink doesnt exists, clicks neither")
+
+        clicks = set()
+        for i in range(1, counter + 1):
+            clicks.add(Click.find(token, i))
+
+        return clicks

@@ -190,3 +190,36 @@ class ClickModelTest(TestCase):
     def test_click_find_not_found_error(self):
         something = random.randrange(0, 100000)
         self.assertRaises(ClickNotFoundError, Click.find, something, something)
+
+    def test_click_findall(self):
+        url = "http://xlarrakoetxea.org"
+        clicks = set()
+
+        # Save
+        sl = ShortLink(url=url)
+        sl.save()
+
+        # Clicks
+        for i in range(random.randrange(0, 5)):
+            c = Click(token=sl.token, so="linux")
+            c.save()
+            clicks.add(c)
+
+        clicks2 = Click.findall(sl.token)
+
+        self.assertEquals(len(clicks), len(clicks2))
+
+        for i in clicks:
+            clicks2_aux = set(clicks2)
+            for j in clicks2_aux:
+                if i == j:
+                    clicks2.remove(j)
+
+        self.assertEquals(0, len(clicks2))
+
+    def test_click_findall_error(self):
+        self.assertRaises(ClickError, Click.findall, None)
+
+    def test_click_findall_not_found_error(self):
+        something = random.randrange(0, 100000)
+        self.assertRaises(ClickNotFoundError, Click.findall, something)
