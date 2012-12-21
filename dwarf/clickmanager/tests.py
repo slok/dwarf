@@ -4,12 +4,14 @@ import time
 
 from django.test import TestCase
 from django.conf import settings
+from django.test.utils import override_settings
 import redis
 
 from linkshortener import utils
 from linkshortener.models import ShortLink
 from clickmanager.models import Click
 from clickmanager.exceptions import ClickError, ClickNotFoundError
+from clickmanager import tasks
 
 
 def get_redis_connection():
@@ -224,3 +226,38 @@ class ClickModelTest(TestCase):
         something = random.randrange(0, 100000)
         self.assertRaises(ClickNotFoundError, Click.findall, something)
 
+
+# Override testing settings in 1.4, run task test without workers
+# http://docs.celeryproject.org/en/latest/configuration.html#celery-always-eager
+@override_settings(CELERY_ALWAYS_EAGER=True)
+class ClickTasksTest(TestCase):
+
+    def tearDown(self):
+        r = get_redis_connection()
+        r.flushdb()
+
+    def test_click_link(self):
+
+        data = {'LANG': "en_US",
+            'REMOTE_ADDR': "127.0.0.1",
+            'HTTP_USER_AGENT': "Mozilla/5.0 (X11; Linux x86_64; rv:17.0)" +\
+                                " Gecko/17.0 Firefox/17.0"}
+
+        # Prepare the database
+        counter = random.randrange(0, 100000)
+        url = "http://xlarrakoetxea.org"
+        sl = ShortLink(counter=counter, url=url)
+        sl.save()
+
+        # Call teh task
+        result = tasks.click_link.delay(sl.token, data)
+        # Wait (for testing only)
+        result.get()
+
+        # Check the stored information
+        c = Click.find(sl.token, 1)
+
+        self.assertEquals("en_US", c.language)
+        self.assertEquals("linux x86_64", c.os)
+        self.assertEquals("firefox", c.browser)
+        self.assertEquals("127.0.0.1", c.ip)
