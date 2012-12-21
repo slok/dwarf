@@ -130,9 +130,7 @@ class ShortLink(object):
         In this case returns a list with [url, creation_date, clicks]"""
 
         r = get_redis_connection()
-        return_keys = ('url', 'creation_date', 'clicks')
-        return r.hmget(ShortLink.REDIS_TOKEN_KEY.format(self.token),
-                    return_keys)
+        return r.hgetall(ShortLink.REDIS_TOKEN_KEY.format(self.token))
 
     def _find_by_url(self):
         """Private method that searches all the shortlinks in the database by
@@ -161,22 +159,9 @@ class ShortLink(object):
             if not data:
                 raise ShortLinkNotFoundError("Short link not found")
 
-            #Check again (maybe we have a list with all Nones)
-            nothing = True
-            for i in data:
-                if i:
-                    nothing = False
-                    break
-
-            if nothing:
-                raise ShortLinkNotFoundError("Short link not found")
-
-            aux_self.url = data[0]
-            aux_self.creation_date = int(data[1])
-            try:
-                aux_self.clicks = int(data[2])
-            except ValueError:
-                aux_self.clicks = 0
+            aux_self.url = data.get('url')
+            aux_self.creation_date = int(data.get('creation_date', 0))
+            aux_self.clicks = int(data.get('clicks', 0))
 
             return aux_self
         elif token:
@@ -188,22 +173,9 @@ class ShortLink(object):
             if not data:
                 raise ShortLinkNotFoundError("Short link not found")
 
-            #Check again (maybe we have a list with all Nones)
-            nothing = True
-            for i in data:
-                if i:
-                    nothing = False
-                    break
-
-            if nothing:
-                raise ShortLinkNotFoundError("Short link not found")
-
-            aux_self.url = data[0]
-            aux_self.creation_date = int(data[1])
-            try:
-                aux_self.clicks = int(data[2])
-            except ValueError:
-                aux_self.clicks = 0
+            aux_self.url = data.get('url')
+            aux_self.creation_date = int(data.get('creation_date', 0))
+            aux_self.clicks = int(data.get('clicks', 0))
 
             return aux_self
         elif url:
@@ -230,12 +202,9 @@ class ShortLink(object):
                 data = aux_self._find_by_token()
                 sl = ShortLink()
                 sl.token = i
-                sl.url = data[0]
-                sl.creation_date = int(data[1])
-                try:
-                    sl.clicks = int(data[2])
-                except ValueError:
-                    sl.clicks = 0
+                sl.url = data.get('url')
+                sl.creation_date = int(data.get('creation_date', 0))
+                sl.clicks = int(data.get('clicks', 0))
                 short_links.append(sl)
             return short_links
 
