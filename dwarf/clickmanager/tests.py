@@ -25,20 +25,20 @@ class ClickModelTest(TestCase):
     def test_click_basic_object(self):
         token = utils.counter_to_token(random.randrange(0, 100000))
         click_id = random.randrange(0, 100000)
-        SO = "linux"
+        OS = "linux"
         browser = "firefox"
         ip = "111.222.333.444"
         click_date = calendar.timegm(time.gmtime())
         language = "EN_us"
         location = "US"
 
-        c = Click(click_id, token, ip, SO, browser, click_date, language,
+        c = Click(click_id, token, ip, OS, browser, click_date, language,
                     location)
 
         #Check getters
         self.assertEquals(token, c.token)
         self.assertEquals(click_id, c.click_id)
-        self.assertEquals(SO, c.so)
+        self.assertEquals(OS, c.os)
         self.assertEquals(browser, c.browser)
         self.assertEquals(ip, c.ip)
         self.assertEquals(click_date, c.click_date)
@@ -49,7 +49,7 @@ class ClickModelTest(TestCase):
         c2 = Click()
         c2.token = token
         c2.click_id = click_id
-        c2.so = SO
+        c2.os = OS
         c2.browser = browser
         c2.ip = ip
         c2.click_date = click_date
@@ -58,7 +58,7 @@ class ClickModelTest(TestCase):
 
         self.assertEquals(token, c2.token)
         self.assertEquals(click_id, c2.click_id)
-        self.assertEquals(SO, c2.so)
+        self.assertEquals(OS, c2.os)
         self.assertEquals(browser, c2.browser)
         self.assertEquals(ip, c2.ip)
         self.assertEquals(click_date, c2.click_date)
@@ -68,17 +68,17 @@ class ClickModelTest(TestCase):
     def test_click_basic_object_str(self):
         token = utils.counter_to_token(random.randrange(0, 100000))
         click_id = random.randrange(0, 100000)
-        SO = "linux"
+        OS = "linux"
         browser = "firefox"
         ip = "111.222.333.444"
         click_date = calendar.timegm(time.gmtime())
         language = "EN_us"
         location = "US"
 
-        c = Click(click_id, token, ip, SO, browser, click_date, language,
+        c = Click(click_id, token, ip, OS, browser, click_date, language,
                     location)
 
-        format = Click.OBJECT_STR_FORMAT.format(click_id, token, ip, SO,
+        format = Click.OBJECT_STR_FORMAT.format(click_id, token, ip, OS,
                                         browser, click_date, language, location)
 
         self.assertEquals(format, str(c))
@@ -100,14 +100,14 @@ class ClickModelTest(TestCase):
     def test_click_store(self):
         token = utils.counter_to_token(random.randrange(0, 100000))
         click_id = random.randrange(0, 100000)
-        SO = "linux"
+        OS = "linux"
         browser = "firefox"
         ip = "111.222.333.444"
         click_date = calendar.timegm(time.gmtime())
         language = "EN_us"
         location = "US"
 
-        c = Click(click_id, token, ip, SO, browser, click_date, language,
+        c = Click(click_id, token, ip, OS, browser, click_date, language,
                     location)
 
         c.save()
@@ -117,7 +117,7 @@ class ClickModelTest(TestCase):
         r = get_redis_connection()
         values = r.hgetall(key)
 
-        self.assertEquals(SO, values['so'])
+        self.assertEquals(OS, values['os'])
         self.assertEquals(browser, values['browser'])
         self.assertEquals(ip, values['ip'])
         self.assertEquals(click_date, int(values['click_date']))
@@ -132,7 +132,7 @@ class ClickModelTest(TestCase):
 
         token = utils.counter_to_token(random.randrange(0, 100000))
         url = "http://xlarrakoetxea.org"
-        SO = "linux"
+        OS = "linux"
         ip = "111.222.333.444"
         incr_times = 4
 
@@ -143,7 +143,7 @@ class ClickModelTest(TestCase):
         for i in range(incr_times):
             ShortLink.incr_clicks(token)
 
-        c = Click(token=token, so=SO, ip=ip)
+        c = Click(token=token, os=OS, ip=ip)
 
         c.save()
 
@@ -161,12 +161,12 @@ class ClickModelTest(TestCase):
         correct_key = Click.REDIS_CLICK_KEY.format(token, incr_times + 1)
         self.assertEquals(correct_key, key)
 
-        self.assertEquals(SO, values['so'])
+        self.assertEquals(OS, values['os'])
         self.assertEquals(ip, values['ip'])
 
     def test_click_find(self):
         token = utils.counter_to_token(random.randrange(0, 100000))
-        SO = "linux"
+        OS = "linux"
         ip = "111.222.333.444"
         browser = "firefox"
         click_date = calendar.timegm(time.gmtime())
@@ -177,7 +177,7 @@ class ClickModelTest(TestCase):
         sl = ShortLink(token=token, url=url)
         sl.save()
 
-        c = Click(token=token, so=SO, ip=ip, browser=browser,
+        c = Click(token=token, os=OS, ip=ip, browser=browser,
                 click_date=click_date, language=language, location=location)
         c.save()
 
@@ -201,7 +201,7 @@ class ClickModelTest(TestCase):
 
         # Clicks
         for i in range(random.randrange(0, 5)):
-            c = Click(token=sl.token, so="linux")
+            c = Click(token=sl.token, os="linux")
             c.save()
             clicks.add(c)
 
@@ -223,3 +223,4 @@ class ClickModelTest(TestCase):
     def test_click_findall_not_found_error(self):
         something = random.randrange(0, 100000)
         self.assertRaises(ClickNotFoundError, Click.findall, something)
+

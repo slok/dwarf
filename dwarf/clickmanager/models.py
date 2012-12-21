@@ -21,16 +21,16 @@ class Click(object):
     # Class variables
     REDIS_CLICK_KEY = "Click:{0}:{1}"
     OBJECT_STR_FORMAT = "[<{0}> <{1}> <{2}> <{3}> <{4}> <{5}> <{6}> <{7}>]"
-    FIELDS = ("click_id", "token", "ip", "so", "browser", "click_date",
+    FIELDS = ("click_id", "token", "ip", "os", "browser", "click_date",
             "language", "location")
 
-    def __init__(self, click_id=None, token=None, ip=None, so=None,
+    def __init__(self, click_id=None, token=None, ip=None, os=None,
                 browser=None, click_date=None, language=None, location=None):
 
         self._click_id = click_id
         self._token = token
         self._ip = ip
-        self._so = so
+        self._os = os
         self._browser = browser
         self._click_date = click_date
         self._language = language
@@ -42,7 +42,7 @@ class Click(object):
         return Click.OBJECT_STR_FORMAT.format(self._click_id,
                                                 self._token,
                                                 self._ip,
-                                                self._so,
+                                                self._os,
                                                 self._browser,
                                                 self._click_date,
                                                 self._language,
@@ -54,7 +54,7 @@ class Click(object):
         if self.token == other.token and\
             self.click_id == other.click_id and\
             self.ip == other.ip and\
-            self.so == other.so and\
+            self.os == other.os and\
             self.click_date == other.click_date and\
             self.language == other.language and\
             self.location == other.location and\
@@ -92,12 +92,12 @@ class Click(object):
         self._ip = value
 
     @property
-    def so(self):
-        return self._so
+    def os(self):
+        return self._os
 
-    @so.setter
-    def so(self, value):
-        self._so = value
+    @os.setter
+    def os(self, value):
+        self._os = value
 
     @property
     def browser(self):
