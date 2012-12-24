@@ -2,8 +2,19 @@ language: python
 python:
   - "2.6"
   - "2.7"
+env:
+  - GEOIP_PATH=/usr/share/GeoIP
+  - GEOIP_COUNTRY_DB=http://www.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz
 before_install:
   - sudo apt-get update
   - sudo apt-get install redis-server
+  - sudo apt-get install geoip-bin
+  - sudo apt-get install geoip-database
+  - sudo apt-get install libgeoip-dev
+  - sudo mkdir -p $GEOIP_PATH
+  - sudo chmod a+rw -R 
+  - cd $GEOIP_PATH
+  - wget $GEOIP_COUNTRY_DB
+  - gunzip -v GeoIP.dat.gz
 install: pip install -r requirements.txt
 script: python dwarf/manage.py test
