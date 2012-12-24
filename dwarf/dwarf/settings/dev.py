@@ -1,3 +1,5 @@
+import os
+
 from redis import ConnectionPool
 
 from common import *
@@ -9,6 +11,11 @@ REDIS_HOST = "127.0.0.1"
 REDIS_PORT = 6379
 REDIS_DB = 0
 REDIS_MAX_CONN = 30
+
+# Get geoip data path
+GEOIP_PATH = os.getenv("GEOIP_PATH")
+if not GEOIP_PATH:
+    GEOIP_PATH = "/var/lib/geoip"
 
 # Custo redis pool for all the application process (shared between threads)
 REDIS_POOL = ConnectionPool(host=REDIS_HOST,

@@ -190,6 +190,12 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 #-----------------------END APPS CONFIGURATION---------------------------------
 
 
+#-------------------------GEOIP CONFIGURATION----------------------------------
+GEOIP_PATH = ""
+#GEOIP_COUNTRY = "GeoIP.dat"
+#-----------------------END GEOIP CONFIGURATION--------------------------------
+
+
 #-----------------------LOGGING CONFIGURATION----------------------------------
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
