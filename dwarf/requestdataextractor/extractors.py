@@ -1,3 +1,5 @@
+from django.contrib.gis.geoip import GeoIP
+
 from requestdataextractor.settings import (OS_CATALOG, BROWSER_CATALOG,
                                          OS_DETAILED, OS_OTHER, BROWSER_OTHER)
 
@@ -83,3 +85,16 @@ def detect_browser_and_OS(http_user_agent):
                     break
 
     return (simplified, browser, os)
+
+
+def detect_country_location_with_geoip(ip):
+    """extracts the location from an IP. This is possible with the MaxMind DB
+    so, the database is needed: http://www.maxmind.com/download/geoip/database/
+    And the GeoIP C lib: http://www.maxmind.com/download/geoip/api/c/
+    Returns a dict with "country_code" and "country_name"
+
+    :param ip: The ip for extracting the location
+    """
+
+    g = GeoIP()
+    return g.country(ip)
