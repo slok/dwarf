@@ -12,8 +12,5 @@ before_install:
   - sudo apt-get install libgeoip-dev
   - sudo mkdir -p $GEOIP_PATH
   - sudo chmod a+rw -R $GEOIP_PATH
-  - cd $GEOIP_PATH
-  - wget $GEOIP_COUNTRY_DB
-  - gunzip -v GeoIP.dat.gz
 install: pip install -r requirements.txt
 script: python dwarf/manage.py test
