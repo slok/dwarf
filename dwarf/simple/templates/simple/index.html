@@ -1,34 +1,54 @@
 {% extends "simple/base.html" %}
 {% block body %}
 {% if messages %}
-<ul class="messages">
     {% for message in messages %}
-        <li>{{ message }}</li>
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
     {% endfor %}
-</ul>
 {% endif %}
-<h1>Total links: {{total_links}}</h1>
-<table border="1">
-    <tr>
-        <th>Token</th>
-        <th>Link</th>
-        <th>Total clicks</th>
-        <th>Details</th>
-    </tr>
-    {% for sl in links%}
-    <tr>
-        <td><a href={% url forwarder-forward sl.token %}>{{sl.token}}</a></td>
-        <td><a href="http://{{sl.url}}">{{sl.url}}</a></td>
-        <td>{{sl.clicks}}</td>
-        <td><a href={% url simple-link-details sl.token %}>details</td>
-    </tr>
-    {% empty %}
-        <li>Sorry, no links!</li>
-    {% endfor %}
-</table> 
-
-<form action="" method="post">{% csrf_token %}
-    {{ my_form.as_p }}
-    <input type="submit" value="Submit" />
-</form>
+<div>
+    <h1>Dwarf simple interface</h1>
+</div>
+<hr/>
+<div>
+    <h2>Total links: {{total_links}}</h2>
+    <table class="table-condensed table-bordered table-striped">
+        <tr>
+            <th>Token</th>
+            <th>Link</th>
+            <th>Total clicks</th>
+            <th>Details</th>
+        </tr>
+        {% for sl in links%}
+        <tr>
+            <td><a href={% url forwarder-forward sl.token %}>{{sl.token}}</a></td>
+            <td><a href="http://{{sl.url}}">{{sl.url}}</a></td>
+            <td>{{sl.clicks}}</td>
+            <td><a href={% url simple-link-details sl.token %}>details</a></td>
+        </tr>
+        {% empty %}
+            <li>Sorry, no links!</li>
+        {% endfor %}
+    </table> 
+</div>
+<hr/>
+<div>
+    <h2>Want to create a new link?</h2>
+    <form action="" method="post">{% csrf_token %}
+        {{ form.non_field_errors }}
+        {{ form.url.errors }}
+        <div class="row">
+            <div class="span1">
+                {{ my_form.url.label_tag }}
+            </div>
+            <div class="span3">
+                {{ my_form.url }}
+            </div>
+            <div class="span2">
+                <button class="btn btn-mini btn-primary" type="submit">Gimme' linkz!</button>
+            </div>
+        </div>
+    </form>
+</div>
 {% endblock body %}
