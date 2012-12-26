@@ -1,0 +1,29 @@
+{% extends "simple/base.html" %}
+{% block body %}
+
+<h1>Click details for {{ shortlink.token }} token</h1>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>ip</th>
+        <th>OS</th>
+        <th>Browser</th>
+        <th>Date</th>
+        <th>language</th>
+        <th>location</th>
+    </tr>
+    {% for click in clicks%}
+    <tr>
+        <td>click.click_id</td>
+        <td>click.ip</td>
+        <td>click.os</td>
+        <td>click.browser</td>
+        <td>click.click_date</td>
+        <td>click.language</td>
+        <td>click.location</td>
+    </tr>
+    {% empty %}
+        <li>Sorry, no links!</li>
+    {% endfor %}
+</table> 
+{% endblock body %}

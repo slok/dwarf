@@ -182,6 +182,7 @@ THIRD_PARTY_APPS = (
 LOCAL_APPS = (
     'linkshortener',
     'simple',
+    'forwarder',
     'requestdataextractor',
     'clickmanager'
 )

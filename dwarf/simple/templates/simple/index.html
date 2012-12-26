@@ -1,7 +1,34 @@
 {% extends "simple/base.html" %}
 {% block body %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+        <li>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+<h1>Total links: {{total_links}}</h1>
+<table border="1">
+    <tr>
+        <th>Token</th>
+        <th>Link</th>
+        <th>Total clicks</th>
+        <th>Details</th>
+    </tr>
+    {% for sl in links%}
+    <tr>
+        <td><a href={% url forwarder-forward sl.token %}>{{sl.token}}</a></td>
+        <td><a href="http://{{sl.url}}">{{sl.url}}</a></td>
+        <td>{{sl.clicks}}</td>
+        <td><a href={% url simple-link-details sl.token %}>details</td>
+    </tr>
+    {% empty %}
+        <li>Sorry, no links!</li>
+    {% endfor %}
+</table> 
+
 <form action="" method="post">{% csrf_token %}
     {{ my_form.as_p }}
-<input type="submit" value="Submit" />
+    <input type="submit" value="Submit" />
 </form>
 {% endblock body %}
