@@ -239,7 +239,7 @@ class ClickTasksTest(TestCase):
     def test_click_link(self):
 
         data = {'LANG': "en_US",
-            'REMOTE_ADDR': "127.0.0.1",
+            'REMOTE_ADDR': "72.14.207.99",
             'HTTP_USER_AGENT': "Mozilla/5.0 (X11; Linux x86_64; rv:17.0)" +\
                                 " Gecko/17.0 Firefox/17.0"}
 
@@ -260,4 +260,5 @@ class ClickTasksTest(TestCase):
         self.assertEquals("en_US", c.language)
         self.assertEquals("linux x86_64", c.os)
         self.assertEquals("firefox", c.browser)
-        self.assertEquals("127.0.0.1", c.ip)
+        self.assertEquals("72.14.207.99", c.ip)
+        self.assertEquals("US", c.location)
