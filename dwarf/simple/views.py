@@ -47,8 +47,11 @@ def index(request):
 
 def details(request, token):
 
-    clicks = Click.findall(token=token)
-    short_link = ShortLink.find(token=token),
+    clicks = list(Click.findall(token=token))
+    # Sort
+    clicks.sort(key=lambda click: click.click_id)
+    
+    short_link = ShortLink.find(token=token)
 
     # Get data for the charts
     browsers = get_data_for_charts(clicks, "browser")
@@ -86,5 +89,4 @@ def get_data_for_charts(clicks, param):
         my_list.append(x)
     titles = set(my_list)
     counts = [my_list.count(i) for i in titles]
-    print(my_list)
     return [list(titles), counts]

@@ -56,7 +56,7 @@
 
 {% block body %}
 
-<h1>Click details for {{ shortlink.token }} token</h1>
+<h1>Click details for <a href={% url forwarder-forward shortlink.token %}>{{shortlink.token}}</a> token</h1>
 <table class="table-condensed table-bordered table-striped">
     <tr>
         <th>ID</th>
