@@ -14,13 +14,13 @@
     </tr>
     {% for click in clicks%}
     <tr>
-        <td>click.click_id</td>
-        <td>click.ip</td>
-        <td>click.os</td>
-        <td>click.browser</td>
-        <td>click.click_date</td>
-        <td>click.language</td>
-        <td>click.location</td>
+        <td>{{ click.click_id }}</td>
+        <td>{{ click.ip }}</td>
+        <td>{{ click.os }}</td>
+        <td>{{ click.browser }}</td>
+        <td>{{ click.click_date }}</td>
+        <td>{{ click.language }}</td>
+        <td>{{ click.location }}</td>
     </tr>
     {% empty %}
         <li>Sorry, no links!</li>
