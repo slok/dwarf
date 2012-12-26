@@ -210,6 +210,19 @@ class ShortLink(object):
 
         raise ShortLinkError("No enought data to search")
 
+    @classmethod
+    def findall(cls):
+        """Returns all the shortlinks in the database"""
+
+        #If there isn't nothing this will raise exception
+        total = ShortLink.get_counter()
+
+        sls = []
+        for i in range(1, total + 1):
+            sls.append(ShortLink.find(counter=i))
+
+        return sls
+
     def save(self):
         """Saves or updates the ShortLink instance in database"""
 

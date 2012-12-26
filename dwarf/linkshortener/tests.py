@@ -254,6 +254,17 @@ class ShortLinkModelTest(TestCase):
         self.assertRaises(ShortLinkNotFoundError, ShortLink.find,
                         None, None, something)
 
+    def test_getall_shortlink(self):
+        times = random.randrange(1, 20)
+
+        for i in range(times):
+            url = "xlarrakoetxea{0}.org".format(i)
+            sl = ShortLink(url=url)
+            sl.save()
+
+        sls = ShortLink.findall()
+        self.assertEquals(times, len(sls))
+
     def test_incr_clicks(self):
         clicks = random.randrange(0, 100000)
         counter = random.randrange(0, 100000)
