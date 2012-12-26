@@ -150,7 +150,7 @@ class ShortLink(object):
         """
 
         aux_self = ShortLink()
-        if counter:
+        if counter is not None:
             aux_self.counter = counter
             aux_self.token = counter_to_token(counter)
             data = aux_self._find_by_token()
@@ -164,7 +164,7 @@ class ShortLink(object):
             aux_self.clicks = int(data.get('clicks', 0))
 
             return aux_self
-        elif token:
+        elif token is not None:
             aux_self.token = token
             aux_self.counter = token_to_counter(token)
             data = aux_self._find_by_token()
