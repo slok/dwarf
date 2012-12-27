@@ -9,6 +9,11 @@ def datetime_now_utc():
     return datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
 
 
+def unix_now_utc():
+    """Returns the current unixtimestamp in utc format"""
+    return datetime_to_unix(datetime_now_utc())
+
+
 def datetime_to_unix(date):
     """converts datetime format to unix timestamp"""
     return calendar.timegm(date.utctimetuple())

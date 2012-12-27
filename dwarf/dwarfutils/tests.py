@@ -25,6 +25,18 @@ class DateUtilTest(TestCase):
         self.assertEquals(almost_now.minute, now.minute)
         self.assertEquals(almost_now.second, now.second)
 
+    def test_unix_now_utc(self):
+        unix_now = dateutils.unix_now_utc()
+        now = dateutils.unix_to_datetime(unix_now)
+        almost_now = datetime.utcnow()
+
+        self.assertEquals(almost_now.year, now.year)
+        self.assertEquals(almost_now.month, now.month)
+        self.assertEquals(almost_now.day, now.day)
+        self.assertEquals(almost_now.hour, now.hour)
+        self.assertEquals(almost_now.minute, now.minute)
+        self.assertEquals(almost_now.second, now.second)
+
     def test_datetime_to_unix(self):
         unix_t = dateutils.datetime_to_unix(DateUtilTest.CORRECT_DATE)
         self.assertEquals(DateUtilTest.CORRECT_UNIX, unix_t)
