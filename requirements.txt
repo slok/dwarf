@@ -3,3 +3,4 @@ django-celery
 celery
 redis
 fabric
+pytz
