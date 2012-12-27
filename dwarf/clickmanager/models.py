@@ -1,12 +1,10 @@
-import time
-import calendar
-
 from django.conf import settings
 import redis
 
 from linkshortener.models import ShortLink
 from linkshortener.exceptions import ShortLinkNotFoundError
 from clickmanager.exceptions import ClickError, ClickNotFoundError
+from dwarfutils import dateutils
 
 
 def get_redis_connection():
@@ -149,7 +147,7 @@ class Click(object):
 
         #set the date if there isn't a date
         if not self.click_date:
-            self.click_date = calendar.timegm(time.gmtime())
+            self.click_date = dateutils.unix_now_utc()
 
         key = Click.REDIS_CLICK_KEY.format(self.token, self.click_id)
 

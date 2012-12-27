@@ -1,11 +1,9 @@
-import calendar
-import time
-
 from django.conf import settings
 import redis
 
 from exceptions import ShortLinkError, ShortLinkNotFoundError
-from utils import counter_to_token, token_to_counter
+from linkshortener.utils import counter_to_token, token_to_counter
+from dwarfutils import dateutils
 
 
 def get_redis_connection():
@@ -242,7 +240,7 @@ class ShortLink(object):
 
         #If there is not a date then take now
         if not self.creation_date:
-            self.creation_date = calendar.timegm(time.gmtime())
+            self.creation_date = dateutils.unix_now_utc()
         mappings = {'url': self.url,
                 'creation_date': self.creation_date,
                 'clicks': self.clicks}

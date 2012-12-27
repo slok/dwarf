@@ -1,6 +1,4 @@
 import random
-import calendar
-import time
 
 from django.test import TestCase
 from django.conf import settings
@@ -12,6 +10,7 @@ from linkshortener.exceptions import (LinkShortenerLengthError, ShortLinkError,
                                     ShortLinkNotFoundError)
 from linkshortener.models import ShortLink
 from linkshortener import tasks
+from dwarfutils import dateutils
 
 
 def get_redis_connection():
@@ -128,7 +127,7 @@ class ShortLinkModelTest(TestCase):
 
         # Setters from token
         sl2 = ShortLink(token=token, url=url)
-        creation_date = calendar.timegm(time.gmtime())
+        creation_date = dateutils.unix_now_utc()
         sl2.creation_date = creation_date
         clicks = 5
         sl2.clicks = clicks
@@ -157,7 +156,7 @@ class ShortLinkModelTest(TestCase):
     def test_save_shortLink(self):
         counter = random.randrange(0, 100000)
         url = "xlarrakoetxea.org"
-        creation_date = calendar.timegm(time.gmtime())
+        creation_date = dateutils.unix_now_utc()
         clicks = 20
         # Save the links
         sl = ShortLink(counter=counter, url=url, creation_date=creation_date,

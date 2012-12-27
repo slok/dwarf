@@ -1,6 +1,4 @@
 import random
-import calendar
-import time
 
 from django.test import TestCase
 from django.conf import settings
@@ -12,6 +10,7 @@ from linkshortener.models import ShortLink
 from clickmanager.models import Click
 from clickmanager.exceptions import ClickError, ClickNotFoundError
 from clickmanager import tasks
+from dwarfutils import dateutils
 
 
 def get_redis_connection():
@@ -30,7 +29,7 @@ class ClickModelTest(TestCase):
         OS = "linux"
         browser = "firefox"
         ip = "111.222.333.444"
-        click_date = calendar.timegm(time.gmtime())
+        click_date = dateutils.unix_now_utc()
         language = "EN_us"
         location = "US"
 
@@ -73,7 +72,7 @@ class ClickModelTest(TestCase):
         OS = "linux"
         browser = "firefox"
         ip = "111.222.333.444"
-        click_date = calendar.timegm(time.gmtime())
+        click_date = dateutils.unix_now_utc()
         language = "EN_us"
         location = "US"
 
@@ -105,7 +104,7 @@ class ClickModelTest(TestCase):
         OS = "linux"
         browser = "firefox"
         ip = "111.222.333.444"
-        click_date = calendar.timegm(time.gmtime())
+        click_date = dateutils.unix_now_utc()
         language = "EN_us"
         location = "US"
 
@@ -171,7 +170,7 @@ class ClickModelTest(TestCase):
         OS = "linux"
         ip = "111.222.333.444"
         browser = "firefox"
-        click_date = calendar.timegm(time.gmtime())
+        click_date = dateutils.unix_now_utc()
         language = "EN_us"
         location = "US"
         url = "http://xlarrakoetxea.org"
