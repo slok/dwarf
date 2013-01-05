@@ -10,3 +10,6 @@
 [submodule "cookbooks/rabbitmq"]
 	path = cookbooks/rabbitmq
 	url = https://github.com/opscode-cookbooks/rabbitmq.git
+[submodule "cookbooks/erlang"]
+	path = cookbooks/erlang
+	url = https://github.com/opscode-cookbooks/erlang.git
