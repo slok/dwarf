@@ -1,0 +1,3 @@
+[submodule "cookbooks/python"]
+	path = cookbooks/python
+	url = https://github.com/opscode-cookbooks/python.git
