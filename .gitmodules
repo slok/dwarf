@@ -7,3 +7,6 @@
 [submodule "cookbooks/build-essential"]
 	path = cookbooks/build-essential
 	url = https://github.com/opscode-cookbooks/build-essential.git
+[submodule "cookbooks/rabbitmq"]
+	path = cookbooks/rabbitmq
+	url = https://github.com/opscode-cookbooks/rabbitmq.git
