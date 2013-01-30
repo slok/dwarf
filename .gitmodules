@@ -13,3 +13,6 @@
 [submodule "cookbooks/erlang"]
 	path = cookbooks/erlang
 	url = https://github.com/opscode-cookbooks/erlang.git
+[submodule "cookbooks/sudo"]
+	path = cookbooks/sudo
+	url = https://github.com/opscode-cookbooks/sudo.git
