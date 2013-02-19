@@ -186,7 +186,8 @@ LOCAL_APPS = (
     'forwarder',
     'requestdataextractor',
     'clickmanager',
-    'dwarfutils'  # Common utils across the app
+    'dwarfutils',  # Common utils across the app
+    'userprofile',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
