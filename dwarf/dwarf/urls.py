@@ -2,6 +2,8 @@ from django.conf.urls import patterns, include, url
 
 import simple.urls
 import forwarder.urls
+#import homepage.urls
+import userprofile.urls
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
@@ -10,8 +12,10 @@ import forwarder.urls
 urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'dwarf.views.home', name='home'),
+    #url(r'^', include(homepage.urls)),
     url(r'^simple/', include(simple.urls)),
     url(r'^f/', include(forwarder.urls)),
+    url(r'^profile/', include(userprofile.urls)),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

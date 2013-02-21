@@ -2,10 +2,18 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 
+from dwarfutils.hashutils import get_random_hash
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User)
     url = models.CharField(max_length=50)
+
+    password_reset_token = models.CharField(max_length=64)
+
+    activation_token = models.CharField(max_length=64)
+    activated = models.BooleanField(default=False)
+    # TODO: Activation time expire
 
     def __unicode__(self):
         return u"{0}".format(self.user.username)
@@ -32,6 +40,7 @@ def user_post_save(sender, instance, created, **kwargs):
     if created == True:
         p = Profile()
         p.user = instance
+        p.activation_token = get_random_hash()
         p.save()
 
 post_save.connect(user_post_save, sender=User)
