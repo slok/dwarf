@@ -130,6 +130,7 @@ TEMPLATE_LOADERS = (
 )
 
 TEMPLATE_DIRS = (
+    SITE_ROOT + "/templates",
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -188,6 +189,7 @@ LOCAL_APPS = (
     'clickmanager',
     'dwarfutils',  # Common utils across the app
     'userprofile',
+    'homepage',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

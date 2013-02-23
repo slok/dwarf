@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 
 import simple.urls
 import forwarder.urls
-#import homepage.urls
+import homepage.urls
 import userprofile.urls
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -12,7 +12,8 @@ import userprofile.urls
 urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'dwarf.views.home', name='home'),
-    #url(r'^', include(homepage.urls)),
+    url(r'^', include(homepage.urls)),
+    #TODO: Delete simple app
     url(r'^simple/', include(simple.urls)),
     url(r'^f/', include(forwarder.urls)),
     url(r'^profile/', include(userprofile.urls)),
