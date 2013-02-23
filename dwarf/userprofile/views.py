@@ -1,8 +1,12 @@
+import json
+
 from django.shortcuts import (render_to_response,
                              RequestContext, redirect)
-#from django.http import Http404
+from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import ugettext_lazy as _
 
 from userprofile.models import Profile
 from userprofile.forms import SignupForm
@@ -34,6 +38,20 @@ def signup(request):
                             context,
                             context_instance=RequestContext(request))
 
+
+def ajax_username_exists(request, username):
+    """Ajax view that checks if the user exists. If the username is already
+    registered then returs True if not False
+    """
+
+    response_data = {'exists': True}
+    try:
+        User.objects.get(username=username)
+        response_data['error'] = unicode(_(u"This username is already taken"))
+    except ObjectDoesNotExist:
+        response_data['exists'] = False
+
+    return HttpResponse(json.dumps(response_data), mimetype="application/json")
 
 
 def activate_account(request, user_id, token):

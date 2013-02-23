@@ -15,3 +15,11 @@ urlpatterns = patterns('',
 
     # Password reset stuff
 )
+
+ajax_patterns = patterns('',
+    url(r'^signup/userexists/(?P<username>\w+)/$',
+        userprofile.views.ajax_username_exists,
+        name="userprofile-ajax-userexists"),
+)
+
+urlpatterns += ajax_patterns
