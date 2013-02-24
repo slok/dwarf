@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.views import login
 
 from userprofile.models import Profile
 from userprofile.forms import SignupForm
@@ -97,6 +98,16 @@ def activate_account(request, user_id, token):
         user.save()
 
     return redirect("/")
+
+
+def custom_login(request, template_name):
+    if request.user.is_authenticated():
+        #TODO: Change!
+        return redirect("/works")
+
+    else:
+        return login(request, template_name)
+
 
 def password_reset(request, user, token):
     pass

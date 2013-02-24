@@ -195,6 +195,12 @@ LOCAL_APPS = (
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 #-----------------------END APPS CONFIGURATION---------------------------------
 
+#-------------------------AUTH CONFIGURATION-----------------------------------
+AUTHENTICATION_BACKENDS = (
+    'userprofile.backends.EmailOrUsernameModelBackend',
+    'django.contrib.auth.backends.ModelBackend'
+)
+#-----------------------END AUTH CONFIGURATION---------------------------------
 
 #-------------------------GEOIP CONFIGURATION----------------------------------
 GEOIP_PATH = ""
