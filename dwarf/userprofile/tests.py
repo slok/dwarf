@@ -140,6 +140,28 @@ class SignupFormTests(TestCase):
 
         #self.assertTrue(unicode(_(u"This username is already taken")) in form.errors)
 
+    def test_email_exists(self):
+        form_data = {
+            'username': 'test',
+            'password1': 'p455w0rd',
+            'password2': 'p455w0rd',
+            'email': 'slok@slok.org',
+        }
+        form = SignupForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+        # Now check with a user
+        user = User()
+        user.username = "test2"
+        user.email = "slok@slok.org"
+        user.save()
+
+        form = SignupForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertTrue("email" in form.errors)
+
+        #self.assertTrue(unicode(_(u"This email is already taken")) in form.errors)
+
     def test_user_signup(self):
         form_data = {
             'username': 'test',

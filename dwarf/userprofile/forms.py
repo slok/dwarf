@@ -33,3 +33,14 @@ class SignupForm(forms.Form):
         if password1 != password2:
             raise forms.ValidationError(_(u"Your passwords do not match"))
         return password2
+
+    def clean_email(self):
+        """Checks if the email exists"""
+        try:
+            email = self.cleaned_data.get('email')
+            User.objects.get(email=email)
+        except ObjectDoesNotExist:
+            return email
+
+        # If no exception then wrong email
+        raise forms.ValidationError(_(u"This email is already taken"))
