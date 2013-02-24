@@ -20,6 +20,9 @@ ajax_patterns = patterns('',
     url(r'^signup/userexists/(?P<username>\w+)/$',
         userprofile.views.ajax_username_exists,
         name="userprofile-ajax-userexists"),
+    url(r'^signup/emailexists/$',
+        userprofile.views.ajax_email_exists,
+        name="userprofile-email-userexists"),
 )
 
 urlpatterns += ajax_patterns

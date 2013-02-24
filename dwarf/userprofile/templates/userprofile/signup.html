@@ -1,9 +1,73 @@
 {% extends 'base.html' %}
 {% block body%}
-    <form action="{% url userprofile-signup %}" method="post">{% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Submit" />
-    </form>
+
+<form id="signup-form" action="{% url userprofile-signup %}" method="post" class="form-horizontal">{% csrf_token %}
+    {% if form.username.errors %}
+        <div id="username-control-group" class="control-group error">
+    {% else %}
+        <div id="username-control-group" class="control-group">
+    {% endif %}
+      <label class="control-label" for="id_username">Username</label>
+      <div class="controls">
+        {{ form.username }}
+        <span id="username-help-inline" class="help-inline">
+             {% if form.username.errors %}
+                {{ form.username.errors.as_text|cut:"*" }}
+             {% endif %}
+        </span>
+      </div>
+    </div>
+
+    {% if form.email.errors %}
+        <div id="email-control-group" class="control-group error">
+    {% else %}
+        <div id="email-control-group" class="control-group">
+    {% endif %}
+      <label class="control-label" for="id_email">email</label>
+      <div class="controls">
+        {{ form.email }}
+        <span id="email-help-inline" class="help-inline">
+            {% if form.email.errors %}
+                {{ form.email.errors.as_text|cut:"*" }}
+            {% endif %}
+        </span>
+      </div>
+    </div>
+
+    {% if form.password1.errors or form.password2.errors %}
+        <div id="password1-control-group" class="control-group error">
+    {% else %}
+        <div id="password1-control-group" class="control-group">
+    {% endif %}
+      <label class="control-label" for="id_password1">Password</label>
+      <div class="controls">
+        {{ form.password1 }}
+        <span id="password1-help-inline" class="help-inline">
+            {% if form.password1.errors or form.password2.errors %}
+                {{ form.password2.errors.as_text|cut:"*" }}
+            {% endif %}
+        </span>
+      </div>
+    </div>
+
+    {% if form.password1.errors or form.password2.errors %}
+        <div id="password2-control-group" class="control-group error">
+    {% else %}
+        <div id="password2-control-group" class="control-group">
+    {% endif %}
+      <label class="control-label" for="id_password2">Repeat password</label>
+      <div class="controls">
+        {{ form.password2 }}
+        <span id="password2-help-inline" class="help-inline">
+            {% if form.password1.errors or form.password2.errors %}
+                {{ form.password2.errors.as_text|cut:"*" }}
+            {% endif %}
+        </span>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Signup</button>
+</form>
 {% endblock body %}
 
 {% block js %}

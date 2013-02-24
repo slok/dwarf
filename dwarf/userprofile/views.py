@@ -1,8 +1,9 @@
 import json
+import logging
 
 from django.shortcuts import (render_to_response,
                              RequestContext, redirect)
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
@@ -10,6 +11,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from userprofile.models import Profile
 from userprofile.forms import SignupForm
+
+
+logger = logging.getLogger("dwarf")
 
 
 def signup(request):
@@ -43,6 +47,7 @@ def ajax_username_exists(request, username):
     """Ajax view that checks if the user exists. If the username is already
     registered then returs True if not False
     """
+    logger.debug("Checking ajax call for the username existence")
 
     response_data = {'exists': True}
     try:
@@ -52,6 +57,32 @@ def ajax_username_exists(request, username):
         response_data['exists'] = False
 
     return HttpResponse(json.dumps(response_data), mimetype="application/json")
+
+
+def ajax_email_exists(request):
+    """Ajax view that checks if the user exists. If the username is already
+    registered then returs True if not False
+    """
+    logger.debug("Checking ajax call for the email existence")
+
+    if request.method == 'POST':
+        response_data = {'exists': True}
+        try:
+            email = request.POST['email']
+            if not email:
+                raise Http404
+
+            User.objects.get(email=email)
+
+            response_data['error'] = unicode(_(u"This email is already taken"))
+        except ObjectDoesNotExist:
+            response_data['exists'] = False
+
+        return HttpResponse(json.dumps(response_data),
+            mimetype="application/json")
+
+    else:
+        raise Http404
 
 
 def activate_account(request, user_id, token):
