@@ -3,6 +3,8 @@ $(document).ready(function () {
     // Deactivate submit button until all the fields are perfect
     var signupForm = $('#signup-form');
     var submitBtn = signupForm.find(':submit');
+    var spinnerIcon = $('<i/>').addClass('icon-spinner');
+    spinnerIcon.addClass('icon-spin');
     submitBtn.addClass('disabled');
     submitBtn.attr('disabled', 'true');
 
@@ -48,6 +50,10 @@ $(document).ready(function () {
             return;
         }
 
+        //Add load spinner
+        $('#username-help-inline').text('');
+        $('#username-help-inline').append(spinnerIcon);
+        
         // Check by ajax if the user exists
         $.ajax({
             type: "GET",
@@ -80,6 +86,10 @@ $(document).ready(function () {
             $('#email-help-inline').text('');
             return;
         }
+
+        //Add load spinner
+        $('#email-help-inline').text('');
+        $('#email-help-inline').append(spinnerIcon);
 
         // Check email format
         if (isValidEmailAddress(email)){
