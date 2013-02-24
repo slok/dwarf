@@ -203,6 +203,16 @@ GEOIP_PATH = ""
 
 
 #-----------------------LOGGING CONFIGURATION----------------------------------
+# Colors
+COLOR_RESET = "\x1b[0m"
+COLOR_RED = "\x1b[31m"
+COLOR_GREEN = "\x1b[32m"
+COLOR_YELLOW = "\x1b[33m"
+COLOR_BLUE = "\x1b[34m"
+COLOR_MAGENTA = "\x1b[35m"
+COLOR_CYAN = "\x1b[36m"
+COLOR_WHITE = "\x1b[37m"
+
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
@@ -210,25 +220,55 @@ GEOIP_PATH = ""
 # more details on how to customize your logging configuration.
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
+    'disable_existing_loggers': True,
+    'formatters': {
+
+        'cyan': {
+            'format': COLOR_CYAN +\
+                      '[%(levelname)s %(asctime)s %(module)s] %(message)s' +\
+                      COLOR_RESET
+        },
+
+        'red': {
+            'format': COLOR_RED +\
+                      '[%(levelname)s %(asctime)s %(module)s] %(message)s' +\
+                      COLOR_RESET
+        },
+
+        'normal': {
+            'format': '[%(levelname)s %(asctime)s %(module)s] %(message)s'
+        },
     },
     'handlers': {
-        'mail_admins': {
+        'console_debug': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'cyan'
+        },
+
+        'console_error': {
             'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
+            'class': 'logging.StreamHandler',
+            'formatter': 'red'
+        },
+
+        'file_handler': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'normal',
+            'filename': 'dwarf.log',
+            'maxBytes': 1024,
+            'backupCount': 3,
+        },
+
+
     },
     'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
+        'dwarf': {
+            'handlers': ['console_debug', 'console_error', 'file_handler'],
+            'level': 'DEBUG',
             'propagate': True,
-        },
+        }
     }
 }
 
