@@ -20,6 +20,13 @@ urlpatterns = patterns('',
     url(r'^logout/$', logout, name="userprofile-logout"),
 
     # Password reset stuff
+    url(r'^ask/reset/password/$',
+        userprofile.views.ask_reset_password,
+        name="userprofile-ask-reset-password"),
+
+    url(r'^reset/password/(?P<user_id>\d+)/(?P<token>\w{64})/$',
+        userprofile.views.reset_password,
+        name="userprofile-reset-password"),
 )
 
 ajax_patterns = patterns('',

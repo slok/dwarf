@@ -44,3 +44,16 @@ class SignupForm(forms.Form):
 
         # If no exception then wrong email
         raise forms.ValidationError(_(u"This email is already taken"))
+
+
+class ResetPasswordForm(forms.Form):
+    email = forms.EmailField(label=_(u'email'))
+
+    def clean_email(self):
+        """Checks if the email exists"""
+        try:
+            email = self.cleaned_data.get('email')
+            User.objects.get(email=email)
+            return email
+        except ObjectDoesNotExist:
+            raise forms.ValidationError(_(u"This email doesn't exists"))

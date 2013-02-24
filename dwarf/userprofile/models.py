@@ -10,6 +10,7 @@ class Profile(models.Model):
     url = models.CharField(max_length=50)
 
     password_reset_token = models.CharField(max_length=64)
+    password_reset_token_date = models.DateTimeField(null=True)
 
     activation_token = models.CharField(max_length=64)
     activated = models.BooleanField(default=False)

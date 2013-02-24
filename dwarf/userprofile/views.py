@@ -9,9 +9,12 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.views import login
+from django.utils import timezone
+from django.core.urlresolvers import reverse
 
 from userprofile.models import Profile
-from userprofile.forms import SignupForm
+from userprofile.forms import SignupForm, ResetPasswordForm
+from dwarfutils.hashutils import get_random_hash
 
 
 logger = logging.getLogger("dwarf")
@@ -109,5 +112,35 @@ def custom_login(request, template_name):
         return login(request, template_name)
 
 
-def password_reset(request, user, token):
+def reset_password(request, user, token):
     pass
+
+
+def ask_reset_password(request):
+    if request.method == 'POST':
+        form = ResetPasswordForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            user = User.objects.get(email=data['email'])
+            profile = Profile.objects.get(user=user)
+
+            # Set hash and date
+            profile.password_reset_token = get_random_hash()
+            profile.password_reset_token_date = timezone.now()
+            profile.save()
+
+            logger.debug("Reset password in: " +\
+                reverse(reset_password, args=[user.id, profile.password_reset_token]))
+
+            # Send email
+            messages.success(request, "An email has been sent to your account")
+    else:
+        form = ResetPasswordForm()
+
+    context = {
+        'form': form,
+    }
+
+    return render_to_response('userprofile/reset-password.html',
+                            context,
+                            context_instance=RequestContext(request))
