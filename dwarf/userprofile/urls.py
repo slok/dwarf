@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, url
+from django.contrib.auth.views import login
 
 import userprofile.views
 
@@ -12,6 +13,8 @@ urlpatterns = patterns('',
     url(r'^signup/$', userprofile.views.signup, name="userprofile-signup"),
 
     # Login stuff
+    url(r'^login/$', login, {'template_name': 'userprofile/login.html'},
+        name="userprofile-login"),
 
     # Password reset stuff
 )
