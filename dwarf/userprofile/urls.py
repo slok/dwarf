@@ -6,6 +6,9 @@ import userprofile.views
 
 urlpatterns = patterns('',
 
+     url(r'^$',
+        userprofile.views.user_dashboard, name="userprofile-dashboard"),
+
     # Sign up stuff
     url(r'^activate/(?P<user_id>\d+)/(?P<token>\w{64})/$',
         userprofile.views.activate_account, name="userprofile-activate"),

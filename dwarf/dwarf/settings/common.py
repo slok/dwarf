@@ -207,6 +207,11 @@ GEOIP_PATH = ""
 #GEOIP_COUNTRY = "GeoIP.dat"
 #-----------------------END GEOIP CONFIGURATION--------------------------------
 
+#-------------------------AUTH CONFIGURATION----------------------------------
+LOGIN_URL = "/profile/login/"
+LOGIN_REDIRECT_URL = "/profile/"
+#-----------------------END AUTH CONFIGURATION--------------------------------
+
 
 #-----------------------LOGGING CONFIGURATION----------------------------------
 # Colors

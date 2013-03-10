@@ -11,6 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.views import login
 from django.utils import timezone
 from django.core.urlresolvers import reverse
+from django.contrib.auth.decorators import login_required
 
 from userprofile.models import Profile
 from userprofile.forms import SignupForm, ResetPasswordForm
@@ -105,11 +106,21 @@ def activate_account(request, user_id, token):
 
 def custom_login(request, template_name):
     if request.user.is_authenticated():
-        #TODO: Change!
-        return redirect("/works")
+        messages.info(request, _(u"You are already logged in"))
+        print(messages)
+        return redirect(reverse(user_dashboard))
 
     else:
         return login(request, template_name)
+
+
+@login_required
+def user_dashboard(request):
+    context = {}
+
+    return render_to_response('userprofile/dashboard.html',
+                        context,
+                        context_instance=RequestContext(request))
 
 
 def reset_password(request, user, token):
