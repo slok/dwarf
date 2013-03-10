@@ -9,7 +9,10 @@
     {% endif %}
       <label class="control-label" for="id_username">Username</label>
       <div class="controls">
-        {{ form.username }}
+        <div class="input-prepend">
+          <span class="add-on"><i class="icon-user"></i></span>
+          {{ form.username }}
+        </div>
         <span id="username-help-inline" class="help-inline">
              {% if form.username.errors %}
                 {{ form.username.errors.as_text|cut:"*" }}
@@ -25,7 +28,10 @@
     {% endif %}
       <label class="control-label" for="id_email">email</label>
       <div class="controls">
-        {{ form.email }}
+        <div class="input-prepend">
+          <span class="add-on"><i class="icon-envelope-alt"></i></span>
+          {{ form.email }}
+        </div>
         <span id="email-help-inline" class="help-inline">
             {% if form.email.errors %}
                 {{ form.email.errors.as_text|cut:"*" }}
@@ -41,7 +47,10 @@
     {% endif %}
       <label class="control-label" for="id_password1">Password</label>
       <div class="controls">
-        {{ form.password1 }}
+        <div class="input-prepend">
+          <span class="add-on"><i class="icon-lock"></i></span>
+          {{ form.password1 }}
+        </div>
         <span id="password1-help-inline" class="help-inline">
             {% if form.password1.errors or form.password2.errors %}
                 {{ form.password2.errors.as_text|cut:"*" }}
@@ -57,7 +66,10 @@
     {% endif %}
       <label class="control-label" for="id_password2">Repeat password</label>
       <div class="controls">
-        {{ form.password2 }}
+        <div class="input-prepend">
+          <span class="add-on"><i class="icon-lock"></i></span>
+          {{ form.password2 }}
+        </div>
         <span id="password2-help-inline" class="help-inline">
             {% if form.password1.errors or form.password2.errors %}
                 {{ form.password2.errors.as_text|cut:"*" }}
