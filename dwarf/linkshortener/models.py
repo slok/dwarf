@@ -1,4 +1,6 @@
 from django.conf import settings
+from django.db import models
+from django.contrib.auth.models import User
 import redis
 
 from exceptions import ShortLinkError, ShortLinkNotFoundError
@@ -9,7 +11,16 @@ from dwarfutils import dateutils
 def get_redis_connection():
     return redis.StrictRedis(connection_pool=settings.REDIS_POOL)
 
+# This is a Django model 
+class UserLink(models.Model):
+    user = models.ForeignKey(User)
+    token = models.CharField(max_length=100)
 
+    def __unicode__():
+        return "{0}:{1}".format(user.username, token)
+
+
+# This is a Redis model
 class ShortLink(object):
     """Model of a short link that represents a link in the database. This link
     has the link iself, the id number assigned and the id number translation to
