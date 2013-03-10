@@ -4,6 +4,7 @@ import simple.urls
 import forwarder.urls
 import homepage.urls
 import userprofile.urls
+import linkshortener.urls
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
@@ -17,6 +18,7 @@ urlpatterns = patterns('',
     url(r'^simple/', include(simple.urls)),
     url(r'^f/', include(forwarder.urls)),
     url(r'^profile/', include(userprofile.urls)),
+    url(r'^shortener/', include(linkshortener.urls)),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
