@@ -180,3 +180,22 @@ class SignupFormTests(TestCase):
         self.assertEqual(form_data['username'], user.username)
         self.assertTrue(user.check_password(form_data['password1']))
         self.assertEqual(form_data['email'], user.email)
+
+    def test_username_login(self):
+        form_data = {
+            'username': 'test',
+            'password': 'p455w0rd',
+        }
+
+        user = User()
+        user.username = form_data['username']
+        user.set_password(form_data['password'])
+        user.save()
+        
+        # Without login
+        response = self.client.get(reverse("userprofile-dashboard"))
+        self.assertTrue(reverse("userprofile-login") in response.get("location"))
+
+        # With login
+        response = self.client.post(reverse("userprofile-login"), form_data)
+        self.assertTrue(reverse("userprofile-dashboard") in response.get("location"))
