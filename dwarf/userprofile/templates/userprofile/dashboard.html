@@ -2,4 +2,25 @@
 
 {% block body%}
     Dashboard!
+
+    <table class="table table-bordered table-condensed">
+        <thead>
+            <tr>
+              <th>Counter</th>
+              <th>Token</th>
+              <th>Link</th>
+              <th>Original URL</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for link in links %}
+            <tr>
+                <th>{{link.counter}}</th>
+                <th>{{link.token}}</th>
+                <td><a href={% url "forwarder-forward" link.token %}>{% url "forwarder-forward" link.token %}</a></td>
+                <td><a href="http://{{link.url}}">{{link.url}}</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 {% endblock body%}

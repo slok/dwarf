@@ -15,6 +15,7 @@ from django.contrib.auth.decorators import login_required
 
 from userprofile.models import Profile
 from userprofile.forms import SignupForm, ResetPasswordForm
+from linkshortener.models import UserLink, ShortLink
 from dwarfutils.hashutils import get_random_hash
 
 
@@ -116,7 +117,9 @@ def custom_login(request, template_name):
 
 @login_required
 def user_dashboard(request):
-    context = {}
+    links_aux = UserLink.objects.filter(user=request.user)
+    links = [ ShortLink.find(token=i.token) for i in links_aux]
+    context = {"links": links}
 
     return render_to_response('userprofile/dashboard.html',
                         context,
