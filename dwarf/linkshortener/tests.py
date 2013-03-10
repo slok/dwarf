@@ -3,12 +3,13 @@ import random
 from django.test import TestCase
 from django.conf import settings
 from django.test.utils import override_settings
+from django.contrib.auth.models import User
 import redis
 
 from linkshortener import utils
 from linkshortener.exceptions import (LinkShortenerLengthError, ShortLinkError,
                                     ShortLinkNotFoundError)
-from linkshortener.models import ShortLink
+from linkshortener.models import ShortLink, UserLink
 from linkshortener import tasks
 from dwarfutils import dateutils
 
@@ -346,3 +347,36 @@ class ShortLinkTasksTest(TestCase):
                     creation_date=sl.creation_date)
 
         self.assertEquals(sl2, sl)
+
+    def test_create_new_token_with_user(self):
+        counter = random.randrange(100000)
+        url = "http://xlarrakoetxea{0}.org".format(random.randrange(100))
+
+        # Set the counter
+        ShortLink.set_counter(counter)
+
+        # Create user
+        user = User()
+        user.username = "test"
+        user.save()
+        user_id = user.id
+
+        # Call the async task with celery
+        result = tasks.create_token.delay(url, user_id)
+        new_token = result.get()
+
+        #Check if the returned token is ok
+        self.assertEquals(utils.counter_to_token(counter + 1), new_token)
+        self.assertTrue(result.successful())
+
+        # Check if the link is stored in the database correctly
+        sl = ShortLink.find(url=url)[0]
+
+        # creation_date is trap!! :P
+        sl2 = ShortLink(counter=counter + 1, url=url,
+                    creation_date=sl.creation_date)
+
+        self.assertEquals(sl2, sl)
+
+        user_link = UserLink.objects.get(user=user)
+        self.assertEquals(sl.token, user_link.token)        
