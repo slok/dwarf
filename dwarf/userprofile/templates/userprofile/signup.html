@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block body%}
 
-<form id="signup-form" action="{% url userprofile-signup %}" method="post" class="form-horizontal">{% csrf_token %}
+<form id="signup-form" action="{% url 'userprofile-signup' %}" method="post" class="form-horizontal">{% csrf_token %}
     {% if form.username.errors %}
         <div id="username-control-group" class="control-group error">
     {% else %}
