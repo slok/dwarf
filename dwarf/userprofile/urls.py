@@ -20,7 +20,8 @@ urlpatterns = patterns('',
         {'template_name': 'userprofile/login.html'},
         name="userprofile-login"),
 
-    url(r'^logout/$', logout, name="userprofile-logout"),
+    url(r'^logout/$', logout, {'next_page': '/'},
+         name="userprofile-logout"),
 
     # Password reset stuff
     url(r'^ask/reset/password/$',
