@@ -45,9 +45,8 @@
                 </ul>
               {% else %}
                 <ul class="nav pull-right">
-                    <li>
-                      <a class="btn btn-success" href="{% url 'userprofile-login' %}">Signin</a>
-                    </li>
+                    <a class="btn btn-success" href="{% url 'userprofile-signup' %}">Sign up</a>
+                    <a class="btn" href="{% url 'userprofile-login' %}">Sign in</a>
                 </ul>
               {% endif %}
             </div>
