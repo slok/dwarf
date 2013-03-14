@@ -31,10 +31,10 @@ class ShortLink(object):
     REDIS_COUNTER_KEY = "ShortLink:counter"
     REDIS_TOKEN_KEY = "ShortLink:{0}"
     REDIS_URL_KEY = "ShortLink:{0}:tokens"
-    OBJECT_STR_FORMAT = "[<{0}> <{1}> <{2}> <{3}> <{4}>]"
+    OBJECT_STR_FORMAT = "[<{0}> <{1}> <{2}> <{3}> <{4}> <{5}> <{6}>]"
 
     def __init__(self, counter=None, url=None, token=None, creation_date=None,
-                    clicks=0):
+                    clicks=0, title=None, host=None):
         """Constructor of the class. The counter has priority. If you pass the
         counter and the token to the constructor (not only on of them) then the
         token will be ignored because with the counter we translate to generate
@@ -45,6 +45,8 @@ class ShortLink(object):
         :param url: The url identified by the token
         :param creation_date: The link creation date (UNIX UTC/GMT format)
         :param clicks: The clicks of the link
+        :param title: The title of the link
+        :param host: The host of the link
         """
 
         # Use the getters to do the convertion operation
@@ -61,7 +63,9 @@ class ShortLink(object):
                 self._counter = counter
 
         self._url = url
-        self.clicks = clicks
+        self._clicks = clicks
+        self._title = title
+        self._host = host
         # UNIX format UTC/GMT
         #self._creation_date = calendar.timegm(time.gmtime())
         self._creation_date = creation_date
@@ -73,7 +77,9 @@ class ShortLink(object):
                                                 self.token,
                                                 self.url,
                                                 self._creation_date,
-                                                self._clicks)
+                                                self._clicks,
+                                                self._title,
+                                                self._host)
 
     def __cmp__(self, other):
         """Comparation method of links, equals, lesser and greater"""
@@ -82,7 +88,9 @@ class ShortLink(object):
             self.token == other.token and\
             self.url == other.url and\
             self.creation_date == other.creation_date and\
-            self.clicks == other.clicks:
+            self.clicks == other.clicks and\
+            self.title == other.title and\
+            self.host == other.host:
             return 0
         elif self.counter < other.counter:
                 return -1
@@ -124,6 +132,22 @@ class ShortLink(object):
     @clicks.setter
     def clicks(self, value):
         self._clicks = value
+
+    @property
+    def title(self):
+        return self._title
+
+    @title.setter
+    def title(self, value):
+        self._title = value
+
+    @property
+    def host(self):
+        return self._host
+
+    @host.setter
+    def host(self, value):
+        self._host = value
 
     @property
     def creation_date(self):
@@ -252,9 +276,12 @@ class ShortLink(object):
         #If there is not a date then take now
         if not self.creation_date:
             self.creation_date = dateutils.unix_now_utc()
+
         mappings = {'url': self.url,
                 'creation_date': self.creation_date,
-                'clicks': self.clicks}
+                'clicks': self.clicks,
+                'title': self.title,
+                'host': self.host}
 
         pipe.hmset(ShortLink.REDIS_TOKEN_KEY.format(self.token), mappings)
         pipe.sadd(ShortLink.REDIS_URL_KEY.format(self.url), self.token)

@@ -84,14 +84,18 @@ class ShortLinkModelTest(TestCase):
         token = utils.counter_to_token(counter)
         creation_date = None
         clicks = 0
+        title = "This is a title"
+        host = url
 
         format = ShortLink.OBJECT_STR_FORMAT.format(counter,
                                                 token,
                                                 url,
                                                 creation_date,
-                                                clicks)
+                                                clicks,
+                                                title,
+                                                host)
 
-        sl = ShortLink(counter=counter, url=url)
+        sl = ShortLink(counter=counter, url=url, title=title, host=host)
 
         self.assertEquals(format, str(sl))
 
@@ -115,9 +119,11 @@ class ShortLinkModelTest(TestCase):
         token = utils.counter_to_token(counter)
         creation_date = None
         clicks = 0
+        title = "This is a title"
+        host = url
 
         # Setters from counter
-        sl = ShortLink(counter=counter, url=url)
+        sl = ShortLink(counter=counter, url=url, title=title, host=host)
 
         # Getters
         self.assertEquals(url, sl.url)
@@ -125,6 +131,8 @@ class ShortLinkModelTest(TestCase):
         self.assertEquals(token, sl.token)
         self.assertEquals(creation_date, sl.creation_date)
         self.assertEquals(clicks, sl.clicks)
+        self.assertEquals(title, sl.title)
+        self.assertEquals(host, sl.host)
 
         # Setters from token
         sl2 = ShortLink(token=token, url=url)
@@ -132,6 +140,8 @@ class ShortLinkModelTest(TestCase):
         sl2.creation_date = creation_date
         clicks = 5
         sl2.clicks = clicks
+        sl2.title = title
+        sl2.host = host
 
         # Getters
         self.assertEquals(url, sl2.url)
@@ -139,6 +149,8 @@ class ShortLinkModelTest(TestCase):
         self.assertEquals(token, sl2.token)
         self.assertEquals(creation_date, sl2.creation_date)
         self.assertEquals(clicks, sl2.clicks)
+        self.assertEquals(title, sl2.title)
+        self.assertEquals(host, sl2.host)
 
     def test_stored_counter_set_get(self):
         counter = random.randrange(0, 100000)
@@ -159,9 +171,12 @@ class ShortLinkModelTest(TestCase):
         url = "xlarrakoetxea.org"
         creation_date = dateutils.unix_now_utc()
         clicks = 20
+        title = "This is a title"
+        host = url
+
         # Save the links
         sl = ShortLink(counter=counter, url=url, creation_date=creation_date,
-                        clicks=clicks)
+                        clicks=clicks, title=title, host=host)
         sl.save()
 
         r = redis.StrictRedis(host=settings.REDIS_HOST,
@@ -175,11 +190,11 @@ class ShortLinkModelTest(TestCase):
         # Check
         token = utils.counter_to_token(counter)
         self.assertTrue(token in r.smembers(ruk))
-        keys = ('url', 'creation_date', 'clicks')
-        data = [url, creation_date, clicks]
+        keys = ('url', 'creation_date', 'clicks', 'title', 'host')
+        data = [url, creation_date, clicks, title, host]
         aux = r.hmget(rtk, keys)
 
-        data_result = [aux[0], int(aux[1]), int(aux[2])]
+        data_result = [aux[0], int(aux[1]), int(aux[2]), aux[3], aux[4]]
         self.assertEquals(data, data_result)
 
     def test_save_shortLink_error(self):
