@@ -3,8 +3,7 @@ from datetime import datetime, timedelta
 from django.test import TestCase
 from pytz import timezone
 
-from dwarfutils import dateutils
-
+from dwarfutils import dateutils, urlutils
 
 class DateUtilTest(TestCase):
 
@@ -77,3 +76,20 @@ class DateUtilTest(TestCase):
         #correct_est_date = date - timedelta(hours=5)
         #self.assertEquals(correct_est_date.hour, est_date.hour)
 
+
+class URLUtilTest(TestCase):
+
+    def test_title_extraction(self):
+        urls = {
+            "http://google.com": "Google",
+            "https://www.djangoproject.com/": "The Web framework for perfectionists with deadlines | Django",
+            "https://gitHub.com/": "GitHub \xc2\xb7 Build software better, together.",
+            "https://twitter.com/": "Twitter"
+        }
+        for url, title in urls.items():
+            self.assertEquals(title, urlutils.extract_url_title(url))
+
+    def test_percent_encode_url(self):
+        bad_url = "https://www.google.es/#hl=es&gs_r n=5&gs_ri=psy-ab&cp="
+        good_url = "https://www.google.es/#hl=es&gs_r%20n=5&gs_ri=psy-ab&cp="
+        self.assertEquals(good_url, urlutils.percent_encode_url(bad_url))
