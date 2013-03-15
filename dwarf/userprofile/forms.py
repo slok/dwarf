@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
 
+from dwarfutils import checkutils
+
 
 class SignupForm(forms.Form):
     username = forms.CharField(label=_(u'username'))
@@ -13,9 +15,16 @@ class SignupForm(forms.Form):
     email = forms.EmailField(label=_(u'email'))
 
     def clean_username(self):
-        """Checks if the suer exists"""
+        """Checks if the user exists and that the username is only -_a-zA-Z"""
+        username = self.cleaned_data.get('username')
+        # Check that the username is alphanumeric underscore and dash only
+        # and doesnt start with a dash
+        if not checkutils.username_correct(username):
+            # We can safely return only this error because is not a valid
+            # username so doesn't matter if exists or not the username
+            raise forms.ValidationError(_(u"Only allowed alphanumeric characters, underscore and dash, and also can't start with dash"))
+
         try:
-            username = self.cleaned_data.get('username')
             User.objects.get(username=username)
         except ObjectDoesNotExist:
             return username
