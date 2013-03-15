@@ -38,7 +38,12 @@ $(document).ready(function () {
         return pattern.test(emailAddress);
     }
 
-    // Ajax check of the username
+    function checkUsernameIsValid(username){
+        var pattern = new RegExp(/^[\w][\w-]*$/i);
+        return pattern.test(username);
+    }
+
+    // existence username and username characters check
     $('#id_username').focusout(function() {
         var username = $('#id_username').val();
 
@@ -50,10 +55,18 @@ $(document).ready(function () {
             return;
         }
 
+        // Check username chars correct
+        if (!checkUsernameIsValid(username)){
+            $('#username-control-group').removeClass('success');
+            $('#username-control-group').addClass('error');
+            $('#username-help-inline').text("Only allowed alphanumeric characters, underscore and dash, and also can't start with dash");
+            return;
+        }
+
         //Add load spinner
         $('#username-help-inline').text('');
         $('#username-help-inline').append(spinnerIcon);
-        
+
         // Check by ajax if the user exists
         $.ajax({
             type: "GET",
