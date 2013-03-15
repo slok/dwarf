@@ -34,7 +34,7 @@ urlpatterns = patterns('',
 )
 
 ajax_patterns = patterns('',
-    url(r'^signup/userexists/(?P<username>\w+)/$',
+    url(r'^signup/userexists/(?P<username>[\w-]+)/$',
         userprofile.views.ajax_username_exists,
         name="userprofile-ajax-userexists"),
     url(r'^signup/emailexists/$',
