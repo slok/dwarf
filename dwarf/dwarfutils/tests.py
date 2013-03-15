@@ -3,7 +3,8 @@ from datetime import datetime, timedelta
 from django.test import TestCase
 from pytz import timezone
 
-from dwarfutils import dateutils, urlutils
+from dwarfutils import dateutils, urlutils, checkutils
+
 
 class DateUtilTest(TestCase):
 
@@ -93,3 +94,27 @@ class URLUtilTest(TestCase):
         bad_url = "https://www.google.es/#hl=es&gs_r n=5&gs_ri=psy-ab&cp="
         good_url = "https://www.google.es/#hl=es&gs_r%20n=5&gs_ri=psy-ab&cp="
         self.assertEquals(good_url, urlutils.percent_encode_url(bad_url))
+
+
+class CheckUtilTest(TestCase):
+
+    def test_correct_username(self):
+        usernames = {
+            "slok69": True,
+            "sharem": True,
+            "-wrong": False,
+            "right-": True,
+            "rig-ht": True,
+            "r_ight": True,
+            "r1gh_7": True,
+            "r1ght-": True,
+            "_right": True,
+            "w?rong": False,
+            "wr@ong": False,
+            "wr#ng": False,
+            "wrong+": False,
+            "wro/g": False,
+            "wro ng": False,
+        }
+        for username, result in usernames.items():
+            self.assertEquals(result, checkutils.username_correct(username))
