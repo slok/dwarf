@@ -33,9 +33,12 @@ class SignupForm(forms.Form):
         raise forms.ValidationError(_(u"This username is already taken"))
 
     def clean_password2(self):
-        """Checks if both passwords are the same"""
+        """Checks if the length is correct and both passwords are the same"""
         password1 = self.cleaned_data.get('password1')
         password2 = self.cleaned_data.get('password2')
+
+        if len(password1) < 7 or len(password2) < 7:
+            raise forms.ValidationError(_(u"Password length needs to be 7 or more"))
 
         if not password2:
             raise forms.ValidationError(_(u"You must confirm your password"))
