@@ -210,6 +210,8 @@ class ShortLinkModelTest(TestCase):
     def test_save_shortLink_autofield(self):
         times = random.randrange(1, 100)
         url = "xlarrakoetxea.org"
+        title = "My webpage"
+        host = "xlarrakoetxea.org"
 
         # Set the shor link counter
         for i in range(times):
@@ -218,6 +220,8 @@ class ShortLinkModelTest(TestCase):
         # Save
         sl = ShortLink()
         sl.url = url
+        sl.title = title
+        sl.host = host
         sl.save()
 
         # Check the correct counter
@@ -227,8 +231,10 @@ class ShortLinkModelTest(TestCase):
     def test_get_shortLink_by_counter(self):
         counter = random.randrange(0, 100000)
         url = "xlarrakoetxea.org"
+        title = "My webpage"
+        host = "xlarrakoetxea.org"
 
-        sl = ShortLink(counter=counter, url=url)
+        sl = ShortLink(counter=counter, url=url, title=title, host=host)
         sl.save()
 
         sl2 = ShortLink.find(counter=counter)
@@ -238,7 +244,10 @@ class ShortLinkModelTest(TestCase):
     def test_get_shortLink_by_token(self):
         counter = random.randrange(0, 100000)
         url = "xlarrakoetxea.org"
-        sl = ShortLink(token=utils.counter_to_token(counter), url=url)
+        title = "My webpage"
+        host = "xlarrakoetxea.org"
+
+        sl = ShortLink(token=utils.counter_to_token(counter), url=url, title=title, host=host)
         sl.save()
 
         sl2 = ShortLink.find(token=sl.token)
