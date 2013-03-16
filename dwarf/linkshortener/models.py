@@ -195,6 +195,9 @@ class ShortLink(object):
             aux_self.url = data.get('url')
             aux_self.creation_date = int(data.get('creation_date', 0))
             aux_self.clicks = int(data.get('clicks', 0))
+            aux_self.title = data.get('title')
+            aux_self.host = data.get('host')
+
 
             return aux_self
         elif token is not None:
@@ -209,6 +212,8 @@ class ShortLink(object):
             aux_self.url = data.get('url')
             aux_self.creation_date = int(data.get('creation_date', 0))
             aux_self.clicks = int(data.get('clicks', 0))
+            aux_self.title = data.get('title')
+            aux_self.host = data.get('host')
 
             return aux_self
         elif url:
@@ -238,6 +243,8 @@ class ShortLink(object):
                 sl.url = data.get('url')
                 sl.creation_date = int(data.get('creation_date', 0))
                 sl.clicks = int(data.get('clicks', 0))
+                aux_self.title = data.get('title')
+                aux_self.host = data.get('host')
                 short_links.append(sl)
             return short_links
 
