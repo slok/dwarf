@@ -37,7 +37,7 @@ class SignupForm(forms.Form):
         password1 = self.cleaned_data.get('password1')
         password2 = self.cleaned_data.get('password2')
 
-        if len(password1) < 7 or len(password2) < 7:
+        if password1 and password2 and len(password1) < 7 or len(password2) < 7:
             raise forms.ValidationError(_(u"Password length needs to be 7 or more"))
 
         if not password2:
