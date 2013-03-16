@@ -8,7 +8,7 @@
             <tr>
               <th>Counter</th>
               <th>Token</th>
-              <th>Link</th>
+              <th>Title</th>
               <th>Original URL</th>
             </tr>
         </thead>
@@ -16,8 +16,8 @@
         {% for link in links %}
             <tr>
                 <th>{{link.counter}}</th>
-                <th>{{link.token}}</th>
                 <td><a href={% url "forwarder-forward" link.token %}>{% url "forwarder-forward" link.token %}</a></td>
+                <th>{{link.title}}</th>
                 <td><a href="http://{{link.url}}">{{link.url}}</a></td>
             </tr>
         {% endfor %}
