@@ -140,25 +140,35 @@ $(document).ready(function () {
         }
     });
 
-    // Check 2 passwords are the same
     var check_passwords = function() {
         pass1 = $('#id_password1').val();
         pass2 = $('#id_password2').val();
+
         if (pass1 !== '' && pass2 !== ''){
-            if (pass1 === pass2){
-                $('#password1-help-inline').text("");
-                $('#password2-help-inline').text("");
-                $('#password1-control-group').removeClass('error');
-                $('#password1-control-group').addClass('success');
-                $('#password2-control-group').removeClass('error');
-                $('#password2-control-group').addClass('success');
-            }else{
+            // Check password has more than 7 letters
+            if (pass1.length < 7 || pass2.length < 7){
+                $('#password1-help-inline').text("Password length needs to be 7 or more");
+                $('#password2-help-inline').text("Password length needs to be 7 or more");
+                $('#password1-control-group').removeClass('success');
+                $('#password1-control-group').addClass('error');
+                $('#password2-control-group').removeClass('success');
+                $('#password2-control-group').addClass('error');
+            }
+            // Check 2 passwords are the same
+            else if (pass1 != pass2){
                 $('#password1-help-inline').text("Passwords don't match");
                 $('#password2-help-inline').text("Passwords don't match");
                 $('#password1-control-group').removeClass('success');
                 $('#password1-control-group').addClass('error');
                 $('#password2-control-group').removeClass('success');
                 $('#password2-control-group').addClass('error');
+            }else{
+                $('#password1-help-inline').text("");
+                $('#password2-help-inline').text("");
+                $('#password1-control-group').removeClass('error');
+                $('#password1-control-group').addClass('success');
+                $('#password2-control-group').removeClass('error');
+                $('#password2-control-group').addClass('success');
             }
         }
 
