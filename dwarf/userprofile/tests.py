@@ -119,7 +119,68 @@ class SignupFormTests(TestCase):
         self.assertTrue("password2" in form.errors)
         #self.assertTrue(unicode(_(u"Your passwords do not match")) in form.errors)
 
-    def test_user_exists(self):
+    def test_password_length(self):
+        form_data = {
+            'username': 'slok',
+            'password1': 'p',
+            'password2': 'p',
+            'email': 'slok@slok.org',
+        }
+        form = SignupForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertTrue("password2" in form.errors)
+
+        form_data['password1'] = "123456"
+        form_data['password2'] = form_data['password1']
+        form = SignupForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertTrue("password2" in form.errors)
+        #self.assertTrue(unicode(_(u"Password length needs to be 7 or more")) in form.errors)
+
+        form_data['password1'] = "1234567"
+        form_data['password2'] = form_data['password1']
+        form = SignupForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+    def test_user_correct(self):
+        form_data = {
+            'username': '-test',
+            'password1': 'p455w0rd',
+            'password2': 'p455w0rd',
+            'email': 'slok@slok.org',
+        }
+        form = SignupForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+        form_data['username'] = "test_"
+        form = SignupForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertTrue("username" in form.errors)
+
+        form_data['username'] = "-test"
+        form = SignupForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertTrue("username" in form.errors)
+
+        form_data['username'] = "te@st"
+        form = SignupForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertTrue("username" in form.errors)
+        #self.assertTrue(unicode(_(u""Username may only contain alphanumeric characters or dashes and cannot begin with a dash"")) in form.errors)
+
+        form_data['username'] = "te-st"
+        form = SignupForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+        form_data['username'] = "t3st"
+        form = SignupForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+        form_data['username'] = "3te-st"
+        form = SignupForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+    def test_username_exists(self):
         form_data = {
             'username': 'test',
             'password1': 'p455w0rd',
