@@ -39,7 +39,7 @@ $(document).ready(function () {
     }
 
     function checkUsernameIsValid(username){
-        var pattern = new RegExp(/^[\w][\w-]*$/i);
+        var pattern = new RegExp(/^[a-zA-Z\d][a-zA-Z\d-]*$/i);
         return pattern.test(username);
     }
 
@@ -59,7 +59,7 @@ $(document).ready(function () {
         if (!checkUsernameIsValid(username)){
             $('#username-control-group').removeClass('success');
             $('#username-control-group').addClass('error');
-            $('#username-help-inline').text("Only allowed alphanumeric characters, underscore and dash, and also can't start with dash");
+            $('#username-help-inline').text("Username may only contain alphanumeric characters or dashes and cannot begin with a dash");
             return;
         }
 

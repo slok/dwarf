@@ -15,14 +15,14 @@ class SignupForm(forms.Form):
     email = forms.EmailField(label=_(u'email'))
 
     def clean_username(self):
-        """Checks if the user exists and that the username is only -_a-zA-Z"""
+        """Checks if the user exists and that the username is only -a-zA-Z"""
         username = self.cleaned_data.get('username')
-        # Check that the username is alphanumeric underscore and dash only
+        # Check that the username is alphanumeric and dash only
         # and doesnt start with a dash
         if not checkutils.username_correct(username):
             # We can safely return only this error because is not a valid
             # username so doesn't matter if exists or not the username
-            raise forms.ValidationError(_(u"Only allowed alphanumeric characters, underscore and dash, and also can't start with dash"))
+            raise forms.ValidationError(_(u"Username may only contain alphanumeric characters or dashes and cannot begin with a dash"))
 
         try:
             User.objects.get(username=username)
