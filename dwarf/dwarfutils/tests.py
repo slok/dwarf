@@ -95,6 +95,18 @@ class URLUtilTest(TestCase):
         good_url = "https://www.google.es/#hl=es&gs_r%20n=5&gs_ri=psy-ab&cp="
         self.assertEquals(good_url, urlutils.percent_encode_url(bad_url))
 
+    def test_host_url(self):
+        urls = {
+            "http://google.com": "google.com",
+            "https://www.djangoproject.com/": "www.djangoproject.com",
+            "https://gitHub.com/": "github.com",
+            "https://twitter.com/": "twitter.com",
+            "http://docs.python.org/2/library/urlparse.html": "docs.python.org"
+        }
+
+        for url, host in urls.items():
+            self.assertEquals(host, urlutils.extract_url_host(url))
+
 
 class CheckUtilTest(TestCase):
 
