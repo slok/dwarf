@@ -134,7 +134,7 @@ def user_dashboard(request):
     # Get the links
     offset = LINK_PER_PAGE * (page - 1)
     limit = offset + LINK_PER_PAGE
-    links_aux = UserLink.objects.filter(user=request.user)[offset:limit]
+    links_aux = UserLink.objects.filter(user=request.user).order_by('-id')[offset:limit]
     links = [ShortLink.find(token=i.token) for i in links_aux]
 
     context = {
