@@ -7,7 +7,7 @@
     <table class="table table-bordered table-condensed">
         <thead>
             <tr>
-              <th>{{group.0.creation_date|from_unix_timestamp|date:"N j, Y"}}</th>
+              <th>{{group.0.creation_date|from_unix_timestamp|date:"M j, Y"}}</th>
             </tr>
         </thead>
         <tbody>
@@ -16,7 +16,7 @@
             <tr>
                 <th> <img src="{{ link.host|host_favicon }}" alt="{{link.host}} favicon"></th>
                 <th>{{link.counter}}</th>
-                <td><a href={% url "forwarder-forward" link.token %}>{% url "forwarder-forward" link.token %}</a></td>
+                <td><a href={% url "forwarder-forward" link.token %}>{{link.token}}</a></td>
                 <th>{{link.title}}</th>
                 <td><a href="http://{{link.url}}">{{link.url}}</a></td>
                 <td><a href="http://{{link.host}}">{{link.host}}</a></td>
