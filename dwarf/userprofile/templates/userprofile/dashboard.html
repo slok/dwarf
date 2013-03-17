@@ -28,4 +28,26 @@
         {% endfor %}
         </tbody>
     </table>
+
+        <ul class="pager">
+            <li class="previous {% if actual_page <= 1 %}disabled {% endif %} ">
+                    <a href="
+                        {% if actual_page > 1 %} 
+                            {% url "userprofile-dashboard" %}?page={{ actual_page|add:-1 }}
+                        {% else %}
+                            #
+                        {% endif %}
+                    ">← Older</a>
+            </li>
+            <li class="next {% if actual_page >= total_pages %}disabled {% endif %} ">
+                <a href="
+                    {% if actual_page < total_pages %} 
+                        {% url "userprofile-dashboard" %}?page={{ actual_page|add:1 }}
+                    {% else %}
+                        #
+                    {% endif %}
+                ">Newer →</a>
+            </li>
+        </ul>
+    </div>
 {% endblock body%}

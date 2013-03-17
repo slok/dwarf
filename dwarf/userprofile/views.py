@@ -1,5 +1,6 @@
 import json
 import logging
+import math
 
 from django.shortcuts import (render_to_response,
                              RequestContext, redirect)
@@ -20,6 +21,8 @@ from dwarfutils.hashutils import get_random_hash
 
 
 logger = logging.getLogger("dwarf")
+
+LINK_PER_PAGE = 10
 
 
 def signup(request):
@@ -117,9 +120,28 @@ def custom_login(request, template_name):
 
 @login_required
 def user_dashboard(request):
-    links_aux = UserLink.objects.filter(user=request.user)
-    links = [ ShortLink.find(token=i.token) for i in links_aux]
-    context = {"links": links}
+
+    # get the page
+    page = int(request.GET.get('page', 1))
+
+    # Get the total pages (rounding up, ex: 1.2 pages means 2 pages)
+    total_pages = int(math.ceil(float(UserLink.objects.count()) / LINK_PER_PAGE))
+
+    # If the page doesn't exists then 404
+    if page > total_pages:
+        raise Http404
+
+    # Get the links
+    offset = LINK_PER_PAGE * (page - 1)
+    limit = offset + LINK_PER_PAGE
+    links_aux = UserLink.objects.filter(user=request.user)[offset:limit]
+    links = [ShortLink.find(token=i.token) for i in links_aux]
+
+    context = {
+        "total_pages": total_pages,
+        "actual_page": page,
+        "links": links
+    }
 
     return render_to_response('userprofile/dashboard.html',
                         context,
