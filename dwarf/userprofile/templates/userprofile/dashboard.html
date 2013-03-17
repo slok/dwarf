@@ -1,11 +1,13 @@
 {% extends "base.html" %}
+{% load faviconfilters %}
 
-{% block body%}
+{% block body %}
     Dashboard!
 
     <table class="table table-bordered table-condensed">
         <thead>
             <tr>
+              <th></th>
               <th>Counter</th>
               <th>Token</th>
               <th>Title</th>
@@ -16,6 +18,7 @@
         <tbody>
         {% for link in links %}
             <tr>
+                <th> <img src="{{ link.host|host_favicon }}" alt="{{link.host}} favicon"></th>
                 <th>{{link.counter}}</th>
                 <td><a href={% url "forwarder-forward" link.token %}>{% url "forwarder-forward" link.token %}</a></td>
                 <th>{{link.title}}</th>
