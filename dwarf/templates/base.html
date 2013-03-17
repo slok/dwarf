@@ -40,6 +40,7 @@
               <a class="brand" href="#">Dwarf</a>
               {% if user.is_authenticated %}
                 <ul class="nav pull-right">
+                    <li><a rel="settings" href="{% url 'userprofile-dashboard' %}"><strong>{{user.username}}</strong></li></a>
                     <li><a rel="settings" href="{% url 'userprofile-logout' %}"><i class="icon-cog icon-large"></i></a></li>
                     <li><a rel="logout" href="{% url 'userprofile-logout' %}"><i class="icon-signout icon-large"></i></a></li>
                 </ul>
