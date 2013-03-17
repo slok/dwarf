@@ -1,22 +1,18 @@
 {% extends "base.html" %}
 {% load faviconfilters %}
+{%load datefilters%}
 
 {% block body %}
-    Dashboard!
-
+    {% for group in links %}
     <table class="table table-bordered table-condensed">
         <thead>
             <tr>
-              <th></th>
-              <th>Counter</th>
-              <th>Token</th>
-              <th>Title</th>
-              <th>Original URL</th>
-              <th>Host</th>
+              <th>{{group.0.creation_date|from_unix_timestamp|date:"N j, Y"}}</th>
             </tr>
         </thead>
         <tbody>
-        {% for link in links %}
+
+            {% for link in group %}
             <tr>
                 <th> <img src="{{ link.host|host_favicon }}" alt="{{link.host}} favicon"></th>
                 <th>{{link.counter}}</th>
@@ -25,9 +21,11 @@
                 <td><a href="http://{{link.url}}">{{link.url}}</a></td>
                 <td><a href="http://{{link.host}}">{{link.host}}</a></td>
             </tr>
-        {% endfor %}
+            {% endfor %}
+
         </tbody>
     </table>
+    {% endfor %}
 
         <ul class="pager">
             <li class="previous {% if actual_page <= 1 %}disabled {% endif %} ">

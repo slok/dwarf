@@ -18,6 +18,7 @@ from userprofile.models import Profile
 from userprofile.forms import SignupForm, ResetPasswordForm
 from linkshortener.models import UserLink, ShortLink
 from dwarfutils.hashutils import get_random_hash
+from dwarfutils.dateutils import unix_to_datetime
 
 
 logger = logging.getLogger("dwarf")
@@ -137,10 +138,31 @@ def user_dashboard(request):
     links_aux = UserLink.objects.filter(user=request.user).order_by('-id')[offset:limit]
     links = [ShortLink.find(token=i.token) for i in links_aux]
 
+    # Group by day
+    grouped_links = []
+    temp = []
+
+    for i in links:
+        creation_date = unix_to_datetime(i.creation_date)
+
+        if len(temp) == 0:
+            temp.append(i)
+        else:
+            previous_date = unix_to_datetime(temp[0].creation_date)
+            if previous_date.year == creation_date.year and\
+                previous_date.month == creation_date.month and\
+                previous_date.day == creation_date.day:
+                temp.append(i)
+            else:
+                grouped_links.append(temp)
+                temp = []
+
+    grouped_links.append(temp)
+
     context = {
         "total_pages": total_pages,
         "actual_page": page,
-        "links": links
+        "links": grouped_links
     }
 
     return render_to_response('userprofile/dashboard.html',
