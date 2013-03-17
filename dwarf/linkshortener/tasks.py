@@ -2,7 +2,7 @@ from celery import task
 from django.contrib.auth.models import User
 
 from linkshortener.models import ShortLink, UserLink
-from dwarfutils.urlutils import extract_url_title
+from dwarfutils.urlutils import extract_url_title, extract_url_host
 
 
 @task()
@@ -17,11 +17,15 @@ def create_token(url, user_id=None):
     except:
         title = "No title"
 
+    # Get the host
+    host = extract_url_host(url)
+
     # Create the instance with the data
     sl = ShortLink()
     sl.counter = counter
     sl.url = url
     sl.title = title
+    sl.host = host
 
     # Save
     sl.save()
