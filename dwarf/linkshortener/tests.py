@@ -8,14 +8,11 @@ import redis
 
 from linkshortener import utils
 from linkshortener.exceptions import (LinkShortenerLengthError, ShortLinkError,
-                                    ShortLinkNotFoundError)
+                                      ShortLinkNotFoundError)
 from linkshortener.models import ShortLink, UserLink
 from linkshortener import tasks
 from dwarfutils import dateutils
-
-
-def get_redis_connection():
-    return redis.StrictRedis(connection_pool=settings.REDIS_POOL)
+from dwarfutils.redisutils import get_redis_connection
 
 
 class UtilTest(TestCase):

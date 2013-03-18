@@ -1,15 +1,11 @@
-from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
-import redis
 
 from exceptions import ShortLinkError, ShortLinkNotFoundError
 from linkshortener.utils import counter_to_token, token_to_counter
 from dwarfutils import dateutils
+from dwarfutils.redisutils import get_redis_connection
 
-
-def get_redis_connection():
-    return redis.StrictRedis(connection_pool=settings.REDIS_POOL)
 
 # This is a Django model 
 class UserLink(models.Model):
