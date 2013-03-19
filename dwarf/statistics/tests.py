@@ -24,8 +24,7 @@ class LoginStatisticsTest(TestCase):
         self.r = get_redis_connection()
 
     def tearDown(self):
-        r = get_redis_connection()
-        r.flushdb()
+        self.r.flushdb()
 
     def test_key_generation(self):
         strtime = "{0}-{1}-{2}T{3}:{4}".format(self.year,
@@ -143,3 +142,158 @@ class LoginStatisticsTest(TestCase):
 
         # Test again
         self.assertEquals(correct_list, ls.get_flags(users_ids))
+
+    def test_and_operation(self):
+        and_bitmaps = {
+            "test:andops:1": (1, 1, 0, 1, 0, 0, 0, 0, 1, 1),
+            "test:andops:2": (1, 0, 0, 1, 1, 0, 1, 0, 1, 1),
+            "test:andops:3": (1, 0, 0, 1, 0, 0, 0, 0, 1, 1),
+            "test:andops:4": (1, 1, 0, 1, 0, 0, 0, 0, 0, 1),
+        }
+
+        result = (1, 0, 0, 1, 0, 0, 0, 0, 0, 1)
+
+        # Initial State
+        for key, val in and_bitmaps.items():
+            for i in range(len(val)):
+                self.r.setbit(key, i, val[i])
+
+        # After login
+        store_key_default = "test:andops:result"
+        store_key = LoginStatistics.and_operation(and_bitmaps.keys(),
+                                                  store_key_default)
+
+        #Check if the store key is the same
+        self.assertEquals(store_key_default, store_key)
+
+        for i in range(len(result)):
+            self.assertEquals(result[i], self.r.getbit(store_key, i))
+
+    def test_and_operation_random_result_key(self):
+        and_bitmaps = {
+            "test:andops:1": (1, 1, 0, 1, 0, 0, 0, 0, 1, 1),
+            "test:andops:2": (1, 0, 0, 1, 1, 0, 1, 0, 1, 1),
+            "test:andops:3": (1, 0, 0, 1, 0, 0, 0, 0, 1, 1),
+            "test:andops:4": (1, 1, 0, 1, 0, 0, 0, 0, 0, 1),
+        }
+
+        result = (1, 0, 0, 1, 0, 0, 0, 0, 0, 1)
+
+        # Initial State
+        for key, val in and_bitmaps.items():
+            for i in range(len(val)):
+                self.r.setbit(key, i, val[i])
+
+        # After login
+        store_key = LoginStatistics.and_operation(and_bitmaps.keys())
+
+        for i in range(len(result)):
+            self.assertEquals(result[i], self.r.getbit(store_key, i))
+
+    def test_or_operation(self):
+        or_bitmaps = {
+            "test:orops:1": (1, 1, 0, 1, 0, 0, 0, 0, 1, 1),
+            "test:orops:2": (1, 0, 0, 1, 1, 0, 1, 0, 1, 1),
+            "test:orops:3": (1, 0, 0, 1, 0, 0, 0, 0, 1, 1),
+            "test:orops:4": (1, 1, 0, 1, 0, 0, 0, 0, 0, 1),
+        }
+
+        result = (1, 1, 0, 1, 1, 0, 1, 0, 1, 1)
+
+        # Initial State
+        for key, val in or_bitmaps.items():
+            for i in range(len(val)):
+                self.r.setbit(key, i, val[i])
+
+        # After login
+        store_key_default = "test:orops:result"
+        store_key = LoginStatistics.or_operation(or_bitmaps.keys(),
+                                                 store_key_default)
+
+        #Check if the store key is the same
+        self.assertEquals(store_key_default, store_key)
+
+        for i in range(len(result)):
+            self.assertEquals(result[i], self.r.getbit(store_key, i))
+
+    def test_xor_operation(self):
+        xor_bitmaps = {
+            "test:xorops:1": (1, 1, 0, 1, 0, 0, 0, 0, 1, 1),
+            "test:xorops:2": (1, 0, 0, 1, 1, 0, 1, 0, 1, 1),
+            "test:xorops:3": (1, 0, 0, 1, 0, 0, 0, 0, 1, 1),
+            "test:xorops:4": (1, 1, 0, 1, 0, 0, 0, 0, 0, 1),
+        }
+
+        result = (0, 0, 0, 0, 1, 0, 1, 0, 1, 0)
+
+        # Initial State
+        for key, val in xor_bitmaps.items():
+            for i in range(len(val)):
+                self.r.setbit(key, i, val[i])
+
+        # After login
+        store_key_default = "test:xorops:result"
+        store_key = LoginStatistics.xor_operation(xor_bitmaps.keys(),
+                                                  store_key_default)
+
+        #Check if the store key is the same
+        self.assertEquals(store_key_default, store_key)
+
+        for i in range(len(result)):
+            self.assertEquals(result[i], self.r.getbit(store_key, i))
+
+    def test_not_bitmap(self):
+
+        bitmaps = (
+            ((1, 1, 0, 1, 0, 0, 0, 0, 1, 1), (0, 0, 1, 0, 1, 1, 1, 1, 0, 0)),
+            ((1, 0, 0, 1, 1, 0, 1, 0, 1, 1), (0, 1, 1, 0, 0, 1, 0, 1, 0, 0)),
+            ((1, 0, 0, 1, 0, 0, 0, 0, 1, 1), (0, 1, 1, 0, 1, 1, 1, 1, 0, 0)),
+            ((1, 1, 0, 1, 0, 0, 0, 0, 0, 1), (0, 0, 1, 0, 1, 1, 1, 1, 1, 0)),
+            ((0, 0, 0, 0, 0, 0, 0, 0, 0, 0), (1, 1, 1, 1, 1, 1, 1, 1, 1, 1)),
+        )
+
+        for bitmap_result in bitmaps:
+            bitmap = bitmap_result[0]
+            key = "test:{0}:result".format(random.randrange(0, 100000))
+            result = bitmap_result[1]
+
+            for i in range(len(bitmap)):
+                self.r.setbit(key, i, bitmap[i])
+
+            # Apply NOT
+            result_key = LoginStatistics.not_operation(key)
+
+            # Check
+            for i in range(len(result)):
+                self.assertEquals(result[i], self.r.getbit(result_key, i))
+
+    def test_get_bit_from_bitmap(self):
+
+        bitmap = (1, 1, 0, 1, 0, 0, 0, 0, 1, 1)
+        key = "test:get:result"
+
+        for i in range(len(bitmap)):
+            self.r.setbit(key, i, bitmap[i])
+
+        for i in range(len(bitmap)):
+            self.assertEquals(bitmap[i], LoginStatistics.check_flag(key, i))
+
+    def test_count_bitmap(self):
+
+        bitmaps = (
+            ((1, 1, 0, 1, 0, 0, 0, 0, 1, 1), 5),
+            ((1, 0, 0, 1, 1, 0, 1, 0, 1, 1), 6),
+            ((1, 0, 0, 1, 0, 0, 0, 0, 1, 1), 4),
+            ((1, 1, 0, 1, 0, 0, 0, 0, 0, 1), 4),
+            ((0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 0),
+        )
+
+        for bitmap_result in bitmaps:
+            bitmap = bitmap_result[0]
+            key = "test:{0}:result".format(random.randrange(0, 100000))
+            good_result = bitmap_result[1]
+
+            for i in range(len(bitmap)):
+                self.r.setbit(key, i, bitmap[i])
+
+            self.assertEquals(good_result, LoginStatistics.count_flags(key))
