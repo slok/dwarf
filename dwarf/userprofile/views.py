@@ -4,15 +4,25 @@ import math
 
 from django.shortcuts import (render_to_response,
                              RequestContext, redirect)
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.views import login
+#from django.contrib.auth.views import login
 from django.utils import timezone
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.debug import sensitive_post_parameters
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import REDIRECT_FIELD_NAME, login as auth_login
+from django.utils.http import is_safe_url
+from django.shortcuts import resolve_url
+from django.conf import settings
+from django.contrib.sites.models import get_current_site
+from django.template.response import TemplateResponse
 
 from userprofile.models import Profile
 from userprofile.forms import SignupForm, ResetPasswordForm
@@ -25,6 +35,64 @@ logger = logging.getLogger("dwarf")
 
 LINK_PER_PAGE = 10
 
+
+################################################################################
+# Copied code from Django (Need to put code in between, like metrics and stuff)
+@sensitive_post_parameters()
+@csrf_protect
+@never_cache
+def custom_login(request, template_name='registration/login.html',
+                 redirect_field_name=REDIRECT_FIELD_NAME,
+                 authentication_form=AuthenticationForm,
+                 current_app=None, extra_context=None):
+    """
+    Displays the login form and handles the login action.
+    """
+    redirect_to = request.REQUEST.get(redirect_field_name, '')
+
+    if request.method == "POST":
+        form = authentication_form(data=request.POST)
+        if form.is_valid():
+
+            # Ensure the user-originating redirection url is safe.
+            if not is_safe_url(url=redirect_to, host=request.get_host()):
+                redirect_to = resolve_url(settings.LOGIN_REDIRECT_URL)
+
+            # Okay, security check complete. Log the user in.
+            auth_login(request, form.get_user())
+
+            if request.session.test_cookie_worked():
+                request.session.delete_test_cookie()
+
+            return HttpResponseRedirect(redirect_to)
+    else:
+        form = authentication_form(request)
+
+    request.session.set_test_cookie()
+
+    current_site = get_current_site(request)
+
+    context = {
+        'form': form,
+        redirect_field_name: redirect_to,
+        'site': current_site,
+        'site_name': current_site.name,
+    }
+    if extra_context is not None:
+        context.update(extra_context)
+    return TemplateResponse(request, template_name, context,
+                            current_app=current_app)
+
+
+#def custom_login(request, template_name):
+#    if request.user.is_authenticated():
+#        messages.info(request, _(u"You are already logged in"))
+#        print(messages)
+#        return redirect(reverse(user_dashboard))
+#
+#    else:
+#        return login(request, template_name)
+################################################################################
 
 def signup(request):
 
@@ -107,16 +175,6 @@ def activate_account(request, user_id, token):
         user.save()
 
     return redirect("/")
-
-
-def custom_login(request, template_name):
-    if request.user.is_authenticated():
-        messages.info(request, _(u"You are already logged in"))
-        print(messages)
-        return redirect(reverse(user_dashboard))
-
-    else:
-        return login(request, template_name)
 
 
 @login_required
