@@ -5,6 +5,7 @@ from datetime import datetime
 
 
 from dwarfutils.redisutils import get_redis_connection
+from dwarfutils.dateutils import datetime_now_utc
 from statistics.models import LoginStatistics
 
 
@@ -297,3 +298,16 @@ class LoginStatisticsTest(TestCase):
                 self.r.setbit(key, i, bitmap[i])
 
             self.assertEquals(good_result, LoginStatistics.count_flags(key))
+
+    def test_user_login(self):
+
+        user = random.randrange(0, 100000)
+        date = datetime_now_utc().strftime(LoginStatistics.DATE_FORMAT)
+        key = LoginStatistics.STATISTICS_KEY.format(date)
+
+        self.assertEquals(LoginStatistics.FLAG_DOWN, self.r.getbit(key, user))
+
+        ls = LoginStatistics(datetime_now_utc())
+        ls.save_user_login(user)
+
+        self.assertEquals(LoginStatistics.FLAG_UP, self.r.getbit(key, user))

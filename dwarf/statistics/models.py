@@ -1,6 +1,7 @@
 import random
 
 from dwarfutils.redisutils import get_redis_connection
+from dwarfutils.dateutils import datetime_now_utc
 
 
 class BitmapStatistics(object):
@@ -179,3 +180,8 @@ class LoginStatistics(BitmapStatistics):
         self._statistics_date = value
         time = self._statistics_date.strftime(LoginStatistics.DATE_FORMAT)
         self._key = LoginStatistics.STATISTICS_KEY.format(time)
+
+    def save_user_login(self, user_id):
+        if not self.statistics_date:
+            raise AttributeError("Datetime is needed")
+        self.set_flag(user_id)
