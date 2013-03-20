@@ -158,7 +158,8 @@ class LoginStatistics(BitmapStatistics):
     """
 
     STATISTICS_KEY = "Statistics:login:{0}"  # Use Standard ISO-8601
-    DATE_FORMAT = "%Y-%m-%dT%H:%M"
+    DATE_FORMAT = "%Y-%m-%dT%H"
+    DATE_FORMAT_MINS = "%Y-%m-%dT%H:%M"
 
     def __init__(self, statistics_date=None, bitmap=None):
         super(LoginStatistics, self).__init__(bitmap=bitmap)
