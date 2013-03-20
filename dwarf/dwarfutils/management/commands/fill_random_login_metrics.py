@@ -4,6 +4,7 @@ from datetime import datetime
 from django.core.management.base import BaseCommand
 
 from statistics.models import LoginStatistics
+from dwarfutils.dateutils import datetime_now_utc
 
 
 class Command(BaseCommand):
@@ -17,7 +18,11 @@ class Command(BaseCommand):
         # Populate the DB for one day
         for hour in range(24):
             # Create the datetime for the key
-            date = datetime(year=2013, month=3, day=20, hour=hour)
+            now = datetime_now_utc()
+            date = datetime(year=now.year,
+                            month=now.month,
+                            day=now.day,
+                            hour=hour)
 
             # Get random login users
             logins = range(random.randrange(min_users, max_users))
