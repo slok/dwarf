@@ -48,6 +48,14 @@ def custom_login(request, template_name='registration/login.html',
     """
     Displays the login form and handles the login action.
     """
+
+    # If the user is already authenticated not need to login
+    if request.user.is_authenticated():
+        messages.info(request, _(u"You are already logged in"))
+        # Redis login metrics
+        LoginStatistics().save_user_login(request.user.id)
+        return redirect(reverse(user_dashboard))
+
     redirect_to = request.REQUEST.get(redirect_field_name, '')
 
     if request.method == "POST":
