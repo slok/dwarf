@@ -324,3 +324,18 @@ class LoginStatisticsTest(TestCase):
         ls.save_user_login(user)
 
         self.assertEquals(LoginStatistics.FLAG_UP, self.r.getbit(key, user))
+
+    def test_users_login(self):
+
+        users_ids = [random.randrange(0, 100000) for i in range(100)]
+        date = datetime_now_utc().strftime(LoginStatistics.DATE_FORMAT)
+        key = LoginStatistics.STATISTICS_KEY.format(date)
+
+        for i in users_ids:
+            self.assertEquals(LoginStatistics.FLAG_DOWN, self.r.getbit(key, i))
+
+        ls = LoginStatistics(datetime_now_utc())
+        ls.save_users_login(users_ids)
+
+        for i in users_ids:
+            self.assertEquals(LoginStatistics.FLAG_UP, self.r.getbit(key, i))

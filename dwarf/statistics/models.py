@@ -187,3 +187,8 @@ class LoginStatistics(BitmapStatistics):
         if not self.statistics_date:
             raise AttributeError("Datetime is needed")
         self.set_flag(user_id)
+
+    def save_users_login(self, users_ids):
+        if not self.statistics_date:
+            raise AttributeError("Datetime is needed")
+        self.set_flags(users_ids)
