@@ -29,7 +29,7 @@ from userprofile.forms import SignupForm, ResetPasswordForm
 from linkshortener.models import UserLink, ShortLink
 from dwarfutils.hashutils import get_random_hash
 from dwarfutils.dateutils import unix_to_datetime
-
+from statistics.models import LoginStatistics
 
 logger = logging.getLogger("dwarf")
 
@@ -63,6 +63,10 @@ def custom_login(request, template_name='registration/login.html',
 
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
+
+            # Everything ok. Start our custom code
+            # Redis login metrics
+            LoginStatistics().save_user_login(request.user.id)
 
             return HttpResponseRedirect(redirect_to)
     else:
