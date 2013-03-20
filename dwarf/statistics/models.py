@@ -163,6 +163,8 @@ class LoginStatistics(BitmapStatistics):
     def __init__(self, statistics_date=None, bitmap=None):
         super(LoginStatistics, self).__init__(bitmap=bitmap)
 
+        if not statistics_date:
+            statistics_date = datetime_now_utc()
         self._statistics_date = statistics_date
         if self._statistics_date:
             time = self._statistics_date.strftime(LoginStatistics.DATE_FORMAT)

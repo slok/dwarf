@@ -311,3 +311,16 @@ class LoginStatisticsTest(TestCase):
         ls.save_user_login(user)
 
         self.assertEquals(LoginStatistics.FLAG_UP, self.r.getbit(key, user))
+
+    def test_user_login_autodate(self):
+
+        user = random.randrange(0, 100000)
+        date = datetime_now_utc().strftime(LoginStatistics.DATE_FORMAT)
+        key = LoginStatistics.STATISTICS_KEY.format(date)
+
+        self.assertEquals(LoginStatistics.FLAG_DOWN, self.r.getbit(key, user))
+
+        ls = LoginStatistics()
+        ls.save_user_login(user)
+
+        self.assertEquals(LoginStatistics.FLAG_UP, self.r.getbit(key, user))
