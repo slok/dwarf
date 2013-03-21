@@ -28,11 +28,10 @@ class LoginStatisticsTest(TestCase):
         self.r.flushdb()
 
     def test_key_generation(self):
-        strtime = "{0}-{1}-{2}T{3}:{4}".format(self.year,
-                                               self.month,
-                                               self.day,
-                                               self.hour,
-                                               self.minutes)
+        strtime = "{0}-{1}-{2}T{3}".format(self.year,
+                                           self.month,
+                                           self.day,
+                                           self.hour,)
         good_key = LoginStatistics.STATISTICS_KEY.format(strtime)
 
         ls = LoginStatistics(self.date)
