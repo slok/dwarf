@@ -1,4 +1,5 @@
 import random
+from datetime import datetime
 
 from dwarfutils.redisutils import get_redis_connection
 from dwarfutils.dateutils import datetime_now_utc
@@ -180,8 +181,8 @@ class LoginStatistics(BitmapStatistics):
 
     @statistics_date.setter
     def statistics_date(self, value):
-        self._statistics_date = value
-        time = self._statistics_date.strftime(LoginStatistics.DATE_FORMAT)
+        self.statistics_date = value
+        time = self.statistics_date.strftime(LoginStatistics.DATE_FORMAT)
         self._key = LoginStatistics.STATISTICS_KEY.format(time)
 
     def save_user_login(self, user_id):
@@ -193,3 +194,19 @@ class LoginStatistics(BitmapStatistics):
         if not self.statistics_date:
             raise AttributeError("Datetime is needed")
         self.set_flags(users_ids)
+
+    def count_hours_logins(self):
+        """ Returns a list from 0 to 23 with the counts for each hour"""
+
+        results = []
+
+        for i in range(24):
+            date = datetime(year=self.statistics_date.year,
+                            month=self.statistics_date.month,
+                            day=self.statistics_date.day,
+                            hour=i).strftime(LoginStatistics.DATE_FORMAT)
+            key = LoginStatistics.STATISTICS_KEY.format(date)
+
+            results.append(self.count_flags(key))
+
+        return results

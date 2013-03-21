@@ -338,3 +338,24 @@ class LoginStatisticsTest(TestCase):
 
         for i in users_ids:
             self.assertEquals(LoginStatistics.FLAG_UP, self.r.getbit(key, i))
+
+    def test_count_hours(self):
+
+        good_result = []
+        now = datetime_now_utc()
+
+        # Fill data
+        for i in range(24):
+            logins = [j for j in range(random.randrange(0, 10000))]
+            good_result.append(len(logins))
+            now = datetime(year=now.year,
+                           month=int(now.month),
+                           day=now.day,
+                           hour=i)
+
+            LoginStatistics(now).set_flags(logins)
+
+        # Check the data
+
+        results = LoginStatistics(now).count_hours_logins()
+        self.assertEquals(good_result, results)
