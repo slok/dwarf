@@ -359,3 +359,23 @@ class LoginMetricsTest(TestCase):
 
         results = TimeMetrics(now).total_counts_per_hours()
         self.assertEquals(good_result, results)
+
+    def test_count_day(self):
+        good_result = 0
+        now = datetime_now_utc()
+
+        # Fill data
+        for i in range(24):
+            logins = [j for j in range(random.randrange(0, 10000))]
+            good_result += len(logins)
+            now = datetime(year=now.year,
+                           month=int(now.month),
+                           day=now.day,
+                           hour=i)
+
+            TimeMetrics(now).set_flags(logins)
+
+        # Check the data
+
+        result = TimeMetrics(now).total_counts_per_day()
+        self.assertEquals(good_result, result)

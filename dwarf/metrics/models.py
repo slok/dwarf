@@ -201,6 +201,10 @@ class TimeMetrics(BitmapMetrics):
 
         return results
 
+    def total_counts_per_day(self):
+        """ Returns the count of the day"""
+        return sum(self.total_counts_per_hours())
+
 
 class LoginMetrics(TimeMetrics):
 
