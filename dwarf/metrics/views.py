@@ -1,14 +1,14 @@
 from django.shortcuts import (render_to_response, RequestContext)
 
-from statistics.models import LoginStatistics
+from metrics.models import LoginMetrics
 
 
 def day_logins(request):
 
     context = {
-        "data": LoginStatistics().count_hours_logins(),
+        "data": LoginMetrics().count_hours_logins(),
     }
 
-    return render_to_response('statistics/daylogins.html',
+    return render_to_response('metrics/daylogins.html',
                               context,
                               context_instance=RequestContext(request))

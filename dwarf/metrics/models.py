@@ -5,11 +5,11 @@ from dwarfutils.redisutils import get_redis_connection
 from dwarfutils.dateutils import datetime_now_utc
 
 
-class BitmapStatistics(object):
+class BitmapMetrics(object):
     """ This class is an abstract class that represents a redis bitmap for
-    statistics.
+    metrics.
 
-    The statistics are based on 1 and 0 values along a bitmap, each position
+    The mMetricsetrics are based on 1 and 0 values along a bitmap, each position
     of the bitmap represents something. Anexample could be:
         * position 1 is the user id 1, position 2 is the user id 2...
         * if the flag is up (1) means that the user has logged
@@ -39,24 +39,24 @@ class BitmapStatistics(object):
 
     def set_flag(self, flag_position):
         r = get_redis_connection()
-        r.setbit(self._key, flag_position, BitmapStatistics.FLAG_UP)
+        r.setbit(self._key, flag_position, BitmapMetrics.FLAG_UP)
 
     def unset_flag(self, flag_position):
         r = get_redis_connection()
-        r.setbit(self._key, flag_position, BitmapStatistics.FLAG_DOWN)
+        r.setbit(self._key, flag_position, BitmapMetrics.FLAG_DOWN)
 
     def set_flags(self, flag_positions):
         r = get_redis_connection()
         pipe = r.pipeline()
         for i in flag_positions:
-            pipe.setbit(self._key, i, BitmapStatistics.FLAG_UP)
+            pipe.setbit(self._key, i, BitmapMetrics.FLAG_UP)
         pipe.execute()
 
     def unset_flags(self, flag_positions):
         r = get_redis_connection()
         pipe = r.pipeline()
         for i in flag_positions:
-            pipe.setbit(self._key, i, BitmapStatistics.FLAG_DOWN)
+            pipe.setbit(self._key, i, BitmapMetrics.FLAG_DOWN)
         pipe.execute()
 
     def get_flag(self, flag_position):
@@ -80,7 +80,7 @@ class BitmapStatistics(object):
         """
         if not store_key:
             rand_id = random.randrange(0, 10000)
-            store_key = BitmapStatistics.OP_KEY.format("and", rand_id)
+            store_key = BitmapMetrics.OP_KEY.format("and", rand_id)
 
         r = get_redis_connection()
         r.bitop("and", store_key, *keys)
@@ -95,7 +95,7 @@ class BitmapStatistics(object):
         """
         if not store_key:
             rand_id = random.randrange(0, 10000)
-            store_key = BitmapStatistics.OP_KEY.format("or", rand_id)
+            store_key = BitmapMetrics.OP_KEY.format("or", rand_id)
 
         r = get_redis_connection()
         r.bitop("or", store_key, *keys)
@@ -110,7 +110,7 @@ class BitmapStatistics(object):
         """
         if not store_key:
             rand_id = random.randrange(0, 10000)
-            store_key = BitmapStatistics.OP_KEY.format("xor", rand_id)
+            store_key = BitmapMetrics.OP_KEY.format("xor", rand_id)
 
         r = get_redis_connection()
         r.bitop("xor", store_key, *keys)
@@ -125,7 +125,7 @@ class BitmapStatistics(object):
         """
         if not store_key:
             rand_id = random.randrange(0, 10000)
-            store_key = BitmapStatistics.OP_KEY.format("not", rand_id)
+            store_key = BitmapMetrics.OP_KEY.format("not", rand_id)
 
         r = get_redis_connection()
         r.bitop("not", store_key, key)
@@ -149,8 +149,8 @@ class BitmapStatistics(object):
         return r.bitcount(key)
 
 
-class LoginStatistics(BitmapStatistics):
-    """ Bitmap statistics for  the users that have been logged in a certain
+class LoginMetrics(BitmapMetrics):
+    """ Bitmap Metrics for  the users that have been logged in a certain
     moment in time.
 
         * bitmap flag 1 represents that a user has logged in
@@ -158,40 +158,40 @@ class LoginStatistics(BitmapStatistics):
         * the position of the bitmap represents the user id
     """
 
-    STATISTICS_KEY = "Statistics:login:{0}"  # Use Standard ISO-8601
+    METRICS_KEY = "Metrics:login:{0}"  # Use Standard ISO-8601
     DATE_FORMAT = "%Y-%m-%dT%H"
     DATE_FORMAT_MINS = "%Y-%m-%dT%H:%M"
 
-    def __init__(self, statistics_date=None, bitmap=None):
-        super(LoginStatistics, self).__init__(bitmap=bitmap)
+    def __init__(self, metrics_date=None, bitmap=None):
+        super(LoginMetrics, self).__init__(bitmap=bitmap)
 
-        if not statistics_date:
-            statistics_date = datetime_now_utc()
-        self._statistics_date = statistics_date
-        if self._statistics_date:
-            time = self._statistics_date.strftime(LoginStatistics.DATE_FORMAT)
-            key = LoginStatistics.STATISTICS_KEY.format(time)
+        if not metrics_date:
+            metrics_date = datetime_now_utc()
+        self._metrics_date = metrics_date
+        if self._metrics_date:
+            time = self._metrics_date.strftime(LoginMetrics.DATE_FORMAT)
+            key = LoginMetrics.METRICS_KEY.format(time)
         else:
             key = None
         self._key = key
 
     @property
-    def statistics_date(self):
-        return self._statistics_date
+    def metrics_date(self):
+        return self._metrics_date
 
-    @statistics_date.setter
-    def statistics_date(self, value):
-        self.statistics_date = value
-        time = self.statistics_date.strftime(LoginStatistics.DATE_FORMAT)
-        self._key = LoginStatistics.STATISTICS_KEY.format(time)
+    @metrics_date.setter
+    def metrics_date(self, value):
+        self.metrics_date = value
+        time = self.metrics_date.strftime(LoginMetrics.DATE_FORMAT)
+        self._key = LoginMetrics.METRICS_KEY.format(time)
 
     def save_user_login(self, user_id):
-        if not self.statistics_date:
+        if not self.metrics_date:
             raise AttributeError("Datetime is needed")
         self.set_flag(user_id)
 
     def save_users_login(self, users_ids):
-        if not self.statistics_date:
+        if not self.metrics_date:
             raise AttributeError("Datetime is needed")
         self.set_flags(users_ids)
 
@@ -201,11 +201,11 @@ class LoginStatistics(BitmapStatistics):
         results = []
 
         for i in range(24):
-            date = datetime(year=self.statistics_date.year,
-                            month=self.statistics_date.month,
-                            day=self.statistics_date.day,
-                            hour=i).strftime(LoginStatistics.DATE_FORMAT)
-            key = LoginStatistics.STATISTICS_KEY.format(date)
+            date = datetime(year=self.metrics_date.year,
+                            month=self.metrics_date.month,
+                            day=self.metrics_date.day,
+                            hour=i).strftime(LoginMetrics.DATE_FORMAT)
+            key = LoginMetrics.METRICS_KEY.format(date)
 
             results.append(self.count_flags(key))
 

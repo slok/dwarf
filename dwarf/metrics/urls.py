@@ -1,10 +1,10 @@
 from django.conf.urls import patterns, url
 
-import statistics.views
+import metrics.views
 
 
 urlpatterns = patterns(
     '',
     url(r'^day/logins$',
-    statistics.views.day_logins, name="statistics-day"),
+    metrics.views.day_logins, name="metrics-day"),
 )

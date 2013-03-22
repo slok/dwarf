@@ -3,7 +3,7 @@ from datetime import datetime
 
 from django.core.management.base import BaseCommand
 
-from statistics.models import LoginStatistics
+from metrics.models import LoginMetrics
 from dwarfutils.dateutils import datetime_now_utc
 
 
@@ -29,5 +29,5 @@ class Command(BaseCommand):
             users = [random.randrange(min_users, max_users) for i in logins]
 
             # Save the users
-            ls = LoginStatistics(date)
+            ls = LoginMetrics(date)
             ls.save_users_login(users)

@@ -6,10 +6,10 @@ from datetime import datetime
 
 from dwarfutils.redisutils import get_redis_connection
 from dwarfutils.dateutils import datetime_now_utc
-from statistics.models import LoginStatistics
+from metrics.models import LoginMetrics
 
 
-class LoginStatisticsTest(TestCase):
+class LoginMetricsTest(TestCase):
     def setUp(self):
         self.year = 2013
         self.month = "03"
@@ -32,104 +32,104 @@ class LoginStatisticsTest(TestCase):
                                            self.month,
                                            self.day,
                                            self.hour,)
-        good_key = LoginStatistics.STATISTICS_KEY.format(strtime)
+        good_key = LoginMetrics.METRICS_KEY.format(strtime)
 
-        ls = LoginStatistics(self.date)
+        ls = LoginMetrics(self.date)
         self.assertEquals(good_key, ls.key)
 
     def test_login_user(self):
         user_id = random.randrange(0, 100000)
-        ls = LoginStatistics(self.date)
+        ls = LoginMetrics(self.date)
 
         # Initial State
         bit = self.r.getbit(ls.key, user_id)
-        self.assertEquals(LoginStatistics.FLAG_DOWN, bit)
+        self.assertEquals(LoginMetrics.FLAG_DOWN, bit)
 
         # After login
         ls.set_flag(user_id)
         bit = self.r.getbit(ls.key, user_id)
-        self.assertEquals(LoginStatistics.FLAG_UP, bit)
+        self.assertEquals(LoginMetrics.FLAG_UP, bit)
 
     def test_login_users(self):
         users_ids = [random.randrange(0, 100000) for i in range(100)]
-        ls = LoginStatistics(self.date)
+        ls = LoginMetrics(self.date)
 
         # Initial State
         for i in users_ids:
             bit = self.r.getbit(ls.key, i)
-            self.assertEquals(LoginStatistics.FLAG_DOWN, bit)
+            self.assertEquals(LoginMetrics.FLAG_DOWN, bit)
 
         # After login
         ls.set_flags(users_ids)
         for i in users_ids:
             bit = self.r.getbit(ls.key, i)
-            self.assertEquals(LoginStatistics.FLAG_UP, bit)
+            self.assertEquals(LoginMetrics.FLAG_UP, bit)
 
     def test_logout_user(self):
         user_id = random.randrange(0, 100000)
-        ls = LoginStatistics(self.date)
+        ls = LoginMetrics(self.date)
 
         # After login
         ls.set_flag(user_id)
         bit = self.r.getbit(ls.key, user_id)
-        self.assertEquals(LoginStatistics.FLAG_UP, bit)
+        self.assertEquals(LoginMetrics.FLAG_UP, bit)
 
         # after logout State
         ls.unset_flag(user_id)
         bit = self.r.getbit(ls.key, user_id)
-        self.assertEquals(LoginStatistics.FLAG_DOWN, bit)
+        self.assertEquals(LoginMetrics.FLAG_DOWN, bit)
 
     def test_logout_users(self):
         users_ids = [random.randrange(0, 100000) for i in range(100)]
-        ls = LoginStatistics(self.date)
+        ls = LoginMetrics(self.date)
 
         # After login
         ls.set_flags(users_ids)
         for i in users_ids:
             bit = self.r.getbit(ls.key, i)
-            self.assertEquals(LoginStatistics.FLAG_UP, bit)
+            self.assertEquals(LoginMetrics.FLAG_UP, bit)
 
         # Initial State
         ls.unset_flags(users_ids)
         for i in users_ids:
             bit = self.r.getbit(ls.key, i)
-            self.assertEquals(LoginStatistics.FLAG_DOWN, bit)
+            self.assertEquals(LoginMetrics.FLAG_DOWN, bit)
 
     def test_user_logged(self):
         user_id = random.randrange(0, 100000)
-        ls = LoginStatistics(self.date)
+        ls = LoginMetrics(self.date)
 
         # Initial State
-        self.assertEquals(LoginStatistics.FLAG_DOWN, ls.get_flag(user_id))
+        self.assertEquals(LoginMetrics.FLAG_DOWN, ls.get_flag(user_id))
 
         # After login
         ls.set_flag(user_id)
-        self.assertEquals(LoginStatistics.FLAG_UP, ls.get_flag(user_id))
+        self.assertEquals(LoginMetrics.FLAG_UP, ls.get_flag(user_id))
 
     def test_users_logged(self):
         users_ids = [random.randrange(0, 100000) for i in range(100)]
-        ls = LoginStatistics(self.date)
+        ls = LoginMetrics(self.date)
 
         # Initial State
         for i in users_ids:
-            self.assertEquals(LoginStatistics.FLAG_DOWN, ls.get_flag(i))
+            self.assertEquals(LoginMetrics.FLAG_DOWN, ls.get_flag(i))
 
         # After login
         ls.set_flags(users_ids)
-        correct_list = [LoginStatistics.FLAG_UP for i in range(len(users_ids))]
+        correct_list = [LoginMetrics.FLAG_UP for i in range(len(users_ids))]
         self.assertEquals(correct_list, ls.get_flags(users_ids))
 
     def test_users_state(self):
         users_ids = [random.randrange(0, 100000) for i in range(100)]
-        ls = LoginStatistics(self.date)
+        ls = LoginMetrics(self.date)
 
         # Initial State
         for i in users_ids:
-            self.assertEquals(LoginStatistics.FLAG_DOWN, ls.get_flag(i))
+            self.assertEquals(LoginMetrics.FLAG_DOWN, ls.get_flag(i))
 
         # After login
         ls.set_flags(users_ids)
-        correct_list = [LoginStatistics.FLAG_UP for i in range(len(users_ids))]
+        correct_list = [LoginMetrics.FLAG_UP for i in range(len(users_ids))]
         self.assertEquals(correct_list, ls.get_flags(users_ids))
 
         # take some random users out
@@ -138,7 +138,7 @@ class LoginStatisticsTest(TestCase):
 
         for i in black_ships:
             ls.unset_flag(users_ids[i])
-            correct_list[i] = LoginStatistics.FLAG_DOWN
+            correct_list[i] = LoginMetrics.FLAG_DOWN
 
         # Test again
         self.assertEquals(correct_list, ls.get_flags(users_ids))
@@ -160,7 +160,7 @@ class LoginStatisticsTest(TestCase):
 
         # After login
         store_key_default = "test:andops:result"
-        store_key = LoginStatistics.and_operation(and_bitmaps.keys(),
+        store_key = LoginMetrics.and_operation(and_bitmaps.keys(),
                                                   store_key_default)
 
         #Check if the store key is the same
@@ -185,7 +185,7 @@ class LoginStatisticsTest(TestCase):
                 self.r.setbit(key, i, val[i])
 
         # After login
-        store_key = LoginStatistics.and_operation(and_bitmaps.keys())
+        store_key = LoginMetrics.and_operation(and_bitmaps.keys())
 
         for i in range(len(result)):
             self.assertEquals(result[i], self.r.getbit(store_key, i))
@@ -207,7 +207,7 @@ class LoginStatisticsTest(TestCase):
 
         # After login
         store_key_default = "test:orops:result"
-        store_key = LoginStatistics.or_operation(or_bitmaps.keys(),
+        store_key = LoginMetrics.or_operation(or_bitmaps.keys(),
                                                  store_key_default)
 
         #Check if the store key is the same
@@ -233,7 +233,7 @@ class LoginStatisticsTest(TestCase):
 
         # After login
         store_key_default = "test:xorops:result"
-        store_key = LoginStatistics.xor_operation(xor_bitmaps.keys(),
+        store_key = LoginMetrics.xor_operation(xor_bitmaps.keys(),
                                                   store_key_default)
 
         #Check if the store key is the same
@@ -261,7 +261,7 @@ class LoginStatisticsTest(TestCase):
                 self.r.setbit(key, i, bitmap[i])
 
             # Apply NOT
-            result_key = LoginStatistics.not_operation(key)
+            result_key = LoginMetrics.not_operation(key)
 
             # Check
             for i in range(len(result)):
@@ -276,7 +276,7 @@ class LoginStatisticsTest(TestCase):
             self.r.setbit(key, i, bitmap[i])
 
         for i in range(len(bitmap)):
-            self.assertEquals(bitmap[i], LoginStatistics.check_flag(key, i))
+            self.assertEquals(bitmap[i], LoginMetrics.check_flag(key, i))
 
     def test_count_bitmap(self):
 
@@ -296,48 +296,48 @@ class LoginStatisticsTest(TestCase):
             for i in range(len(bitmap)):
                 self.r.setbit(key, i, bitmap[i])
 
-            self.assertEquals(good_result, LoginStatistics.count_flags(key))
+            self.assertEquals(good_result, LoginMetrics.count_flags(key))
 
     def test_user_login(self):
 
         user = random.randrange(0, 100000)
-        date = datetime_now_utc().strftime(LoginStatistics.DATE_FORMAT)
-        key = LoginStatistics.STATISTICS_KEY.format(date)
+        date = datetime_now_utc().strftime(LoginMetrics.DATE_FORMAT)
+        key = LoginMetrics.METRICS_KEY.format(date)
 
-        self.assertEquals(LoginStatistics.FLAG_DOWN, self.r.getbit(key, user))
+        self.assertEquals(LoginMetrics.FLAG_DOWN, self.r.getbit(key, user))
 
-        ls = LoginStatistics(datetime_now_utc())
+        ls = LoginMetrics(datetime_now_utc())
         ls.save_user_login(user)
 
-        self.assertEquals(LoginStatistics.FLAG_UP, self.r.getbit(key, user))
+        self.assertEquals(LoginMetrics.FLAG_UP, self.r.getbit(key, user))
 
     def test_user_login_autodate(self):
 
         user = random.randrange(0, 100000)
-        date = datetime_now_utc().strftime(LoginStatistics.DATE_FORMAT)
-        key = LoginStatistics.STATISTICS_KEY.format(date)
+        date = datetime_now_utc().strftime(LoginMetrics.DATE_FORMAT)
+        key = LoginMetrics.METRICS_KEY.format(date)
 
-        self.assertEquals(LoginStatistics.FLAG_DOWN, self.r.getbit(key, user))
+        self.assertEquals(LoginMetrics.FLAG_DOWN, self.r.getbit(key, user))
 
-        ls = LoginStatistics()
+        ls = LoginMetrics()
         ls.save_user_login(user)
 
-        self.assertEquals(LoginStatistics.FLAG_UP, self.r.getbit(key, user))
+        self.assertEquals(LoginMetrics.FLAG_UP, self.r.getbit(key, user))
 
     def test_users_login(self):
 
         users_ids = [random.randrange(0, 100000) for i in range(100)]
-        date = datetime_now_utc().strftime(LoginStatistics.DATE_FORMAT)
-        key = LoginStatistics.STATISTICS_KEY.format(date)
+        date = datetime_now_utc().strftime(LoginMetrics.DATE_FORMAT)
+        key = LoginMetrics.METRICS_KEY.format(date)
 
         for i in users_ids:
-            self.assertEquals(LoginStatistics.FLAG_DOWN, self.r.getbit(key, i))
+            self.assertEquals(LoginMetrics.FLAG_DOWN, self.r.getbit(key, i))
 
-        ls = LoginStatistics(datetime_now_utc())
+        ls = LoginMetrics(datetime_now_utc())
         ls.save_users_login(users_ids)
 
         for i in users_ids:
-            self.assertEquals(LoginStatistics.FLAG_UP, self.r.getbit(key, i))
+            self.assertEquals(LoginMetrics.FLAG_UP, self.r.getbit(key, i))
 
     def test_count_hours(self):
 
@@ -353,9 +353,9 @@ class LoginStatisticsTest(TestCase):
                            day=now.day,
                            hour=i)
 
-            LoginStatistics(now).set_flags(logins)
+            LoginMetrics(now).set_flags(logins)
 
         # Check the data
 
-        results = LoginStatistics(now).count_hours_logins()
+        results = LoginMetrics(now).count_hours_logins()
         self.assertEquals(good_result, results)
