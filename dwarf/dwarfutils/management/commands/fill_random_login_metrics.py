@@ -12,16 +12,19 @@ class Command(BaseCommand):
     help = 'Fills login metrics database with random data'
 
     def handle(self, *args, **options):
-        max_users = 5000 if len(args) < 1 else args[0]
-        min_users = 0 if len(args) < 2 else args[1]
+        max_users = 5000 if len(args) < 1 else int(args[0])
+        min_users = 0 if len(args) < 2 else int(args[1])
+        day = None if len(args) < 3 else int(args[2])
 
         # Populate the DB for one day
         for hour in range(24):
             # Create the datetime for the key
             now = datetime_now_utc()
+            if not day:
+                day = now.day
             date = datetime(year=now.year,
                             month=now.month,
-                            day=now.day,
+                            day=day,
                             hour=hour)
 
             # Get random login users
