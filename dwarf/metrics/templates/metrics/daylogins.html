@@ -15,16 +15,11 @@
       // instantiates the pie chart, passes in the data and
       // draws it.
       function drawChart() {
-        var data = google.visualization.arrayToDataTable([
-          ['Hour', 'Total Logins'],
-          {% for i in data %}
-            
-          ["{{forloop.counter0}}:00",  {{i}}],
-        {% endfor %}
-        ]);
+        var data = new google.visualization.DataTable({{data|safe}});
 
         var options = {
-          title: 'Fake logins today'
+          title: 'Fake logins today',
+          width: 1200, height: 380
         };
 
         var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
@@ -35,5 +30,5 @@
 {% endblock js %}
 
 {% block body %}
-    <div id="chart_div" style="width:600; height:600"></div>
+    <div id="chart_div"></div>
 {% endblock body %}
