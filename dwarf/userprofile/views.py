@@ -29,7 +29,7 @@ from userprofile.forms import SignupForm, ResetPasswordForm
 from linkshortener.models import UserLink, ShortLink
 from dwarfutils.hashutils import get_random_hash
 from dwarfutils.dateutils import unix_to_datetime
-from statistics.models import LoginStatistics
+from metrics.models import LoginMetrics
 
 logger = logging.getLogger("dwarf")
 
@@ -53,7 +53,7 @@ def custom_login(request, template_name='registration/login.html',
     if request.user.is_authenticated():
         messages.info(request, _(u"You are already logged in"))
         # Redis login metrics
-        LoginStatistics().save_user_login(request.user.id)
+        LoginMetrics().save_user_login(request.user.id)
         return redirect(reverse(user_dashboard))
 
     redirect_to = request.REQUEST.get(redirect_field_name, '')
@@ -74,7 +74,7 @@ def custom_login(request, template_name='registration/login.html',
 
             # Everything ok. Start our custom code
             # Redis login metrics
-            LoginStatistics().save_user_login(request.user.id)
+            LoginMetrics().save_user_login(request.user.id)
 
             return HttpResponseRedirect(redirect_to)
     else:
