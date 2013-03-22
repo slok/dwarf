@@ -149,7 +149,7 @@ class BitmapMetrics(object):
         return r.bitcount(key)
 
 
-class LoginMetrics(BitmapMetrics):
+class TimeMetrics(BitmapMetrics):
     """ Bitmap Metrics for  the users that have been logged in a certain
     moment in time.
 
@@ -163,14 +163,14 @@ class LoginMetrics(BitmapMetrics):
     DATE_FORMAT_MINS = "%Y-%m-%dT%H:%M"
 
     def __init__(self, metrics_date=None, bitmap=None):
-        super(LoginMetrics, self).__init__(bitmap=bitmap)
+        super(TimeMetrics, self).__init__(bitmap=bitmap)
 
         if not metrics_date:
             metrics_date = datetime_now_utc()
         self._metrics_date = metrics_date
         if self._metrics_date:
-            time = self._metrics_date.strftime(LoginMetrics.DATE_FORMAT)
-            key = LoginMetrics.METRICS_KEY.format(time)
+            time = self._metrics_date.strftime(TimeMetrics.DATE_FORMAT)
+            key = TimeMetrics.METRICS_KEY.format(time)
         else:
             key = None
         self._key = key
@@ -182,20 +182,10 @@ class LoginMetrics(BitmapMetrics):
     @metrics_date.setter
     def metrics_date(self, value):
         self.metrics_date = value
-        time = self.metrics_date.strftime(LoginMetrics.DATE_FORMAT)
-        self._key = LoginMetrics.METRICS_KEY.format(time)
+        time = self.metrics_date.strftime(TimeMetrics.DATE_FORMAT)
+        self._key = TimeMetrics.METRICS_KEY.format(time)
 
-    def save_user_login(self, user_id):
-        if not self.metrics_date:
-            raise AttributeError("Datetime is needed")
-        self.set_flag(user_id)
-
-    def save_users_login(self, users_ids):
-        if not self.metrics_date:
-            raise AttributeError("Datetime is needed")
-        self.set_flags(users_ids)
-
-    def count_hours_logins(self):
+    def total_counts_per_hours(self):
         """ Returns a list from 0 to 23 with the counts for each hour"""
 
         results = []
@@ -210,3 +200,19 @@ class LoginMetrics(BitmapMetrics):
             results.append(self.count_flags(key))
 
         return results
+
+
+class LoginMetrics(TimeMetrics):
+
+    def save_user_login(self, user_id):
+        if not self.metrics_date:
+            raise AttributeError("Datetime is needed")
+        self.set_flag(user_id)
+
+    def save_users_login(self, users_ids):
+        if not self.metrics_date:
+            raise AttributeError("Datetime is needed")
+        self.set_flags(users_ids)
+
+    def count_hours_logins(self):
+        return self.total_counts_per_hours()

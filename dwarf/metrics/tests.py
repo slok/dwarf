@@ -6,7 +6,7 @@ from datetime import datetime
 
 from dwarfutils.redisutils import get_redis_connection
 from dwarfutils.dateutils import datetime_now_utc
-from metrics.models import LoginMetrics
+from metrics.models import LoginMetrics, TimeMetrics
 
 
 class LoginMetricsTest(TestCase):
@@ -353,9 +353,9 @@ class LoginMetricsTest(TestCase):
                            day=now.day,
                            hour=i)
 
-            LoginMetrics(now).set_flags(logins)
+            TimeMetrics(now).set_flags(logins)
 
         # Check the data
 
-        results = LoginMetrics(now).count_hours_logins()
+        results = TimeMetrics(now).total_counts_per_hours()
         self.assertEquals(good_result, results)
