@@ -260,7 +260,10 @@ class CounterMetrics(object):
     def get_count(cls, key):
         """ Decrements the counter and returns the result"""
         r = get_redis_connection()
-        return int(r.get(key))
+        try:
+            return int(r.get(key))
+        except TypeError:
+            return 0
 
 
 class CounterTimeMetrics(CounterMetrics):
@@ -325,3 +328,5 @@ class SharedLinkMetrics(CounterTimeMetrics):
                                                  metrics_key_format=metrics_key_format,
                                                  date_format=date_format)
 
+    def count_hours_shared_links(self):
+        return self.total_counts_per_hours()

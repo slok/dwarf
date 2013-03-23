@@ -2,6 +2,7 @@ from celery import task
 from django.contrib.auth.models import User
 
 from linkshortener.models import ShortLink, UserLink
+from metrics.models import SharedLinkMetrics
 from dwarfutils.urlutils import extract_url_title, extract_url_host
 
 
@@ -36,6 +37,9 @@ def create_token(url, user_id=None):
         user_link.user = User.objects.get(id=user_id)
         user_link.token = sl.token
         user_link.save()
+
+    # Fill the metrics
+    SharedLinkMetrics().increment()
 
     # Return the new token
     return sl.token

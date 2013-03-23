@@ -31,7 +31,7 @@ def day_logins(request):
         value_yesterday = results_yesterday[i]
         value_two_days = results_two_days[i]
         single_data = {
-            "c": [{"v": '{0}:00'.format(i)}, 
+            "c": [{"v": '{0}:00'.format(i)},
                   {"v": value_today},
                   {"v": value_yesterday},
                   {"v": value_two_days}
