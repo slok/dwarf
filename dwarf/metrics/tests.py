@@ -6,7 +6,7 @@ from datetime import datetime
 
 from dwarfutils.redisutils import get_redis_connection
 from dwarfutils.dateutils import datetime_now_utc
-from metrics.models import LoginMetrics
+from metrics.models import LoginMetrics, SharedLinkMetrics
 
 
 class LoginMetricsTest(TestCase):
@@ -25,6 +25,7 @@ class LoginMetricsTest(TestCase):
         self.r = get_redis_connection()
 
         self.LOGIN_METRICS_FORMAT = "Metrics:login:{0}"
+        self.SHAREDLINKS_METRICS_FORMAT = "Metrics:sharedlinks:{0}"
         self.DATE_FORMAT = "%Y-%m-%dT%H"
 
     def tearDown(self):
@@ -382,3 +383,72 @@ class LoginMetricsTest(TestCase):
 
         result = LoginMetrics(now).total_counts_per_day()
         self.assertEquals(good_result, result)
+
+    def test_sharedlinks_metrics_increment_bulk(self):
+        good_result = random.randrange(0, 10000)
+        now = datetime_now_utc()
+
+        redis_result = SharedLinkMetrics(now).increment(good_result)
+
+        # Check the data
+        date = now.strftime(self.DATE_FORMAT)
+        key = self.SHAREDLINKS_METRICS_FORMAT.format(date)
+        self.assertEquals(good_result, int(self.r.get(key)))
+        self.assertEquals(good_result, redis_result)
+
+    def test_sharedlinks_metrics_increment(self):
+        good_result = random.randrange(0, 10000)
+
+        now = datetime_now_utc()
+        date = now.strftime(self.DATE_FORMAT)
+        key = self.SHAREDLINKS_METRICS_FORMAT.format(date)
+
+        # Set up
+        self.r.incr(key, good_result-1)
+
+        redis_result = SharedLinkMetrics(now).increment()
+
+        # Check the data
+        self.assertEquals(good_result, int(self.r.get(key)))
+        self.assertEquals(good_result, redis_result)
+
+    def test_sharedlinks_metrics_decrement_bulk(self):
+        setup = random.randrange(0, 10000)
+        rest = random.randrange(0, setup)
+
+        now = datetime_now_utc()
+        date = now.strftime(self.DATE_FORMAT)
+
+        key = self.SHAREDLINKS_METRICS_FORMAT.format(date)
+        self.r.incr(key, setup)
+        redis_result = SharedLinkMetrics(now).decrement(rest)
+
+        # Check the data
+        self.assertEquals(setup - rest, int(self.r.get(key)))
+        self.assertEquals(setup - rest, redis_result)
+
+    def test_sharedlinks_metrics_decrement(self):
+        setup = random.randrange(0, 10000)
+
+        now = datetime_now_utc()
+        date = now.strftime(self.DATE_FORMAT)
+
+        key = self.SHAREDLINKS_METRICS_FORMAT.format(date)
+        self.r.incr(key, setup)
+        redis_result = SharedLinkMetrics(now).decrement()
+
+        # Check the data
+        self.assertEquals(setup - 1, int(self.r.get(key)))
+        self.assertEquals(setup - 1, redis_result)
+
+    def test_get_sharedlinks_metrics(self):
+        setup = random.randrange(0, 10000)
+
+        now = datetime_now_utc()
+        date = now.strftime(self.DATE_FORMAT)
+
+        key = self.SHAREDLINKS_METRICS_FORMAT.format(date)
+        self.r.incr(key, setup)
+
+        # Check the data
+        self.assertEquals(setup, SharedLinkMetrics().get_counter())

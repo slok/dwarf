@@ -176,7 +176,7 @@ class BitmapTimeMetrics(BitmapMetrics):
     def metrics_date(self, value):
         self.metrics_date = value
         time = self.metrics_date.strftime(self._DATE_FORMAT)
-        self._key = self._.METRICS_KEY.format(time)
+        self._key = self._METRICS_KEY.format(time)
 
     def total_counts_per_hours(self):
         """ Returns a list from 0 to 23 with the counts for each hour"""
@@ -231,3 +231,75 @@ class LoginMetrics(BitmapTimeMetrics):
 
     def count_hours_logins(self):
         return self.total_counts_per_hours()
+#--------------
+
+
+class CounterMetrics(object):
+    """ Abstract class for metrics represented by counts, this means that the
+    representation of the metrics is done by a counter
+    """
+    def __init__(self, total=None):
+        self._total = total
+        self._key = None
+
+    @property
+    def key(self):
+        return self._key
+
+    def increment(self, count=1):
+        """ Increments the counter and returns the result"""
+        r = get_redis_connection()
+        return r.incr(self._key, count)
+
+    def decrement(self, count=1):
+        """ Decrements the counter and returns the result"""
+        r = get_redis_connection()
+        return r.decr(self._key, count)
+
+    def get_counter(self):
+        """ Decrements the counter and returns the result"""
+        r = get_redis_connection()
+        return int(r.get(self._key))
+
+
+class CounterTimeMetrics(CounterMetrics):
+    """ Abstract Counter Metrics  in time """
+
+    def __init__(self, metrics_date=None, total=None,  metrics_key_format=None,
+                 date_format=None):
+        super(CounterTimeMetrics, self).__init__(total=total)
+
+        self._METRICS_KEY = metrics_key_format
+        self._DATE_FORMAT = date_format  # Use Standard ISO-8601
+
+        if not metrics_date:
+            metrics_date = datetime_now_utc()
+        self._metrics_date = metrics_date
+
+        time = self._metrics_date.strftime(self._DATE_FORMAT)
+        key = self._METRICS_KEY.format(time)
+
+        self._key = key
+
+    @property
+    def metrics_date(self):
+        return self._metrics_date
+
+    @metrics_date.setter
+    def metrics_date(self, value):
+        self.metrics_date = value
+        time = self.metrics_date.strftime(self._DATE_FORMAT)
+        self._key = self._METRICS_KEY.format(time)
+
+
+class SharedLinkMetrics(CounterTimeMetrics):
+
+    def __init__(self,
+                 metrics_date=None,
+                 total=None,
+                 metrics_key_format="Metrics:sharedlinks:{0}",
+                 date_format="%Y-%m-%dT%H"):
+        super(SharedLinkMetrics, self).__init__(metrics_date=metrics_date,
+                                                 total=total,
+                                                 metrics_key_format=metrics_key_format,
+                                                 date_format=date_format)
