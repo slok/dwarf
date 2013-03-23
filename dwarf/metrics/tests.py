@@ -451,4 +451,45 @@ class LoginMetricsTest(TestCase):
         self.r.incr(key, setup)
 
         # Check the data
-        self.assertEquals(setup, SharedLinkMetrics().get_counter())
+        self.assertEquals(setup, SharedLinkMetrics.get_count(key))
+
+    def test_sharedlinks_count_hours(self):
+
+        good_result = []
+        now = datetime_now_utc()
+
+        # Fill data
+        for i in range(24):
+            shared_links = random.randrange(0, 10000)
+            good_result.append(shared_links)
+            now = datetime(year=now.year,
+                           month=int(now.month),
+                           day=now.day,
+                           hour=i)
+
+            SharedLinkMetrics(now).increment(shared_links)
+
+        # Check the data
+
+        results = SharedLinkMetrics(now).total_counts_per_hours()
+        self.assertEquals(good_result, results)
+
+    def test_sharedlinks_count_day(self):
+        good_result = 0
+        now = datetime_now_utc()
+
+        # Fill data
+        for i in range(24):
+            shared_links = random.randrange(0, 10000)
+            good_result += shared_links
+            now = datetime(year=now.year,
+                           month=int(now.month),
+                           day=now.day,
+                           hour=i)
+
+            SharedLinkMetrics(now).increment(shared_links)
+
+        # Check the data
+
+        result = SharedLinkMetrics(now).total_counts_per_day()
+        self.assertEquals(good_result, result)

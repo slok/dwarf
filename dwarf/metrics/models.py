@@ -71,7 +71,7 @@ class BitmapMetrics(object):
         return pipe.execute()
 
     @classmethod
-    def and_operation(self, keys, store_key=None):
+    def and_operation(cls, keys, store_key=None):
         """Makes an AND operation with all the redis keys.
         Returns the key on redis where the operation is stored
         (Creates a random key if no store key is passed)
@@ -87,7 +87,7 @@ class BitmapMetrics(object):
         return store_key
 
     @classmethod
-    def or_operation(self, keys, store_key=None):
+    def or_operation(cls, keys, store_key=None):
         """Makes an OR operation with all the redis keys.
         Returns the key on redis where the operation is stored
 
@@ -102,7 +102,7 @@ class BitmapMetrics(object):
         return store_key
 
     @classmethod
-    def xor_operation(self, keys, store_key=None):
+    def xor_operation(cls, keys, store_key=None):
         """Makes an XOR operation with all the redis keys.
         Returns the key on redis where the operation is stored
 
@@ -117,7 +117,7 @@ class BitmapMetrics(object):
         return store_key
 
     @classmethod
-    def not_operation(self, key, store_key=None):
+    def not_operation(cls, key, store_key=None):
         """Makes an NOT operation In the bitmap of the redis key.
         Returns the key on redis where the operation is stored
 
@@ -132,7 +132,7 @@ class BitmapMetrics(object):
         return store_key
 
     @classmethod
-    def check_flag(self, key, position):
+    def check_flag(cls, key, position):
         """Checks a bit in the bitmap in the redis databases
         :param key: The key of redis where the bitmap resides
         :param position: The bitmap position to check
@@ -141,7 +141,7 @@ class BitmapMetrics(object):
         return r.getbit(key, position)
 
     @classmethod
-    def count_flags(self, key):
+    def count_flags(cls, key):
         """Counts all the flags activated in a given key (containing a bitmap)
         :param key: the key where the bitmap resides
         """
@@ -256,10 +256,11 @@ class CounterMetrics(object):
         r = get_redis_connection()
         return r.decr(self._key, count)
 
-    def get_counter(self):
+    @classmethod
+    def get_count(cls, key):
         """ Decrements the counter and returns the result"""
         r = get_redis_connection()
-        return int(r.get(self._key))
+        return int(r.get(key))
 
 
 class CounterTimeMetrics(CounterMetrics):
@@ -291,6 +292,26 @@ class CounterTimeMetrics(CounterMetrics):
         time = self.metrics_date.strftime(self._DATE_FORMAT)
         self._key = self._METRICS_KEY.format(time)
 
+    def total_counts_per_hours(self):
+        """ Returns a list from 0 to 23 with the counts for each hour"""
+
+        results = []
+
+        for i in range(24):
+            date = datetime(year=self.metrics_date.year,
+                            month=self.metrics_date.month,
+                            day=self.metrics_date.day,
+                            hour=i).strftime(self._DATE_FORMAT)
+            key = self._METRICS_KEY.format(date)
+
+            results.append(CounterMetrics.get_count(key))
+
+        return results
+
+    def total_counts_per_day(self):
+        """ Returns the count of the day"""
+        return sum(self.total_counts_per_hours())
+
 
 class SharedLinkMetrics(CounterTimeMetrics):
 
@@ -303,3 +324,4 @@ class SharedLinkMetrics(CounterTimeMetrics):
                                                  total=total,
                                                  metrics_key_format=metrics_key_format,
                                                  date_format=date_format)
+
