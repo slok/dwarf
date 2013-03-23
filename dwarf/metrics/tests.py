@@ -6,7 +6,7 @@ from datetime import datetime
 
 from dwarfutils.redisutils import get_redis_connection
 from dwarfutils.dateutils import datetime_now_utc
-from metrics.models import LoginMetrics, TimeMetrics
+from metrics.models import LoginMetrics
 
 
 class LoginMetricsTest(TestCase):

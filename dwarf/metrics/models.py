@@ -149,12 +149,12 @@ class BitmapMetrics(object):
         return r.bitcount(key)
 
 
-class TimeMetrics(BitmapMetrics):
+class BitmapTimeMetrics(BitmapMetrics):
     """ Abstract Bitmap Metrics  in time """
 
     def __init__(self, metrics_date=None, bitmap=None,  metrics_key_format=None,
                  date_format=None):
-        super(TimeMetrics, self).__init__(bitmap=bitmap)
+        super(BitmapTimeMetrics, self).__init__(bitmap=bitmap)
 
         self._METRICS_KEY = metrics_key_format
         self._DATE_FORMAT = date_format  # Use Standard ISO-8601
@@ -162,11 +162,10 @@ class TimeMetrics(BitmapMetrics):
         if not metrics_date:
             metrics_date = datetime_now_utc()
         self._metrics_date = metrics_date
-        if self._metrics_date:
-            time = self._metrics_date.strftime(self._DATE_FORMAT)
-            key = self._METRICS_KEY.format(time)
-        else:
-            key = None
+
+        time = self._metrics_date.strftime(self._DATE_FORMAT)
+        key = self._METRICS_KEY.format(time)
+
         self._key = key
 
     @property
@@ -200,7 +199,7 @@ class TimeMetrics(BitmapMetrics):
         return sum(self.total_counts_per_hours())
 
 
-class LoginMetrics(TimeMetrics):
+class LoginMetrics(BitmapTimeMetrics):
     """Bitmap metrics for  the users that have been logged in a certain
     moment in time.
 
