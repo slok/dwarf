@@ -24,6 +24,9 @@ class LoginMetricsTest(TestCase):
 
         self.r = get_redis_connection()
 
+        self.LOGIN_METRICS_FORMAT = "Metrics:login:{0}"
+        self.DATE_FORMAT = "%Y-%m-%dT%H"
+
     def tearDown(self):
         self.r.flushdb()
 
@@ -32,7 +35,7 @@ class LoginMetricsTest(TestCase):
                                            self.month,
                                            self.day,
                                            self.hour,)
-        good_key = LoginMetrics.METRICS_KEY.format(strtime)
+        good_key = self.LOGIN_METRICS_FORMAT.format(strtime)
 
         ls = LoginMetrics(self.date)
         self.assertEquals(good_key, ls.key)
@@ -301,8 +304,8 @@ class LoginMetricsTest(TestCase):
     def test_user_login(self):
 
         user = random.randrange(0, 100000)
-        date = datetime_now_utc().strftime(LoginMetrics.DATE_FORMAT)
-        key = LoginMetrics.METRICS_KEY.format(date)
+        date = datetime_now_utc().strftime(self.DATE_FORMAT)
+        key = self.LOGIN_METRICS_FORMAT.format(date)
 
         self.assertEquals(LoginMetrics.FLAG_DOWN, self.r.getbit(key, user))
 
@@ -314,8 +317,8 @@ class LoginMetricsTest(TestCase):
     def test_user_login_autodate(self):
 
         user = random.randrange(0, 100000)
-        date = datetime_now_utc().strftime(LoginMetrics.DATE_FORMAT)
-        key = LoginMetrics.METRICS_KEY.format(date)
+        date = datetime_now_utc().strftime(self.DATE_FORMAT)
+        key = self.LOGIN_METRICS_FORMAT.format(date)
 
         self.assertEquals(LoginMetrics.FLAG_DOWN, self.r.getbit(key, user))
 
@@ -327,8 +330,8 @@ class LoginMetricsTest(TestCase):
     def test_users_login(self):
 
         users_ids = [random.randrange(0, 100000) for i in range(100)]
-        date = datetime_now_utc().strftime(LoginMetrics.DATE_FORMAT)
-        key = LoginMetrics.METRICS_KEY.format(date)
+        date = datetime_now_utc().strftime(self.DATE_FORMAT)
+        key = self.LOGIN_METRICS_FORMAT.format(date)
 
         for i in users_ids:
             self.assertEquals(LoginMetrics.FLAG_DOWN, self.r.getbit(key, i))
@@ -339,7 +342,7 @@ class LoginMetricsTest(TestCase):
         for i in users_ids:
             self.assertEquals(LoginMetrics.FLAG_UP, self.r.getbit(key, i))
 
-    def test_count_hours(self):
+    def test_login_count_hours(self):
 
         good_result = []
         now = datetime_now_utc()
@@ -353,14 +356,14 @@ class LoginMetricsTest(TestCase):
                            day=now.day,
                            hour=i)
 
-            TimeMetrics(now).set_flags(logins)
+            LoginMetrics(now).set_flags(logins)
 
         # Check the data
 
-        results = TimeMetrics(now).total_counts_per_hours()
+        results = LoginMetrics(now).total_counts_per_hours()
         self.assertEquals(good_result, results)
 
-    def test_count_day(self):
+    def test_login_count_day(self):
         good_result = 0
         now = datetime_now_utc()
 
@@ -373,9 +376,9 @@ class LoginMetricsTest(TestCase):
                            day=now.day,
                            hour=i)
 
-            TimeMetrics(now).set_flags(logins)
+            LoginMetrics(now).set_flags(logins)
 
         # Check the data
 
-        result = TimeMetrics(now).total_counts_per_day()
+        result = LoginMetrics(now).total_counts_per_day()
         self.assertEquals(good_result, result)

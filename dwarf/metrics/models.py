@@ -150,27 +150,21 @@ class BitmapMetrics(object):
 
 
 class TimeMetrics(BitmapMetrics):
-    """ Bitmap Metrics for  the users that have been logged in a certain
-    moment in time.
+    """ Abstract Bitmap Metrics  in time """
 
-        * bitmap flag 1 represents that a user has logged in
-        * bitmap flag 0 represents that a user hasen't logged yet
-        * the position of the bitmap represents the user id
-    """
-
-    METRICS_KEY = "Metrics:login:{0}"  # Use Standard ISO-8601
-    DATE_FORMAT = "%Y-%m-%dT%H"
-    DATE_FORMAT_MINS = "%Y-%m-%dT%H:%M"
-
-    def __init__(self, metrics_date=None, bitmap=None):
+    def __init__(self, metrics_date=None, bitmap=None,  metrics_key_format=None,
+                 date_format=None):
         super(TimeMetrics, self).__init__(bitmap=bitmap)
+
+        self._METRICS_KEY = metrics_key_format
+        self._DATE_FORMAT = date_format  # Use Standard ISO-8601
 
         if not metrics_date:
             metrics_date = datetime_now_utc()
         self._metrics_date = metrics_date
         if self._metrics_date:
-            time = self._metrics_date.strftime(TimeMetrics.DATE_FORMAT)
-            key = TimeMetrics.METRICS_KEY.format(time)
+            time = self._metrics_date.strftime(self._DATE_FORMAT)
+            key = self._METRICS_KEY.format(time)
         else:
             key = None
         self._key = key
@@ -182,8 +176,8 @@ class TimeMetrics(BitmapMetrics):
     @metrics_date.setter
     def metrics_date(self, value):
         self.metrics_date = value
-        time = self.metrics_date.strftime(TimeMetrics.DATE_FORMAT)
-        self._key = TimeMetrics.METRICS_KEY.format(time)
+        time = self.metrics_date.strftime(self._DATE_FORMAT)
+        self._key = self._.METRICS_KEY.format(time)
 
     def total_counts_per_hours(self):
         """ Returns a list from 0 to 23 with the counts for each hour"""
@@ -194,8 +188,8 @@ class TimeMetrics(BitmapMetrics):
             date = datetime(year=self.metrics_date.year,
                             month=self.metrics_date.month,
                             day=self.metrics_date.day,
-                            hour=i).strftime(LoginMetrics.DATE_FORMAT)
-            key = LoginMetrics.METRICS_KEY.format(date)
+                            hour=i).strftime(self._DATE_FORMAT)
+            key = self._METRICS_KEY.format(date)
 
             results.append(self.count_flags(key))
 
@@ -207,6 +201,24 @@ class TimeMetrics(BitmapMetrics):
 
 
 class LoginMetrics(TimeMetrics):
+    """Bitmap metrics for  the users that have been logged in a certain
+    moment in time.
+
+        * bitmap flag 1 represents that a user has logged in
+        * bitmap flag 0 represents that a user hasen't logged yet
+        * the position of the bitmap represents the user id
+    """
+    def __init__(self,
+                 metrics_date=None,
+                 bitmap=None,
+                 metrics_key_format="Metrics:login:{0}",
+                 date_format="%Y-%m-%dT%H"):
+
+        super(LoginMetrics, self).__init__(
+                                        metrics_date=metrics_date,
+                                        bitmap=bitmap,
+                                        metrics_key_format=metrics_key_format,
+                                        date_format=date_format)
 
     def save_user_login(self, user_id):
         if not self.metrics_date:
