@@ -1,10 +1,10 @@
-import json
 from datetime import datetime
 
 from django.shortcuts import (render_to_response, RequestContext)
 
 from metrics.models import LoginMetrics
 from dwarfutils.dateutils import datetime_now_utc
+from dwarfutils.googlechartutils import day_metrics_linechart_json_transform
 
 
 def day_logins(request):
@@ -12,35 +12,32 @@ def day_logins(request):
     today = datetime(year=now.year, month=int(now.month), day=now.day)
     yesterday = datetime(year=now.year, month=int(now.month), day=now.day - 1)
     two_days_ago = datetime(year=now.year, month=int(now.month), day=now.day - 2)
+    three_days_ago = datetime(year=now.year, month=int(now.month), day=now.day - 3)
+    four_days_ago = datetime(year=now.year, month=int(now.month), day=now.day - 4)
+    five_days_ago = datetime(year=now.year, month=int(now.month), day=now.day - 5)
 
-    results_today = LoginMetrics(today).count_hours_logins()
-    results_yesterday = LoginMetrics(yesterday).count_hours_logins()
-    results_two_days = LoginMetrics(two_days_ago).count_hours_logins()
-    data = {
-        "cols": [
-            {"id": "hour", "label": "Hour", "type": "string"},
-            {"id": "total", "label": "Total Logins " + today.strftime("%Y-%m-%d"), "type": "number"},
-            {"id": "total", "label": "Total Logins " + yesterday.strftime("%Y-%m-%d"), "type": "number"},
-            {"id": "total", "label": "Total Logins " + two_days_ago.strftime("%Y-%m-%d"), "type": "number"},
-        ],
-        "rows": []
-    }
+    results_today = (today.strftime("%Y-%m-%d"),
+                     LoginMetrics(today).count_hours_logins())
+    results_yesterday = (yesterday.strftime("%Y-%m-%d"),
+                         LoginMetrics(yesterday).count_hours_logins())
+    results_two_days = (two_days_ago.strftime("%Y-%m-%d"),
+                        LoginMetrics(two_days_ago).count_hours_logins())
+    results_three_days = (three_days_ago.strftime("%Y-%m-%d"),
+                          LoginMetrics(three_days_ago).count_hours_logins())
+    results_four_days = (four_days_ago.strftime("%Y-%m-%d"),
+                         LoginMetrics(four_days_ago).count_hours_logins())
+    results_five_days = (five_days_ago.strftime("%Y-%m-%d"),
+                         LoginMetrics(five_days_ago).count_hours_logins())
 
-    for i in range(24):
-        value_today = results_today[i]
-        value_yesterday = results_yesterday[i]
-        value_two_days = results_two_days[i]
-        single_data = {
-            "c": [{"v": '{0}:00'.format(i)},
-                  {"v": value_today},
-                  {"v": value_yesterday},
-                  {"v": value_two_days}
-                  ]
-        }
-        data['rows'].append(single_data)
-    print(json.dumps(data))
+    data = day_metrics_linechart_json_transform(results_today,
+                                                results_yesterday,
+                                                results_two_days,
+                                                results_three_days,
+                                                results_four_days,
+                                                results_five_days,
+                                                )
     context = {
-        "data": json.dumps(data),
+        "data": data,
     }
 
     return render_to_response('metrics/daylogins.html',
