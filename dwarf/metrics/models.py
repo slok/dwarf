@@ -330,3 +330,19 @@ class SharedLinkMetrics(CounterTimeMetrics):
 
     def count_hours_shared_links(self):
         return self.total_counts_per_hours()
+
+
+class ClickMetrics(CounterTimeMetrics):
+
+    def __init__(self,
+                 metrics_date=None,
+                 total=None,
+                 metrics_key_format="Metrics:clicks:{0}",
+                 date_format="%Y-%m-%dT%H"):
+        super(ClickMetrics, self).__init__(metrics_date=metrics_date,
+                                                 total=total,
+                                                 metrics_key_format=metrics_key_format,
+                                                 date_format=date_format)
+
+    def count_hours_clicks(self):
+        return self.total_counts_per_hours()
