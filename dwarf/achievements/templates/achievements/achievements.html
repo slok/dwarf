@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load achievementfilters %}
+
+{% block body%}
+    <h1>Available achievements</h1>
+    <div class="row">
+    {% for i in achievements %}
+        <div class="span4">
+            <div class="well" {% if i.secret %}style="background-color:#f2dede;  border: 1px solid #eed3d7;"{% endif %}>
+                <div class="row-fluid">
+                    <div class="span4">
+                        <img src="{{ i.image|achievement_image }}" alt="{{i.name}} achievement"></th>
+                    </div>
+                    <div class="span8">
+                        <div class="row-fluid">
+                            <div class="span12">
+                                <h2>{{i.name}}</h2>
+                            </div>
+                        </div>
+                        <div class="row-fluid">
+                            <div class="span12">
+                                <div>
+                                    {% if i.secret %}
+                                        ?????????????
+                                    {% else %}
+                                        {{i.description}}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+{% endblock body %}
