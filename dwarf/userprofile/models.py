@@ -27,15 +27,6 @@ class Token(models.Model):
     def __unicode__(self):
         return u"{0}".format(self.token)
 
-
-class Achievement(models.Model):
-    achievement = models.CharField(max_length=10)
-    user = models.ForeignKey(User)
-
-    def __unicode__(self):
-        return u"{0}".format(self.achievement)
-
-
 def user_post_save(sender, instance, created, **kwargs):
     """Create a user profile when a new user account is created"""
     if created == True:
