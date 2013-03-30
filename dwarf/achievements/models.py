@@ -26,3 +26,7 @@ class UserAchievement(models.Model):
     def __unicode__(self):
         return "{0} of user {1}".format(
                                 self.achievement.name, self.user.username)
+
+
+# register all the signals
+import achievements.signals.register

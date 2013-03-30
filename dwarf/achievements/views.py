@@ -10,6 +10,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 
 from achievements.models import Achievement
+from achievements.signals.signals import user_signup
 
 logger = logging.getLogger("dwarf")
 
@@ -20,6 +21,9 @@ def list_achievements(request):
     context = {
         'achievements': achievements,
     }
+    # Send signal
+    user = User.objects.get(id=1)
+    user_signup.send(sender=user)
 
     return render_to_response('achievements/achievements.html',
                               context,

@@ -30,6 +30,7 @@ from linkshortener.models import UserLink, ShortLink
 from dwarfutils.hashutils import get_random_hash
 from dwarfutils.dateutils import unix_to_datetime
 from metrics.models import LoginMetrics
+from achievements.signals.signals import user_signup
 
 logger = logging.getLogger("dwarf")
 
@@ -117,6 +118,9 @@ def signup(request):
             user.set_password(data['password1'])
             user.email = data['email']
             user.save()
+
+            # Send signal
+            user_signup.send(sender=user)
 
             # Send email
             messages.success(request,
