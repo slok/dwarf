@@ -149,6 +149,38 @@ class BitmapMetrics(object):
         return r.bitcount(key)
 
 
+class AchievementMetrics(BitmapMetrics):
+    """ Achievement Metrics for users"""
+
+    def __init__(self, achievement_id, bitmap=None):
+        super(AchievementMetrics, self).__init__(bitmap=bitmap)
+
+        self._METRICS_KEY = "Metrics:achievements:{0}"
+        self._achievement_id = achievement_id
+        self._key = self._METRICS_KEY.format(self.achievement_id)
+
+    @property
+    def achievement_id(self):
+        return self._achievement_id
+
+    @achievement_id.setter
+    def achievement_id(self, value):
+        self._achievement_id = value
+        self._key = self._METRICS_KEY.format(self._achievement_id)
+
+    def user_has_achievement(self, user_id):
+        return self.get_flag(user_id)
+
+    def add_user_achievement(self, user_id):
+        self.set_flag(user_id)
+
+    def remove_user_achievement(self, user_id):
+        self.unset_flag(user_id)
+
+    def total_users(self):
+        return self.__class__.count_flags(self._key)
+
+
 class BitmapTimeMetrics(BitmapMetrics):
     """ Abstract Bitmap Metrics  in time """
 

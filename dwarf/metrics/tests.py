@@ -6,7 +6,7 @@ from datetime import datetime
 
 from dwarfutils.redisutils import get_redis_connection
 from dwarfutils.dateutils import datetime_now_utc
-from metrics.models import LoginMetrics, SharedLinkMetrics
+from metrics.models import LoginMetrics, SharedLinkMetrics, AchievementMetrics
 
 
 class LoginMetricsTest(TestCase):
@@ -26,6 +26,7 @@ class LoginMetricsTest(TestCase):
 
         self.LOGIN_METRICS_FORMAT = "Metrics:login:{0}"
         self.SHAREDLINKS_METRICS_FORMAT = "Metrics:sharedlinks:{0}"
+        self.ACHIEVEMENTS_METRICS_FORMAT = "Metrics:achievements:{0}"
         self.DATE_FORMAT = "%Y-%m-%dT%H"
 
     def tearDown(self):
@@ -493,3 +494,55 @@ class LoginMetricsTest(TestCase):
 
         result = SharedLinkMetrics(now).total_counts_per_day()
         self.assertEquals(good_result, result)
+
+    def test_achievement_set(self):
+        user_id = random.randrange(0, 10000)
+        achievement_id = random.randrange(0, 10000)
+        key = self.ACHIEVEMENTS_METRICS_FORMAT.format(achievement_id)
+
+        result = int(self.r.getbit(key, user_id))
+        self.assertEquals(0, result)
+
+        a = AchievementMetrics(achievement_id)
+        a.add_user_achievement(user_id)
+
+        result = int(self.r.getbit(key, user_id))
+        self.assertEquals(1, result)
+
+    def test_achievement_unset(self):
+        user_id = random.randrange(0, 10000)
+        achievement_id = random.randrange(0, 10000)
+        key = self.ACHIEVEMENTS_METRICS_FORMAT.format(achievement_id)
+
+        self.r.setbit(key, user_id, 1)
+        result = int(self.r.getbit(key, user_id))
+        self.assertEquals(1, result)
+
+        a = AchievementMetrics(achievement_id)
+        a.remove_user_achievement(user_id)
+
+        result = int(self.r.getbit(key, user_id))
+        self.assertEquals(0, result)
+
+    def test_achievement_get(self):
+        user_id = random.randrange(0, 10000)
+        achievement_id = random.randrange(0, 10000)
+        key = self.ACHIEVEMENTS_METRICS_FORMAT.format(achievement_id)
+
+        a = AchievementMetrics(achievement_id)
+        self.assertEquals(False, a.user_has_achievement(user_id))
+
+        self.r.setbit(key, user_id, 1)
+        self.assertEquals(True, a.user_has_achievement(user_id))
+
+    def test_achievement_count(self):
+        users = [random.randrange(0, 1000) for i in range(random.randrange(0, 1000))]
+        users = set(users)
+        achievement_id = random.randrange(0, 10000)
+        key = self.ACHIEVEMENTS_METRICS_FORMAT.format(achievement_id)
+
+        for user_id in users:
+            self.r.setbit(key, user_id, 1)
+
+        a = AchievementMetrics(achievement_id)
+        self.assertEquals(len(users), a.total_users())
