@@ -1,0 +1,2 @@
+PADAWAN = 1
+WARMING = 2
