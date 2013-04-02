@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 
-from achievements.models import Achievement
+from achievements.models import Achievement, UserAchievement
 from achievements.signals.signals import user_signup
 from metrics.models import AchievementMetrics
 
@@ -18,6 +18,8 @@ logger = logging.getLogger("dwarf")
 
 @login_required
 def list_achievements(request):
+
+    # Global achievements
     achievements_tmp = Achievement.objects.all()
     users = User.objects.all().count()
     achievements = []
@@ -27,8 +29,16 @@ def list_achievements(request):
         percent = total * 100 / users
         achievements.append((i, percent))
 
+    # User achievements
+    total_achievements_len = len(achievements_tmp)
+    user_achievements_len = UserAchievement.objects.all().count()
+    user_percent = 100 * user_achievements_len / total_achievements_len
+
     context = {
         'achievements': achievements,
+        'user_metrics': (total_achievements_len,
+                         user_achievements_len,
+                         user_percent)
     }
 
     # Send signal

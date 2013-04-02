@@ -4,6 +4,22 @@
 {% block body%}
     <h1>Available achievements</h1>
     <div class="row">
+        <div class="span12">
+        <div class="well">
+            <div class="row-fluid">
+                <div class="span5">
+                    <h3>{{user_metrics.1}} of {{user_metrics.0}} ({{user_metrics.2}}%) achievements gained</h3>
+                </div>
+                <div class="span7">
+                    <div class="progress progress-danger">
+                        <div class="bar" style="width: {{user_metrics.2}}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    <div class="row">
     {% for i in achievements %}
         <div class="span4">
             <div class="well" {% if i.0.secret %}style="background-color:#f2dede;  border: 1px solid #eed3d7;"{% endif %}>
