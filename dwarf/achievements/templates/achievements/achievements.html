@@ -22,7 +22,10 @@
     <div class="row">
     {% for i in achievements %}
         <div class="span4">
-            <div class="well" {% if i.0.secret %}style="background-color:#f2dede;  border: 1px solid #eed3d7;"{% endif %}>
+            <div class="well" 
+            {% if i.2 %}style="background-color:#dff0d8;  border: 1px solid #d6e9c6;"
+            {% elif i.0.secret %}style="background-color:#f2dede;  border: 1px solid #eed3d7;"
+            {% endif %}>
                 <div class="row-fluid">
                     <div class="span4">
                         <img src="{{ i.0.image|achievement_image }}" alt="{{i.0.name}} achievement"></th>
@@ -36,7 +39,7 @@
                         <div class="row-fluid">
                             <div class="span12">
                                 <div>
-                                    {% if i.0.secret %}
+                                    {% if i.0.secret and not i.2 %}
                                         ?????????????
                                     {% else %}
                                         {{i.0.description}}

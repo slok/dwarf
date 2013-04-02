@@ -24,14 +24,19 @@ def list_achievements(request):
     users = User.objects.all().count()
     achievements = []
 
+    # Login required page, not needed to check
+    user = request.user
+
     for i in achievements_tmp:
-        total = AchievementMetrics(i.id).total_users()
+        metrics = AchievementMetrics(i.id)
+        total = metrics.total_users()
         percent = total * 100 / users
-        achievements.append((i, percent))
+        own = metrics.user_has_achievement(user.id) == 1
+        achievements.append((i, percent, own))
 
     # User achievements
     total_achievements_len = len(achievements_tmp)
-    user_achievements_len = UserAchievement.objects.all().count()
+    user_achievements_len = UserAchievement.objects.filter(user=user).count()
     user_percent = 100 * user_achievements_len / total_achievements_len
 
     context = {
