@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
+from django.test.utils import override_settings
 
 from userprofile.models import Profile
 from userprofile.forms import SignupForm
@@ -223,6 +224,7 @@ class SignupFormTests(TestCase):
 
         #self.assertTrue(unicode(_(u"This email is already taken")) in form.errors)
 
+    @override_settings(ENABLE_ACHIEVEMENTS=False)
     def test_user_signup(self):
         form_data = {
             'username': 'test',

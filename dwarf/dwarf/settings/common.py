@@ -308,3 +308,7 @@ djcelery.setup_loader()
 #START_URL_TOKEN_LENGTH = 4
 #ALPHABET = None
 #---------------------END LINK SHORTENER CONFIGURATION-------------------------
+
+#-------------------------ACHIEVEMENTS CONFIGURATION---------------------------
+ENABLE_ACHIEVEMENTS = True
+#-----------------------END ACHIEVEMENTS CONFIGURATION-------------------------
