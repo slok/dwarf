@@ -53,10 +53,6 @@ def list_achievements(request):
                          user_percent)
     }
 
-    # Send signal
-    #user = User.objects.get(id=1)
-    #user_signup.send(sender=user)
-
     return render_to_response('achievements/achievements.html',
                               context,
                               context_instance=RequestContext(request))
