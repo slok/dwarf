@@ -17,7 +17,7 @@ def save_achievement(user, achievement):
     user_achiv.save()
 
     # Save metrics
-    metrics = AchievementMetrics(achievementsids.PADAWAN)
+    metrics = AchievementMetrics(achievement.id)
     metrics.add_user_achievement(user.id)
 
     logger.debug("{0} gained '{1}'".format(user.username, achievement.name))
