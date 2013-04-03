@@ -19,9 +19,13 @@ class Achievement(models.Model):
 # I dont want to use defer for lazy loading, so we split the model in
 # a new table(https://docs.djangoproject.com/en/dev/ref/models/querysets/#defer)
 class UserAchievement(models.Model):
-    achievement = models.OneToOneField(Achievement)
-    user = models.OneToOneField(User)
+    achievement = models.ForeignKey(Achievement)
+    user = models.ForeignKey(User)
     date = AutoDateTimeField()
+
+    # Simulate multiple primary key (Django doesn't support) restriction
+    class Meta:
+        unique_together = (("user", "achievement"),)
 
     def __unicode__(self):
         return "{0} of user {1}".format(
