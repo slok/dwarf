@@ -31,3 +31,6 @@ pip-log.txt
 
 #Vagrant
 .vagrant
+
+# Node
+node_modules
