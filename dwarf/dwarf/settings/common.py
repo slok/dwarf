@@ -291,6 +291,12 @@ LOGGING = {
 #REDIS_PORT = 6379
 #REDIS_DB = 0
 #REDIS_MAX_CONN = 30
+
+#Redis settings for push notifications
+#REDIS_NOTIFICATIONS_HOST = "127.0.0.1"
+#REDIS_NOTIFICATIONS_PORT = 6379
+#REDIS_NOTIFICATIONS_DB = 1
+#REDIS_NOTIFICATIONS_MAX_CONN = 10
 #-----------------------END REDIS CONFIGURATION--------------------------------
 
 
