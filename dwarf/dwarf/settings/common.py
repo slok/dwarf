@@ -48,6 +48,11 @@ DATABASES = {
 }
 #---------------------END DATABASE CONFIGURATION-------------------------------
 
+#-----------------------HOSTS CONFIGURATION------------------------------------
+# Hosts/domain names that are valid for this site; required if DEBUG is False
+# See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+ALLOWED_HOSTS = []
+#-----------------------END HOSTS CONFIGURATION--------------------------------
 
 #-----------------------LOCALE CONFIGURATION-----------------------------------
 # Local time zone for this installation. Choices can be found here:
@@ -188,6 +193,7 @@ LOCAL_APPS = (
     'homepage',
     'metrics',
     'achievements',
+    'notifications'
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -314,3 +320,7 @@ djcelery.setup_loader()
 #START_URL_TOKEN_LENGTH = 4
 #ALPHABET = None
 #---------------------END LINK SHORTENER CONFIGURATION-------------------------
+
+#-------------------------ACHIEVEMENTS CONFIGURATION---------------------------
+ENABLE_ACHIEVEMENTS = True
+#-----------------------END ACHIEVEMENTS CONFIGURATION-------------------------

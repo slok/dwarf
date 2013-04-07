@@ -120,7 +120,8 @@ def signup(request):
             user.save()
 
             # Send signal
-            user_signup.send(sender=user)
+            if settings.ENABLE_ACHIEVEMENTS:
+                user_signup.send(sender=user)
 
             # Send email
             messages.success(request,

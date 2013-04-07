@@ -30,14 +30,21 @@ def list_achievements(request):
     for i in achievements_tmp:
         metrics = AchievementMetrics(i.id)
         total = metrics.total_users()
-        percent = total * 100 / users
+        try:
+            percent = total * 100 / users
+        except ZeroDivisionError:
+            percent = 0
+
         own = metrics.user_has_achievement(user.id) == 1
         achievements.append((i, percent, own))
 
     # User achievements
     total_achievements_len = len(achievements_tmp)
     user_achievements_len = UserAchievement.objects.filter(user=user).count()
-    user_percent = 100 * user_achievements_len / total_achievements_len
+    try:
+        user_percent = 100 * user_achievements_len / total_achievements_len
+    except ZeroDivisionError:
+        user_percent = 0
 
     context = {
         'achievements': achievements,
@@ -45,10 +52,6 @@ def list_achievements(request):
                          user_achievements_len,
                          user_percent)
     }
-
-    # Send signal
-    #user = User.objects.get(id=1)
-    #user_signup.send(sender=user)
 
     return render_to_response('achievements/achievements.html',
                               context,
