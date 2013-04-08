@@ -20,12 +20,16 @@
       }
 
     </style>
-
+    <script>
+      var websocketUrl = "{{ push_notifications_server_url }}";
+      var userId = {% if user.id %} {{user.id}} {% else %} null {% endif %};
+    </script>
     <!-- Le javascript -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="{{ STATIC_URL }}js/jquery.meow.js"></script>
-
+    <script src="{{ STATIC_URL }}js/socket.io.min.js"></script>
     <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
+    <script src="{{ STATIC_URL }}js/jquery.meow.js"></script>
+    <script src="{{ STATIC_URL }}js/push-notifications.js"></script>
     <!--<script src="{{ STATIC_URL }}js/bootstrap-transition.js"></script>
     <script src="{{ STATIC_URL }}js/bootstrap-modal.js"></script>
     <script src="{{ STATIC_URL }}js/bootstrap-dropdown.js"></script>

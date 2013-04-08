@@ -9,7 +9,7 @@ LEVEL = 'level'
 
 
 class Notification(object):
-    KEY_FORMAT = "push:notifications:{0}"
+    KEY_FORMAT = "Push:notifications:{0}"
 
     def __init__(self,
                  notification_type=None,

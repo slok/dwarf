@@ -17,7 +17,8 @@ class AchievementNotificationTest(TestCase):
 
     # Cant test because of the redis blocking
     def test_send_push(self):
-        achieve = Achievement.objects.get(id=1)
+        achieves = Achievement.objects.all()
         user = User.objects.get(id=1)
-        notif = AchievementNotification(achievement=achieve, user=user)
-        notif.send_push()
+        for i in achieves:
+            notif = AchievementNotification(achievement=i, user=user)
+            notif.send_push()
