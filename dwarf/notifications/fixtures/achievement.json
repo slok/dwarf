@@ -1,0 +1,12 @@
+[{
+    "pk": 1, 
+    "model": "achievements.achievement", 
+    "fields": {
+        "name": "Padawan", 
+        "level": 0, 
+        "image": "badge_11.png", 
+        "secret": false, 
+        "points": 1, 
+        "description": "Register in the site"
+    }
+}]
