@@ -140,6 +140,17 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
 )
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.contrib.messages.context_processors.messages',
+    'notifications.context_processors.push_notifications_context_processor',
+    'django.core.context_processors.request',
+)
 #---------------------END TEMPLATE CONFIGURATION-------------------------------
 
 
@@ -323,4 +334,15 @@ djcelery.setup_loader()
 
 #-------------------------ACHIEVEMENTS CONFIGURATION---------------------------
 ENABLE_ACHIEVEMENTS = True
+#-----------------------END ACHIEVEMENTS CONFIGURATION-------------------------
+
+#---------------------PUSH NOTIFICATIONS CONFIGURATION-------------------------
+PUSH_NOTIFICATIONS_SERVER_HOST = "127.0.0.1"
+PUSH_NOTIFICATIONS_SERVER_PORT = 8001
+PUSH_NOTIFICATIONS_SERVER_TYPE = "notifications"
+PUSH_NOTIFICATIONS_SERVER_URL = "http://{0}:{1}/{2}".format(
+    PUSH_NOTIFICATIONS_SERVER_HOST,
+    PUSH_NOTIFICATIONS_SERVER_PORT,
+    PUSH_NOTIFICATIONS_SERVER_TYPE
+)
 #-----------------------END ACHIEVEMENTS CONFIGURATION-------------------------
