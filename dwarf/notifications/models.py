@@ -91,6 +91,12 @@ class Notification(object):
     def all(cls, user, desc=True):
         return Notification.find(user, desc=desc)
 
+    @classmethod
+    def count(cls, user, min_time="-inf", max_time="+inf"):
+        r = get_redis_push_notifications_connection()
+        key = Notification.STORE_KEY_FORMAT.format(user.id)
+        return int(r.zcount(key, min_time, max_time))
+
 
 class AchievementNotification(Notification):
 
