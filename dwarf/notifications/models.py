@@ -1,15 +1,20 @@
 import json
+import abc
 
-from dwarfutils.redisutils import get_redis_notifications_connection
+from dwarfutils.redisutils import (get_redis_push_notifications_connection,
+                                   get_redis_connection)
 from dwarfutils.dateutils import unix_now_utc
 from achievements.templatetags.achievementfilters import achievement_image_url
+from achievements.models import Achievement
 
 ACHIEVEMENT = 'achievement'
 LEVEL = 'level'
 
 
 class Notification(object):
-    KEY_FORMAT = "Push:notifications:{0}"
+    PUSH_KEY_FORMAT = "Push:notifications:{0}"
+    STORE_KEY_FORMAT = "Notifications:{0}"
+    __metaclass__ = abc.ABCMeta
 
     def __init__(self,
                  notification_type=None,
@@ -18,39 +23,83 @@ class Notification(object):
                  image=None,
                  date=None,
                  user_id=None,
-                 key=None):
+                 key=None,
+                 push_key=None):
         self._notification_type = notification_type
         self._title = title
         self._description = description
         self._image = image
-        self._date = unix_now_utc()
+        self.date = unix_now_utc()
         self._user_id = user_id
 
+        if not push_key:
+            self._push_key = Notification.PUSH_KEY_FORMAT.format(user_id)
         if not key:
-            self._key = Notification.KEY_FORMAT.format(user_id)
+            self._key = Notification.STORE_KEY_FORMAT.format(user_id)
 
-    def transform_json(self):
-        data = {
-            'type': self._notification_type,
-            'title': self._title,
-            'description': self._description,
-            'image': self._image,
-            'date': self._date
-        }
-        return json.dumps(data)
+    @abc.abstractmethod
+    def to_json(self):
+        return None
+
+    @classmethod
+    @abc.abstractmethod
+    def from_json(cls, json_dict):
+        return None
 
     def save(self):
-        pass
+        r = get_redis_connection()
+        r.zadd(self._key, self.date, self.to_json())
 
     def send_push(self):
         # Publish in redis
-        r = get_redis_notifications_connection()
-        r.publish(self._key, self.transform_json())
+        r = get_redis_push_notifications_connection()
+        r.publish(self._push_key, self.to_json())
+
+    @classmethod
+    def _notification_factory(cls, json_data):
+        """Decides based on the json what notification type needs to create"""
+        json_decoded = json.loads(json_data)
+        result = None
+
+        # Decide
+        if json_decoded['type'] == ACHIEVEMENT:
+            result = AchievementNotification.from_json(json_decoded)
+        else:
+            raise TypeError("There are no notifications of that type")
+
+        return result
+
+    @classmethod
+    def find(cls, user, offset=0, limit=-1, desc=True):
+        """The offset starts in 0"""
+        r = get_redis_push_notifications_connection()
+        func = r.zrange if not desc else r.zrevrange
+        key = Notification.STORE_KEY_FORMAT.format(user.id)
+        result = map(Notification._notification_factory, func(key, offset, limit))
+        return result
+
+    @classmethod
+    def time_range(cls, user, lowerbound, upperbound, desc=True):
+        """lowbound and upperbound in unixtimestamp"""
+        r = get_redis_push_notifications_connection()
+        key = Notification.STORE_KEY_FORMAT.format(user.id)
+        func = r.zrangebyscore if not desc else r.zrevrangebyscore
+        result = map(Notification._notification_factory, func(key, lowerbound, upperbound))
+        return result
+
+    @classmethod
+    def all(cls, user, desc=True):
+        return Notification.find(user, desc=desc)
 
 
 class AchievementNotification(Notification):
 
-    def __init__(self, achievement, user):
+    def __init__(self, achievement, user_id=None, user=None):
+        if not user_id and user:
+            user_id = user.id
+        elif not user_id and not user:
+            raise AttributeError('userId or User instance needed')
+
         self._achievement_id = achievement.id
         notification_type = ACHIEVEMENT
         image = achievement_image_url(achievement.image)
@@ -61,5 +110,30 @@ class AchievementNotification(Notification):
             title=title,
             description=description,
             image=image,
-            user_id=user.id
+            user_id=user_id
         )
+
+    @property
+    def achievement_id(self):
+        return self._achievement_id
+
+    def to_json(self):
+        data = {
+            'type': self._notification_type,
+            'title': self._title,
+            'description': self._description,
+            'image': self._image,
+            'date': self.date,
+            'user_id': self._user_id,
+            'achievement_id': self._achievement_id
+        }
+        return json.dumps(data)
+
+    @classmethod
+    def from_json(cls, json_dict):
+        achiev = Achievement.objects.get(id=json_dict['achievement_id'])
+
+        a = AchievementNotification(achiev, user_id=json_dict['user_id'])
+        a.date = json_dict['date']
+
+        return a
