@@ -6,5 +6,5 @@ def get_redis_connection():
     return redis.StrictRedis(connection_pool=settings.REDIS_POOL)
 
 
-def get_redis_notifications_connection():
+def get_redis_push_notifications_connection():
     return redis.StrictRedis(connection_pool=settings.REDIS_NOTIFICATIONS_POOL)
