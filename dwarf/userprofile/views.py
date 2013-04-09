@@ -231,8 +231,9 @@ def user_dashboard(request):
             else:
                 grouped_links.append(temp)
                 temp = []
-
-    grouped_links.append(temp)
+    # If no links don't add them
+    if temp:
+        grouped_links.append(temp)
 
     context = {
         "total_pages": total_pages,
