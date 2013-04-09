@@ -1,4 +1,5 @@
-[{
+[
+{
     "pk": 1, 
     "model": "achievements.achievement", 
     "fields": {
@@ -9,4 +10,137 @@
         "points": 1, 
         "description": "Register in the site"
     }
-}]
+},
+{
+    "pk": 2, 
+    "model": "achievements.achievement", 
+    "fields": {
+        "name": "Warming", 
+        "level": 0, 
+        "image": "badge_3.png", 
+        "secret": false, 
+        "points": 1, 
+        "description": "Create your first link"
+    }
+},
+{
+    "pk": 3, 
+    "model": "achievements.achievement", 
+    "fields": {
+        "name": "High five", 
+        "level": 0, 
+        "image": "badge_4.png", 
+        "secret": false, 
+        "points": 1, 
+        "description": "Short 5 links"
+    }
+},
+{
+    "pk": 4, 
+    "model": "achievements.achievement", 
+    "fields": {
+        "name": "1010", 
+        "level": 0, 
+        "image": "badge_5.png", 
+        "secret": false, 
+        "points": 1, 
+        "description": "Short 10 links"
+    }
+},
+{
+    "pk": 5, 
+    "model": "achievements.achievement", 
+    "fields": {
+        "name": "100/4 links", 
+        "level": 1, 
+        "image": "badge_6.png", 
+        "secret": false, 
+        "points": 2, 
+        "description": "25 shortened links"
+    }
+},
+{
+    "pk": 6, 
+    "model": "achievements.achievement", 
+    "fields": {
+        "name": "Open source", 
+        "level": 2, 
+        "image": "badge_16.png", 
+        "secret": true, 
+        "points": 4, 
+        "description": "Share Github link"
+    }
+},
+{
+    "pk": 7, 
+    "model": "achievements.achievement", 
+    "fields": {
+        "name": "L", 
+        "level": 1, 
+        "image": "badge_7.png", 
+        "secret": false, 
+        "points": 2, 
+        "description": "50 Shortened links"
+    }
+},
+{
+    "pk": 8, 
+    "model": "achievements.achievement", 
+    "fields": {
+        "name": "64", 
+        "level": 2, 
+        "image": "badge_8.png", 
+        "secret": false, 
+        "points": 4, 
+        "description": "Shared 100 links"
+    }
+},
+{
+    "pk": 9, 
+    "model": "achievements.achievement", 
+    "fields": {
+        "name": "100 * 5", 
+        "level": 2, 
+        "image": "badge_9.png", 
+        "secret": false, 
+        "points": 4, 
+        "description": "Shared 500 links"
+    }
+},
+{
+    "pk": 10, 
+    "model": "achievements.achievement", 
+    "fields": {
+        "name": "1k!", 
+        "level": 3, 
+        "image": "badge_10.png", 
+        "secret": false, 
+        "points": 8, 
+        "description": "Share 1000 links"
+    }
+},
+{
+    "pk": 11, 
+    "model": "achievements.achievement", 
+    "fields": {
+        "name": "Forever alone", 
+        "level": 2, 
+        "image": "badge_21.png", 
+        "secret": false, 
+        "points": 4, 
+        "description": "0 Clicks in a link in 7 days"
+    }
+},
+{
+    "pk": 12, 
+    "model": "achievements.achievement", 
+    "fields": {
+        "name": "Nyan", 
+        "level": 0, 
+        "image": "badge_22.png", 
+        "secret": true, 
+        "points": 1, 
+        "description": "Share a link of www.nyan.cat"
+    }
+}
+]
