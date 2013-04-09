@@ -142,7 +142,7 @@ class NotificationTest(TestCase):
             r.zadd(key, notif.date, notif.to_json())
             notifs.append(notif)
 
-        achieves = achieves[2:5]  # 2, 4 and 4 only
+        achieves = achieves[2:5]  # 2, 3 and 4 only
         a_len = len(achieves)
 
         # Get notifications
@@ -186,7 +186,7 @@ class NotificationTest(TestCase):
             r.zadd(key, notif.date, notif.to_json())
             notifs.append(notif)
 
-        achieves = achieves[2:5]  # 2, 4 and 4 only
+        achieves = achieves[2:5]  # 2, 3 and 4 only
         a_len = len(achieves)
 
         lowerbound = notifs[2].date
