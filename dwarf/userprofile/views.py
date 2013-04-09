@@ -225,8 +225,8 @@ def user_dashboard(request):
         else:
             previous_date = unix_to_datetime(temp[0].creation_date)
             if previous_date.year == creation_date.year and\
-                previous_date.month == creation_date.month and\
-                previous_date.day == creation_date.day:
+                    previous_date.month == creation_date.month and\
+                    previous_date.day == creation_date.day:
                 temp.append(i)
             else:
                 grouped_links.append(temp)
@@ -242,8 +242,8 @@ def user_dashboard(request):
     }
 
     return render_to_response('userprofile/dashboard.html',
-                        context,
-                        context_instance=RequestContext(request))
+                              context,
+                              context_instance=RequestContext(request))
 
 
 def reset_password(request, user, token):
