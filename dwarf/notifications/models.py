@@ -37,6 +37,26 @@ class Notification(object):
         if not key:
             self._key = Notification.STORE_KEY_FORMAT.format(user_id)
 
+    @property
+    def notification_type(self):
+        return self._notification_type
+
+    @property
+    def title(self):
+        return self._title
+
+    @property
+    def description(self):
+        return self._description
+
+    @property
+    def image(self):
+        return self._image
+
+    @property
+    def user_id(self):
+        return self._user_id
+
     @abc.abstractmethod
     def to_json(self):
         return None
