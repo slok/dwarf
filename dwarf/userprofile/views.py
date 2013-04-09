@@ -204,7 +204,7 @@ def user_dashboard(request):
     total_pages = int(math.ceil(float(UserLink.objects.count()) / LINK_PER_PAGE))
 
     # If the page doesn't exists then 404
-    if page > total_pages:
+    if page > total_pages and total_pages > 0:
         raise Http404
 
     # Get the links
