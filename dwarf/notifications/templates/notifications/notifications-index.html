@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{%load datefilters%}
+
+{% block body %}
+    <h1>Notifications: </h1>
+    {% for notification in notifications %}
+        <div class="row">
+            <div class="offset3 span6">
+                <div class="well">
+                    <div class="row-fluid">
+                        <div class="span2">
+                            <img src="{{ notification.image }}" alt="{{notification.title}}"></img>
+                        </div>
+                        <div class="span10">
+                            <h2>{{notification.title}}</h2>
+                            {{notification.description}}
+                            on <strong>{{notification.date |from_unix_timestamp|date:"M j, Y"}}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+        <ul class="pager">
+            <li class="previous {% if actual_page <= 1 %}disabled {% endif %} ">
+                    <a href="
+                        {% if actual_page > 1 %} 
+                            {% url "notifications-index" %}?page={{ actual_page|add:-1 }}
+                        {% else %}
+                            #
+                        {% endif %}
+                    ">← Older</a>
+            </li>
+            <li class="next {% if actual_page >= total_pages %}disabled {% endif %} ">
+                <a href="
+                    {% if actual_page < total_pages %} 
+                        {% url "notifications-index" %}?page={{ actual_page|add:1 }}
+                    {% else %}
+                        #
+                    {% endif %}
+                ">Newer →</a>
+            </li>
+        </ul>
+{% endblock body%}

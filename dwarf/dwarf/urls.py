@@ -8,6 +8,7 @@ import userprofile.urls
 import linkshortener.urls
 import metrics.urls
 import achievements.urls
+import notifications.urls
 
 admin.autodiscover()
 
@@ -22,6 +23,7 @@ urlpatterns = patterns('',
     url(r'^shortener/', include(linkshortener.urls)),
     url(r'^metrics/', include(metrics.urls)),
     url(r'^achievements/', include(achievements.urls)),
+    url(r'^notifications/', include(notifications.urls)),
 
     url(r'^admin/', include(admin.site.urls)),
 )
