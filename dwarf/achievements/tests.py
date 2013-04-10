@@ -27,6 +27,17 @@ class AchievementsUtilsTest(TestCase):
 
         self.assertTrue(receivers.has_achievement(user, achievement))
 
+    def test_achievement_saver(self):
+        user = User.objects.get(id=1)
+        achievement = Achievement.objects.get(id=1)
+
+        self.assertFalse(receivers.has_achievement(user, achievement))
+
+        receivers.save_achievement(user, achievement)
+
+        self.assertTrue(receivers.has_achievement(user, achievement))
+        #Check in the future also the redis metrics
+
 
 class AchievementsTest(TestCase):
     def test_padawan_achievement(self):
