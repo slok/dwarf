@@ -14,6 +14,20 @@ from achievements import achievementsids
 from metrics.models import AchievementMetrics
 
 
+class AchievementsUtilsTest(TestCase):
+    fixtures = ['achievement.json', 'user.json']
+
+    def test_achievement_already_exists(self):
+        user = User.objects.get(id=1)
+        achievement = Achievement.objects.get(id=1)
+
+        self.assertFalse(receivers.has_achievement(user, achievement))
+
+        UserAchievement(user=user, achievement=achievement).save()
+
+        self.assertTrue(receivers.has_achievement(user, achievement))
+
+
 class AchievementsTest(TestCase):
     def test_padawan_achievement(self):
         user = User()

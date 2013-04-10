@@ -34,6 +34,10 @@ def save_achievement(user, achievement):
         logger.error("{0} already has '{1}'".format(user.username, achievement.name))
 
 
+def has_achievement(user, achievement):
+    return UserAchievement.objects.filter(user=user, achievement=achievement).exists()
+
+
 def padawan_achievement(sender, **kwargs):
     achiv = Achievement.objects.get(id=achievementsids.PADAWAN)
     save_achievement(sender, achiv)
