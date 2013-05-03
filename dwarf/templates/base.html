@@ -69,6 +69,11 @@
             <div class="container">
               <a class="brand" href="#">Dwarf</a>
               {% if user.is_authenticated %}
+                <ul class="nav">
+                    <li><a rel="notifications" href="{% url 'notifications-index' %}"><span class="badge badge-important">0</span></a></li>
+                    <li><a rel="links" href="">Links</a></li>
+                    <li><a rel="achievements" href="{% url 'achievements-listachievements' %}">Achievements</a></li>
+                </ul>
                 <ul class="nav pull-right">
                     <li><a rel="settings" href="{% url 'userprofile-dashboard' %}"><strong>{{user.username}}</strong></li></a>
                     <li><a rel="settings" href="{% url 'userprofile-logout' %}"><i class="icon-cog icon-large"></i></a></li>
