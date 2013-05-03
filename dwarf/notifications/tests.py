@@ -11,11 +11,15 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 from achievements.models import Achievement
-from notifications.models import AchievementNotification, Notification
+from notifications.models import (AchievementNotification,
+                                  Notification,
+                                  ShortLinkNotification)
 from dwarfutils.redisutils import get_redis_connection
+from linkshortener.tasks import create_token
+from linkshortener.models import ShortLink
 
 
-class NotificationTest(TestCase):
+class AchievementNotificationTest(TestCase):
     fixtures = ['achievement.json', 'user.json']
     STORE_KEY_FORMAT = "Notifications:{0}"
 
@@ -44,7 +48,8 @@ class NotificationTest(TestCase):
             notif.save()
 
         r = get_redis_connection()
-        res = r.zrange(NotificationTest.STORE_KEY_FORMAT.format(user.id), 0, -1)
+        res = r.zrange(
+            AchievementNotificationTest.STORE_KEY_FORMAT.format(user.id), 0, -1)
 
         self.assertEquals(a_len, len(res))
 
@@ -65,7 +70,7 @@ class NotificationTest(TestCase):
         for i in achieves:
             notif = AchievementNotification(achievement=i, user=user)
             time.sleep(1)
-            key = NotificationTest.STORE_KEY_FORMAT.format(user.id)
+            key = AchievementNotificationTest.STORE_KEY_FORMAT.format(user.id)
             r.zadd(key, notif.date, notif.to_json())
 
         # Get notifications
@@ -90,7 +95,7 @@ class NotificationTest(TestCase):
         for i in achieves:
             notif = AchievementNotification(achievement=i, user=user)
             time.sleep(1)
-            key = NotificationTest.STORE_KEY_FORMAT.format(user.id)
+            key = AchievementNotificationTest.STORE_KEY_FORMAT.format(user.id)
             r.zadd(key, notif.date, notif.to_json())
 
         # Get notifications
@@ -112,7 +117,7 @@ class NotificationTest(TestCase):
         for i in achieves:
             notif = AchievementNotification(achievement=i, user=user)
             time.sleep(1)
-            key = NotificationTest.STORE_KEY_FORMAT.format(user.id)
+            key = AchievementNotificationTest.STORE_KEY_FORMAT.format(user.id)
             r.zadd(key, notif.date, notif.to_json())
 
         # Get notifications
@@ -138,7 +143,7 @@ class NotificationTest(TestCase):
         for i in achieves:
             notif = AchievementNotification(achievement=i, user=user)
             time.sleep(1)
-            key = NotificationTest.STORE_KEY_FORMAT.format(user.id)
+            key = AchievementNotificationTest.STORE_KEY_FORMAT.format(user.id)
             r.zadd(key, notif.date, notif.to_json())
             notifs.append(notif)
 
@@ -166,7 +171,7 @@ class NotificationTest(TestCase):
 
         for i in achieves:
             notif = AchievementNotification(achievement=i, user=user)
-            key = NotificationTest.STORE_KEY_FORMAT.format(user.id)
+            key = AchievementNotificationTest.STORE_KEY_FORMAT.format(user.id)
             r.zadd(key, notif.date, notif.to_json())
 
         a_len = len(achieves)
@@ -182,7 +187,7 @@ class NotificationTest(TestCase):
         for i in achieves:
             notif = AchievementNotification(achievement=i, user=user)
             time.sleep(1)
-            key = NotificationTest.STORE_KEY_FORMAT.format(user.id)
+            key = AchievementNotificationTest.STORE_KEY_FORMAT.format(user.id)
             r.zadd(key, notif.date, notif.to_json())
             notifs.append(notif)
 
@@ -194,3 +199,43 @@ class NotificationTest(TestCase):
 
         result = AchievementNotification.count(user, lowerbound, upperbound)
         self.assertEquals(a_len, result)
+
+
+class ShortLinkNotificationTest(TestCase):
+    fixtures = ['user.json']
+    STORE_KEY_FORMAT = "Notifications:{0}"
+
+    def setUp(self):
+        # Manual fixtures
+        urls = ["www.google.com", "github.com", "xlarrakoetxea.org"]
+        user = User.objects.get(id=1)
+        for i in urls:
+            create_token(i, user.id)
+
+    def tearDown(self):
+        r = get_redis_connection()
+        r.flushdb()
+
+    def test_shortlink_notification_store(self):
+        #with three we have enought to test
+        sls = ShortLink.findall()[:3]
+        user = User.objects.get(id=1)
+
+        a_len = len(sls)
+
+        for i in sls:
+            notif = ShortLinkNotification(short_link=i, user=user)
+            time.sleep(1)  # We need notification order
+            notif.save()
+
+        r = get_redis_connection()
+        res = r.zrange(
+            ShortLinkNotificationTest.STORE_KEY_FORMAT.format(user.id), 0, -1)
+
+        self.assertEquals(a_len, len(res))
+
+        for i in range(len(res)):
+            before = sls[i]
+            after = json.loads(res[i])
+
+            self.assertEquals(before.token, after['token'])

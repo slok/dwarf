@@ -6,8 +6,10 @@ from dwarfutils.redisutils import (get_redis_push_notifications_connection,
 from dwarfutils.dateutils import unix_now_utc
 from achievements.templatetags.achievementfilters import achievement_image_url
 from achievements.models import Achievement
+from linkshortener.models import ShortLink
 
 ACHIEVEMENT = 'achievement'
+SHORTLINK = 'shortlink'
 LEVEL = 'level'
 
 
@@ -163,3 +165,62 @@ class AchievementNotification(Notification):
         a.date = json_dict['date']
 
         return a
+
+
+class ShortLinkNotification(Notification):
+
+    def __init__(self, short_link, user_id=None, user=None):
+        if not user_id and user:
+            user_id = user.id
+        elif not user_id and not user:
+            raise AttributeError('userId or User instance needed')
+
+        self._url = short_link.url
+        self._token = short_link.token
+        self._url_title = short_link.title
+        notification_type = ACHIEVEMENT
+        image = None
+        title = "Link shortened"
+        description = "You shortened '{0}' link".format(self._url_title)
+        super(ShortLinkNotification, self).__init__(
+            notification_type=notification_type,
+            title=title,
+            description=description,
+            image=image,
+            user_id=user_id
+        )
+
+    @property
+    def token(self):
+        return self._token
+
+    @property
+    def url(self):
+        return self._token
+
+    @property
+    def url_title(self):
+        return self._url_title
+
+    def to_json(self):
+        data = {
+            'type': self._notification_type,
+            'title': self._title,
+            'description': self._description,
+            'image': self._image,
+            'date': self.date,
+            'user_id': self._user_id,
+            'url': self._url,
+            'url_title': self._url_title,
+            'token': self._token,
+        }
+        return json.dumps(data)
+
+    @classmethod
+    def from_json(cls, json_dict):
+        short_link = ShortLink.find(token=json_dict['token'])
+
+        sl = ShortLinkNotification(short_link, user_id=json_dict['user_id'])
+        sl.date = json_dict['date']
+
+        return sl
