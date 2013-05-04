@@ -39,5 +39,6 @@ REDIS_NOTIFICATIONS_POOL = ConnectionPool(
     max_connections=REDIS_NOTIFICATIONS_MAX_CONN
 )
 
-BROKER_URL = 'amqp://guest:guest@localhost:5672/'
-CELERY_RESULT_BACKEND = "amqp"
+CELERY_ALWAYS_EAGER = True
+#BROKER_URL = 'amqp://guest:guest@localhost:5672/'
+#CELERY_RESULT_BACKEND = "amqp"
