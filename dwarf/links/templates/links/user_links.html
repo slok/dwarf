@@ -15,6 +15,7 @@
             {% for link in group %}
             <tr>
                 <th> <img src="{{ link.host|host_favicon }}" alt="{{link.host}} favicon"></th>
+                <th>{{link.clicks}}</th>
                 <th>{{link.counter}}</th>
                 <td><a href={% url "forwarder-forward" link.token %}>{{link.token}}</a></td>
                 <th>{{link.title}}</th>

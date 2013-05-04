@@ -63,6 +63,6 @@ def links_index(request):
         "links": grouped_links
     }
 
-    return render_to_response('userprofile/dashboard.html',
+    return render_to_response('links/user_links.html',
                               context,
                               context_instance=RequestContext(request))
