@@ -86,6 +86,8 @@ class Notification(object):
         # Decide
         if json_decoded['type'] == ACHIEVEMENT:
             result = AchievementNotification.from_json(json_decoded)
+        elif json_decoded['type'] == SHORTLINK:
+            result = ShortLinkNotification.from_json(json_decoded)
         else:
             raise TypeError("There are no notifications of that type")
 
@@ -178,7 +180,7 @@ class ShortLinkNotification(Notification):
         self._url = short_link.url
         self._token = short_link.token
         self._url_title = short_link.title
-        notification_type = ACHIEVEMENT
+        notification_type = SHORTLINK
         image = None
         title = "Link shortened"
         description = "You shortened '{0}' link".format(self._url_title)
