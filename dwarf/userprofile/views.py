@@ -201,7 +201,9 @@ def user_dashboard(request):
     page = int(request.GET.get('page', 1))
 
     # Get the total pages (rounding up, ex: 1.2 pages means 2 pages)
-    total_pages = int(math.ceil(float(UserLink.objects.count()) / LINK_PER_PAGE))
+    total_pages = int(math.ceil(
+                        float(UserLink.objects.filter(
+                                user=request.user).count()) / LINK_PER_PAGE))
 
     # If the page doesn't exists then 404
     if page > total_pages and total_pages > 0:
