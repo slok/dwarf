@@ -18,3 +18,16 @@ def extract_url_host(url):
 
 def percent_encode_url(url):
     return urllib.quote(url, safe="%/:=&?~#+!$,;'@()*[]-")
+
+
+def remove_http_prefix(url):
+    return url.replace("http://", "", 1)
+
+
+def remove_https_prefix(url):
+    return url.replace("https://", "", 1)
+
+
+def sanitize_url(url):
+    url = percent_encode_url(url)
+    return url.lower()

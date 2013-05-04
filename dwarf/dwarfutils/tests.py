@@ -107,6 +107,40 @@ class URLUtilTest(TestCase):
         for url, host in urls.items():
             self.assertEquals(host, urlutils.extract_url_host(url))
 
+    def test_remove_http(self):
+        urls = {
+            "http://google.com": "google.com",
+            "http://www.djangoproject.com/": "www.djangoproject.com/",
+            "http://github.com/": "github.com/",
+            "http://twitter.com/": "twitter.com/",
+            "http://docs.python.org/2/library/urlparse.html": "docs.python.org/2/library/urlparse.html"
+        }
+
+        for url, good_url in urls.items():
+            self.assertEquals(good_url, urlutils.remove_http_prefix(url))
+
+    def test_remove_https(self):
+        urls = {
+            "https://google.com": "google.com",
+            "https://www.djangoproject.com/": "www.djangoproject.com/",
+            "https://github.com/": "github.com/",
+            "https://twitter.com/": "twitter.com/",
+            "https://docs.python.org/2/library/urlparse.html": "docs.python.org/2/library/urlparse.html"
+        }
+
+        for url, good_url in urls.items():
+            self.assertEquals(good_url, urlutils.remove_https_prefix(url))
+
+    def test_sanitize(self):
+
+        urls = {
+            "HTTP://google.com": "http://google.com",
+            "https://www.dJangoProjecT.com/": "https://www.djangoproject.com/",
+        }
+
+        for url, good_url in urls.items():
+            self.assertEquals(good_url, urlutils.sanitize_url(url))
+
 
 class CheckUtilTest(TestCase):
 
