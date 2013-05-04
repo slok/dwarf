@@ -1,3 +1,5 @@
+import re
+
 from django.shortcuts import redirect
 
 from linkshortener.models import ShortLink
@@ -11,6 +13,9 @@ def forward(request, token):
 
     # get the forwarding Forward
     sl = ShortLink.find(token=token)
-    forward_url = "http://{0}".format(sl.url)
+    if not re.search("^https?://.+", sl.url):
+        forward_url = "http://{0}".format(sl.url)
+    else:
+        forward_url = sl.url
 
     return redirect(forward_url)
