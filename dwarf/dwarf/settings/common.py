@@ -204,7 +204,8 @@ LOCAL_APPS = (
     'homepage',
     'metrics',
     'achievements',
-    'notifications'
+    'notifications',
+    'links'
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
