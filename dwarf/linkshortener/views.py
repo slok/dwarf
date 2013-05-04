@@ -15,9 +15,13 @@ from linkshortener.tasks import create_token
 
 logger = logging.getLogger("dwarf")
 
+
 def create_link_helper(url, user_id):
-    token = create_token(url, user_id)
+
+    result = create_token.delay(url, user_id)
+    token = result.get()
     logger.debug("Creating a short link... '{0}' token".format(token))
+
     return token
 
 

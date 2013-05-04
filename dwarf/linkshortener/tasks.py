@@ -3,13 +3,19 @@ from django.contrib.auth.models import User
 
 from linkshortener.models import ShortLink, UserLink
 from metrics.models import SharedLinkMetrics
-from dwarfutils.urlutils import extract_url_title, extract_url_host
+from dwarfutils.urlutils import (extract_url_title,
+                                 extract_url_host,
+                                 sanitize_url)
+from notifications.models import ShortLinkNotification
 
 
 @task()
 def create_token(url, user_id=None):
     # Get the next counter to create the token
     counter = ShortLink.incr_counter()
+
+    # Sanitize the url
+    url = sanitize_url(url)
 
     # Get the title
     # Fix this!! test if the url exists or not!!
@@ -40,6 +46,11 @@ def create_token(url, user_id=None):
 
     # Fill the metrics
     SharedLinkMetrics().increment()
+
+    # Send notifications
+    notif = ShortLinkNotification(sl, user_id=user_id)
+    #notif.send_push()  # Push realtime notification
+    notif.save()  # save the notification for the dashboard
 
     # Return the new token
     return sl.token
