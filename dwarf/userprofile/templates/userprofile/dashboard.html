@@ -11,7 +11,12 @@
         <div class="well">
             <div class="row-fluid">
                 <div class="span2">
+                    {{notification.type}}
+                    {% if notification.notification_type == "shortlink" %}
+                    <img src="http://openclipart.org/image/250px/svg_to_png/25380/pitr_scissors_half-open_icon.png" alt="{{notification.title}}" width="40"></img>
+                    {% else %}
                     <img src="{{ notification.image }}" alt="{{notification.title}}" width="40"></img>
+                    {% endif %}
                 </div>
                 <div class="span10">
                     <strong>{{notification.title}}</strong>
