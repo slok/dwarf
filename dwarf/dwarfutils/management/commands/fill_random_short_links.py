@@ -21,7 +21,7 @@ URLS = (
     "http://grooveshark.com/#!/artist/Amon+Amarth/17733",
     "https://news.ycombinator.com/",
     "http://highscalability.com/",
-    "http://thepiratebay.se",
+    "https://coderwall.com/slok",
     "https://docs.djangoproject.com/en/1.5/topics/db/managers/",
     "http://flask.pocoo.org/",
     "http://pygments.org/faq/#how-to-use",
