@@ -1,51 +1,85 @@
 {% extends "base.html" %}
 {% load faviconfilters %}
-{%load datefilters%}
+{% load datefilters %}
+{% load achievementfilters %}
 
 {% block body %}
-    {% for group in links %}
-    <table class="table table-bordered table-condensed">
-        <thead>
-            <tr>
-              <th>{{group.0.creation_date|from_unix_timestamp|date:"M j, Y"}}</th>
-            </tr>
-        </thead>
-        <tbody>
-
-            {% for link in group %}
-            <tr>
-                <th> <img src="{{ link.host|host_favicon }}" alt="{{link.host}} favicon"></th>
-                <th>{{link.counter}}</th>
-                <td><a href={% url "forwarder-forward" link.token %}>{{link.token}}</a></td>
-                <th>{{link.title}}</th>
-                <td><a href="http://{{link.url}}">{{link.url}}</a></td>
-                <td><a href="http://{{link.host}}">{{link.host}}</a></td>
-            </tr>
-            {% endfor %}
-
-        </tbody>
-    </table>
-    {% endfor %}
-
-        <ul class="pager">
-            <li class="previous {% if actual_page <= 1 %}disabled {% endif %} ">
-                    <a href="
-                        {% if actual_page > 1 %} 
-                            {% url "userprofile-dashboard" %}?page={{ actual_page|add:-1 }}
-                        {% else %}
-                            #
-                        {% endif %}
-                    ">← Older</a>
-            </li>
-            <li class="next {% if actual_page >= total_pages %}disabled {% endif %} ">
-                <a href="
-                    {% if actual_page < total_pages %} 
-                        {% url "userprofile-dashboard" %}?page={{ actual_page|add:1 }}
-                    {% else %}
-                        #
-                    {% endif %}
-                ">Newer →</a>
-            </li>
-        </ul>
+<div class="row">
+    <div class="span7">
+        <h3>Notifications:</h3>
+        {% for notification in notifications %}
+        <div class="well">
+            <div class="row-fluid">
+                <div class="span2">
+                    <img src="{{ notification.image }}" alt="{{notification.title}}" width="40"></img>
+                </div>
+                <div class="span10">
+                    <strong>{{notification.title}}</strong>
+                    {{notification.description}}
+                    on <strong>{{notification.date |from_unix_timestamp|date:"M j, Y"}}</strong>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     </div>
+    <div class="span5">
+        <div class="row-fluid">
+            <div class="span12">
+                <h3>Stats:</h3>
+                <div class="well">
+                {% for k, v in stats.items %}
+                    <div class="row-fluid">
+                        <div class="span5">
+                            <strong>{{k}}</strong>
+                        </div>
+                        <div class="span6">
+                           <span class="badge badge-inverse">{{v}}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span12">
+                <h3>Latest links:</h3>
+                <div class="well">
+                {% for link in links %}
+                    <div class="row-fluid">
+                        <div class="span1">
+                            <span class="badge badge-inverse">{{link.clicks}}</span>
+                        </div>
+                        <div class="span1">
+                            <img src="{{ link.host|host_favicon }}" alt="{{link.host}} favicon">
+                        </div>
+                        <div class="span10">
+                            <a href={% url "forwarder-forward" link.token %}>
+                                {% if link.title == "No title" %} 
+                                    {{link.url}}
+                                {% else %}
+                                    {{link.title}}
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span12">
+                <h3>Latest Achievements:</h3>
+                <div class="well">
+                    <div class="row-fluid">
+                    {% for achievement in achievements %}
+                        <div class="span3">
+                            <img src="{{ achievement.achievement.image | achievement_image }}" alt="{{achievement.achievement.name}}" width="60"></img>  
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock body%}
