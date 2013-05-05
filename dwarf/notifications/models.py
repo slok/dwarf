@@ -5,8 +5,7 @@ from dwarfutils.redisutils import (get_redis_push_notifications_connection,
                                    get_redis_connection)
 from dwarfutils.dateutils import unix_now_utc
 from achievements.templatetags.achievementfilters import achievement_image_url
-from achievements.models import Achievement
-from linkshortener.models import ShortLink
+
 
 ACHIEVEMENT = 'achievement'
 SHORTLINK = 'shortlink'
@@ -161,6 +160,8 @@ class AchievementNotification(Notification):
 
     @classmethod
     def from_json(cls, json_dict):
+        # Avoid circular dependency of the signals
+        from achievements.models import Achievement
         achiev = Achievement.objects.get(id=json_dict['achievement_id'])
 
         a = AchievementNotification(achiev, user_id=json_dict['user_id'])
@@ -220,6 +221,9 @@ class ShortLinkNotification(Notification):
 
     @classmethod
     def from_json(cls, json_dict):
+        # Avoid circular dependency of the signals
+        from linkshortener.models import ShortLink
+
         short_link = ShortLink.find(token=json_dict['token'])
 
         sl = ShortLinkNotification(short_link, user_id=json_dict['user_id'])
