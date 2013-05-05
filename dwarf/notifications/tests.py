@@ -265,7 +265,7 @@ class LevelNotificationTest(TestCase):
 
         r = get_redis_connection()
         res = r.zrange(
-            ShortLinkNotificationTest.STORE_KEY_FORMAT.format(user.id), 0, -1)
+            LevelNotificationTest.STORE_KEY_FORMAT.format(user.id), 0, -1)
 
         self.assertEquals(a_len, len(res))
 

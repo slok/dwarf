@@ -242,12 +242,12 @@ class LevelNotification(Notification):
         elif not user_id and not user:
             raise AttributeError('userId or User instance needed')
 
-        self._level = level
+        self._level = level.level_number
         notification_type = LEVEL
         image = None
         title = "Level up!"
-        description = "You are now in level: ".format(self._level)
-        super(ShortLinkNotification, self).__init__(
+        description = "You are now in level {0}".format(self._level)
+        super(LevelNotification, self).__init__(
             notification_type=notification_type,
             title=title,
             description=description,
@@ -276,9 +276,9 @@ class LevelNotification(Notification):
         # Avoid circular dependency of the signals
         from level.models import Level
 
-        level = Level.objects.find(level_number=json_dict['level'])
+        level = Level.objects.get(level_number=json_dict['level'])
 
-        ln = LevelNotification(level.level_number, user_id=json_dict['user_id'])
+        ln = LevelNotification(level, user_id=json_dict['user_id'])
         ln.date = json_dict['date']
 
         return ln
