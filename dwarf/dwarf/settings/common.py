@@ -149,6 +149,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
     'django.contrib.messages.context_processors.messages',
     'notifications.context_processors.push_notifications_context_processor',
+    'linkshortener.context_processors.link_shortener_form_context_processor',
     'django.core.context_processors.request',
 )
 #---------------------END TEMPLATE CONFIGURATION-------------------------------
