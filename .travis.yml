@@ -11,4 +11,4 @@ before_install:
   - sudo apt-get install libgeoip-dev
   - sudo chmod a+rw -R $GEOIP_PATH
 install: pip install -r requirements.txt
-script: python dwarf/manage.py test achievements clickmanager dwarfutils forwarder homepage linkshortener metrics requestdataextractor userprofile
+script: python dwarf/manage.py test achievements clickmanager dwarfutils forwarder homepage linkshortener metrics requestdataextractor notifications userprofile links level
