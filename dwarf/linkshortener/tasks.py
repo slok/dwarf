@@ -49,14 +49,15 @@ def create_token(url, user_id=None, notification=True):
         user_link.token = sl.token
         user_link.save()
 
+        # Only need notification if we have a user
+        if notification:
+            # Send notifications
+            notif = ShortLinkNotification(sl, user_id=user_id)
+            #notif.send_push()  # Push realtime notification
+            notif.save()  # save the notification for the dashboard
+
     # Fill the metrics
     SharedLinkMetrics().increment()
-
-    if notification:
-        # Send notifications
-        notif = ShortLinkNotification(sl, user_id=user_id)
-        #notif.send_push()  # Push realtime notification
-        notif.save()  # save the notification for the dashboard
 
     logger.debug("{0} shorted url '{1}' to token '{2}'".format(user_id,
                                                                url,
