@@ -14,6 +14,8 @@
                     {{notification.type}}
                     {% if notification.notification_type == "shortlink" %}
                     <img src="http://openclipart.org/image/250px/svg_to_png/25380/pitr_scissors_half-open_icon.png" alt="{{notification.title}}" width="40"></img>
+                    {% elif notification.notification_type == "level" %}
+                    <img src="http://openclipart.org/image/200px/svg_to_png/30661/tango_up_arrow_blue.png" alt="{{notification.title}}" width="40"></img>
                     {% else %}
                     <img src="{{ notification.image }}" alt="{{notification.title}}" width="40"></img>
                     {% endif %}
