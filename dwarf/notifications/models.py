@@ -87,6 +87,8 @@ class Notification(object):
             result = AchievementNotification.from_json(json_decoded)
         elif json_decoded['type'] == SHORTLINK:
             result = ShortLinkNotification.from_json(json_decoded)
+        elif json_decoded['type'] == LEVEL:
+            result = LevelNotification.from_json(json_decoded)
         else:
             raise TypeError("There are no notifications of that type")
 
@@ -230,3 +232,53 @@ class ShortLinkNotification(Notification):
         sl.date = json_dict['date']
 
         return sl
+
+
+class LevelNotification(Notification):
+
+    def __init__(self, level, user_id=None, user=None):
+        if not user_id and user:
+            user_id = user.id
+        elif not user_id and not user:
+            raise AttributeError('userId or User instance needed')
+
+        self._level = level
+        notification_type = LEVEL
+        image = None
+        title = "Level up!"
+        description = "You are now in level: ".format(self._level)
+        super(ShortLinkNotification, self).__init__(
+            notification_type=notification_type,
+            title=title,
+            description=description,
+            image=image,
+            user_id=user_id
+        )
+
+    @property
+    def level(self):
+        return self._level
+
+    def to_json(self):
+        data = {
+            'type': self._notification_type,
+            'title': self._title,
+            'description': self._description,
+            'image': self._image,
+            'date': self.date,
+            'user_id': self._user_id,
+            'level': self._level,
+        }
+        return json.dumps(data)
+
+    @classmethod
+    def from_json(cls, json_dict):
+        # Avoid circular dependency of the signals
+        from level.models import Level
+
+        level = Level.objects.find(level_number=json_dict['level'])
+
+        ln = LevelNotification(level.level_number, user_id=json_dict['user_id'])
+        ln.date = json_dict['date']
+
+        return ln

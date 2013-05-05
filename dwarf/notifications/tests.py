@@ -13,10 +13,12 @@ from django.contrib.auth.models import User
 from achievements.models import Achievement
 from notifications.models import (AchievementNotification,
                                   Notification,
-                                  ShortLinkNotification)
+                                  ShortLinkNotification,
+                                  LevelNotification)
 from dwarfutils.redisutils import get_redis_connection
 from linkshortener.tasks import create_token
 from linkshortener.models import ShortLink
+from level.models import Level
 
 
 class AchievementNotificationTest(TestCase):
@@ -210,7 +212,7 @@ class ShortLinkNotificationTest(TestCase):
         urls = ["www.google.com", "github.com", "xlarrakoetxea.org"]
         user = User.objects.get(id=1)
         for i in urls:
-            create_token(i, user.id)
+            create_token(i, user.id, False)
 
     def tearDown(self):
         r = get_redis_connection()
@@ -239,3 +241,36 @@ class ShortLinkNotificationTest(TestCase):
             after = json.loads(res[i])
 
             self.assertEquals(before.token, after['token'])
+
+
+class LevelNotificationTest(TestCase):
+    fixtures = ['user.json', 'level.json']
+    STORE_KEY_FORMAT = "Notifications:{0}"
+
+    def tearDown(self):
+        r = get_redis_connection()
+        r.flushdb()
+
+    def test_level_notification_store(self):
+        #with three we have enought to test
+        levels = Level.objects.all()[:3]
+        user = User.objects.get(id=1)
+
+        a_len = len(levels)
+
+        for i in levels:
+            notif = LevelNotification(level=i, user=user)
+            time.sleep(1)  # We need notification order
+            notif.save()
+
+        r = get_redis_connection()
+        res = r.zrange(
+            ShortLinkNotificationTest.STORE_KEY_FORMAT.format(user.id), 0, -1)
+
+        self.assertEquals(a_len, len(res))
+
+        for i in range(len(res)):
+            before = levels[i]
+            after = json.loads(res[i])
+
+            self.assertEquals(before.level_number, after['level'])
