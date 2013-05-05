@@ -7,6 +7,7 @@ from clickmanager.tasks import click_link
 from forwarder import settings
 from level import utils
 from linkshortener.models import UserLink
+from notifications.models import LevelNotification
 
 
 def forward(request, token):
@@ -24,8 +25,12 @@ def forward(request, token):
     # Add the points to the user
     user_link = UserLink.objects.get(token=token)
     # If returns something then level upload then notification
-    if utils.incr_points(user_link.user, settings.POINTS_PER_CLICK):
-        #TODO send notification
-        pass
+    new_level = utils.incr_points(user_link.user, settings.POINTS_PER_CLICK)
+    if new_level:
+        # Send notifications
+        notif = LevelNotification(level=new_level,
+                                  user_id=user_link.user.id)
+        #notif.send_push()  # Push realtime notification
+        notif.save()  # save the notification for the dashboard
 
     return redirect(forward_url)
