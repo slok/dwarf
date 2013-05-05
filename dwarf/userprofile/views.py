@@ -221,7 +221,7 @@ def user_dashboard(request):
         "stats": {
             "Total Links": total_links,
             "Achievements": total_achieves,
-            "Level": 0,
+            "Level": request.user.profile.level.level_number,
             "Points": 0,
         },
         "achievements": achievements
