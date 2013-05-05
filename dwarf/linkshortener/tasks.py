@@ -1,3 +1,5 @@
+import logging
+
 from celery import task
 from django.contrib.auth.models import User
 
@@ -7,6 +9,9 @@ from dwarfutils.urlutils import (extract_url_title,
                                  extract_url_host,
                                  sanitize_url)
 from notifications.models import ShortLinkNotification
+
+
+logger = logging.getLogger("dwarf")
 
 
 @task()
@@ -51,6 +56,10 @@ def create_token(url, user_id=None):
     notif = ShortLinkNotification(sl, user_id=user_id)
     #notif.send_push()  # Push realtime notification
     notif.save()  # save the notification for the dashboard
+
+    logger.debug("{0} shorted url '{1}' to token '{2}'".format(user_id,
+                                                               url,
+                                                               sl.token))
 
     # Return the new token
     return sl.token

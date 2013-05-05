@@ -41,6 +41,4 @@ class Command(BaseCommand):
             # How many ruls?
             urls = set([URLS[random.randrange(0, len(URLS))] for i in range(random.randrange(0, len(URLS)))])
             for url in urls:
-                print(url)
-                print(create_token(url, user.id))
-
+                create_token(url, user.id)
