@@ -15,7 +15,7 @@ logger = logging.getLogger("dwarf")
 
 
 @task()
-def create_token(url, user_id=None):
+def create_token(url, user_id=None, notification=True):
     # Get the next counter to create the token
     counter = ShortLink.incr_counter()
 
@@ -52,10 +52,11 @@ def create_token(url, user_id=None):
     # Fill the metrics
     SharedLinkMetrics().increment()
 
-    # Send notifications
-    notif = ShortLinkNotification(sl, user_id=user_id)
-    #notif.send_push()  # Push realtime notification
-    notif.save()  # save the notification for the dashboard
+    if notification:
+        # Send notifications
+        notif = ShortLinkNotification(sl, user_id=user_id)
+        #notif.send_push()  # Push realtime notification
+        notif.save()  # save the notification for the dashboard
 
     logger.debug("{0} shorted url '{1}' to token '{2}'".format(user_id,
                                                                url,
