@@ -1,0 +1,22 @@
+[{
+   "pk":1,
+   "model":"auth.user",
+   "fields":{
+      "username":"user0",
+      "first_name":"User0",
+      "last_name":"Lastname0",
+      "is_active":true,
+      "is_superuser":false,
+      "is_staff":false,
+      "last_login":"2013-04-03T14:25:20.804Z",
+      "groups":[
+
+      ],
+      "user_permissions":[
+
+      ],
+      "password":"pbkdf2_sha256$10000$mAhZJ6a2dQEe$VtDrj21E55XcdyEKY5GcBT5KeXiNNuqpDdIEvv2mW1A=",
+      "email":"user0@fakemail.com",
+      "date_joined":"2013-04-03T14:25:20.804Z"
+   }
+}]
