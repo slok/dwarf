@@ -15,7 +15,7 @@ def incr_points(user, points):
         level = None
 
     user.profile.points = points
-    user.save()
+    user.profile.save()
 
     return level
 
@@ -34,7 +34,7 @@ def decr_points(user, points):
         level = None
 
     user.profile.points = points
-    user.save()
+    user.profile.save()
 
     return level
 
