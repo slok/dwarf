@@ -222,7 +222,7 @@ def user_dashboard(request):
             "Total Links": total_links,
             "Achievements": total_achieves,
             "Level": request.user.profile.level.level_number,
-            "Points": 0,
+            "Points": request.user.profile.points,
         },
         "achievements": achievements
     }
