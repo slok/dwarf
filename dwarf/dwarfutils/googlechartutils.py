@@ -21,3 +21,69 @@ def day_metrics_linechart_json_transform(*args):
         data['rows'].append(single_data)
 
     return json.dumps(data)
+
+
+def pie_chart_json_transform(label, json_data):
+
+    data = {
+        "cols": [{"id": "", "label": label, "type": "string"},
+                 {"id": "", "label": "Value", "type": "number"}],
+        "rows": []
+    }
+
+    for k, v in json_data.items():
+        single_data = {
+            "c": [
+                {
+                    "v": k
+                },
+                {
+                    "v": v,
+                }
+            ]
+        }
+        data['rows'].append(single_data)
+
+    return json.dumps(data)
+
+
+def single_linechart_json_transform(horizontal_label, vertical_label, json_data):
+    data = {
+        "cols": [
+            {"id": "", "label": vertical_label, "type": "date"},
+            {"id": "", "label": horizontal_label, "type": "number"},
+        ],
+        "rows": []
+    }
+
+    for k, v in json_data.items():
+        single_data = {"c":
+                [
+                    {"v": k},
+                    {"v": v},
+                ]
+        }
+        data['rows'].append(single_data)
+
+    return json.dumps(data)
+
+
+def single_linechart_json_transform_with_list(horizontal_label, vertical_label, json_data):
+    data = {
+        "cols": [
+            {"id": "", "label": vertical_label, "type": "date"},
+            {"id": "", "label": horizontal_label, "type": "number"},
+        ],
+        "rows": []
+    }
+
+    for i in json_data:
+        single_data = {"c":
+                [
+                    {"v": i[0]},
+                    {"v": i[1]},
+                ]
+        }
+        data['rows'].append(single_data)
+
+    return json.dumps(data)
