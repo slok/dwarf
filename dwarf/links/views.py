@@ -4,6 +4,7 @@ import math
 from django.shortcuts import render_to_response, RequestContext
 from django.http import Http404
 from django.contrib.auth.decorators import login_required
+from django.utils.translation import ugettext as _
 
 from linkshortener.models import UserLink, ShortLink
 from dwarfutils.dateutils import unix_to_datetime, datetime_now_utc
@@ -82,6 +83,7 @@ def links_info(request, token):
     os = {}
     languages = {}
     countries = {}
+    countries_map = {}  # The countries map doesn't have unknown
     dates_tmp = {}
     dates = []
     date_format = "Date({0}, {1}, {2})"
@@ -107,11 +109,17 @@ def links_info(request, token):
             languages[i.language] = 1
 
         # Countries
-
         try:
             countries[i.location] += 1
+
+            if i.location:
+                countries_map[i.location] += 1
+
         except KeyError:
             countries[i.location] = 1
+
+            if i.location:
+                countries_map[i.location] = 1
 
         # dates
         dt = unix_to_datetime(i.click_date)
@@ -142,11 +150,19 @@ def links_info(request, token):
 
         temp_date += relativedelta(days=1)
 
+    # Change None for unknown for the countries
+    try:
+        countries[_("Unknown")] = countries[None]
+        del countries[None]
+    except KeyError:
+        pass
+
     context = {
         'browser_data': pie_chart_json_transform("Browsers", browsers),
         'os_data': pie_chart_json_transform("Operative systems", os),
         'languages_data': pie_chart_json_transform("Languages", languages),
         'countries_data': pie_chart_json_transform("Countries", countries),
+        'countries_map_data': pie_chart_json_transform("Countries", countries_map),
         'dates_data': single_linechart_json_transform_with_list("Clicks", "Days", dates),
         'short_link': sl
     }

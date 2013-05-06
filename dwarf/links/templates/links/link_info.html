@@ -7,13 +7,14 @@
     <script type="text/javascript">
    
       // Load the Visualization API and the piechart package.
-      google.load('visualization', '1.0', {'packages':['corechart']});
+      google.load('visualization', '1.0', {'packages':['corechart', 'geochart']});
      
       // Set a callback to run when the Google Visualization API is loaded.
       google.setOnLoadCallback(drawBrowserChart);
       google.setOnLoadCallback(drawOSChart);
       google.setOnLoadCallback(drawLanguageChart);
       google.setOnLoadCallback(drawCountriesChart);
+      google.setOnLoadCallback(drawCountriesMapChart);
       google.setOnLoadCallback(drawDatesChart);
 
       // Callback that creates and populates a data table, 
@@ -55,6 +56,18 @@
         chart.draw(data, options);
       }
 
+      function drawCountriesMapChart() {
+        var data = new google.visualization.DataTable({{countries_map_data|safe}});
+
+        var options = {
+          title: 'Countries clicks',
+          width: 600, height: 400
+        };
+
+        var chart = new google.visualization.GeoChart(document.getElementById('countries-map-chart'));
+        chart.draw(data, options);
+      }
+
       function drawCountriesChart() {
         var data = new google.visualization.DataTable({{countries_data|safe}});
 
@@ -72,12 +85,13 @@
         //var data = new google.visualization.DataTable()
         var options = {
           title: 'Dates clicks',
-          width: 800, height: 500
+          width: 1200, height: 500
         };
 
         var chart = new google.visualization.AreaChart(document.getElementById('dates-chart'));
         chart.draw(data, options);
       }
+
 
     </script>
 {% endblock js %}
@@ -133,11 +147,18 @@
         <div class="span4">
             <div id="language-chart"></div>
         </div>
+    <div class="row">
         <div class="span4">
             <div id="countries-chart"></div>
         </div>
-        <div class="span4">
-            <div id="dates-chart"></div>
+        <div class="span8">
+            <div id="countries-map-chart"></div>
+        </div>
+    </div>
+        <div class="row">
+            <div class="span12">
+                <div id="dates-chart"></div>
+            </div>
         </div>
     </div>
 
