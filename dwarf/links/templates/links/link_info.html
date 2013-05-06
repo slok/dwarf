@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load faviconfilters %}
+{% load datefilters %}
+
+{% block js %}
+ <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+   
+      // Load the Visualization API and the piechart package.
+      google.load('visualization', '1.0', {'packages':['corechart']});
+     
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.setOnLoadCallback(drawBrowserChart);
+      google.setOnLoadCallback(drawOSChart);
+      google.setOnLoadCallback(drawLanguageChart);
+      google.setOnLoadCallback(drawCountriesChart);
+      google.setOnLoadCallback(drawDatesChart);
+
+      // Callback that creates and populates a data table, 
+      // instantiates the pie chart, passes in the data and
+      // draws it.
+      function drawBrowserChart() {
+        var data = new google.visualization.DataTable({{browser_data|safe}});
+
+        var options = {
+          title: 'Browser clicks',
+          width: 400, height: 400
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('browsers-chart'));
+        chart.draw(data, options);
+      }
+
+      function drawOSChart() {
+        var data = new google.visualization.DataTable({{os_data|safe}});
+
+        var options = {
+          title: 'OS clicks',
+          width: 400, height: 400
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('os-chart'));
+        chart.draw(data, options);
+      }
+
+      function drawLanguageChart() {
+        var data = new google.visualization.DataTable({{languages_data|safe}});
+
+        var options = {
+          title: 'Language clicks',
+          width: 400, height: 400
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('language-chart'));
+        chart.draw(data, options);
+      }
+
+      function drawCountriesChart() {
+        var data = new google.visualization.DataTable({{countries_data|safe}});
+
+        var options = {
+          title: 'Countries clicks',
+          width: 400, height: 400
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('countries-chart'));
+        chart.draw(data, options);
+      }
+
+      function drawDatesChart() {
+        var data = new google.visualization.DataTable({{dates_data|safe}});
+        //var data = new google.visualization.DataTable()
+        var options = {
+          title: 'Dates clicks',
+          width: 800, height: 500
+        };
+
+        var chart = new google.visualization.AreaChart(document.getElementById('dates-chart'));
+        chart.draw(data, options);
+      }
+
+    </script>
+{% endblock js %}
+
+
+{% block body %}
+<h2>Basic information:</h2>
+ <table class="table table-bordered">
+<tbody>
+    <tr>
+        <th>Favicon</th>
+        <th> <img src="{{ short_link.host|host_favicon }}" alt="{{short_link.host}} favicon"></th>
+    </tr>
+    <tr>
+        <th>Total clicks</th>
+        <th>{{short_link.clicks}}</th>
+    </tr>
+    <tr>
+        <th>URL ID</th>
+        <th>{{short_link.counter}}</th>
+    </tr>
+    <tr>
+        <th>Token</th>
+        <td><a href="{% url "forwarder-forward" short_link.token %}">{{short_link.token}}</a></td>
+    </tr>
+    <tr>
+        <th>Title</th>
+        <th>{{short_link.title}}</th>
+    </tr>
+    <tr>
+        <th>Original URL</th>
+        <td><a href="http://{{short_link.url}}">{{short_link.url}}</a></td>
+    </tr>
+    <tr>
+        <th>URL host</th>
+        <td><a href="http://{{short_link.host}}">{{short_link.host}}</a></td>
+    </tr>
+    <tr>
+        <th>Creation date</th>
+        <td>{{short_link.creation_date|from_unix_timestamp|date:"M j, Y \a\t H:i:s"}}</td>
+    </tr>
+</tbody>
+</table>
+<h2>Extendended information:</h2>
+
+    <div class="row">
+        <div class="span4">
+            <div id="browsers-chart"></div>
+        </div>
+        <div class="span4">
+            <div id="os-chart"></div>
+        </div>
+        <div class="span4">
+            <div id="language-chart"></div>
+        </div>
+        <div class="span4">
+            <div id="countries-chart"></div>
+        </div>
+        <div class="span4">
+            <div id="dates-chart"></div>
+        </div>
+    </div>
+
+{% endblock body%}
