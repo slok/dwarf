@@ -13,7 +13,8 @@ def click_link(token, request_meta_dict):
     user_agent = request_meta_dict.get('HTTP_USER_AGENT')
     data = detect_browser_and_OS(user_agent)
     ip = request_meta_dict.get('REMOTE_ADDR')
-    language = request_meta_dict.get('LANG')
+    language = request_meta_dict.get('HTTP_ACCEPT_LANGUAGE',
+                                     "None").split(",")[0]
     location = detect_country_location_with_geoip(ip).get('country_code')
 
     #TODO: remote host
