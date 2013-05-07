@@ -1,6 +1,7 @@
 import logging
 import math
 
+from dateutil.relativedelta import relativedelta
 from django.shortcuts import render_to_response, RequestContext
 from django.http import Http404
 from django.contrib.auth.decorators import login_required
@@ -15,6 +16,7 @@ from dwarfutils.googlechartutils import (pie_chart_json_transform,
 logger = logging.getLogger("dwarf")
 
 LINK_PER_PAGE = 10
+MINIMUN_DAYS_FOR_CHART = 5
 
 
 @login_required
@@ -130,9 +132,20 @@ def links_info(request, token):
             dates_tmp[dt_str] = 1
 
     # Fill the dates until now
-    from dateutil.relativedelta import relativedelta
-    now = datetime_now_utc() + relativedelta(months=1)
+    now = datetime_now_utc()
     temp_date = unix_to_datetime(sl.creation_date)
+
+    # If the date doesn't have enough days in between then create a new range
+    # of dates with more days (For graph visualization)
+    rel_delta = relativedelta(now, temp_date)
+
+    if rel_delta.year == 0 and rel_delta.month == 0 and rel_delta.day < 5 or\
+       rel_delta.hours < 24:
+        try:
+            days = MINIMUN_DAYS_FOR_CHART-rel_delta.day
+        except TypeError:
+            days = MINIMUN_DAYS_FOR_CHART
+        now = now + relativedelta(days=days)
 
     while (temp_date.day != now.day or
             temp_date.month != now.month or
@@ -144,9 +157,7 @@ def links_info(request, token):
         try:
             dates.append((dt_str, dates_tmp[dt_str]))
         except KeyError:
-            import random
-            dates.append((dt_str, random.randrange(5, 10)))
-            #dates.append((dt_str, 0))
+            dates.append((dt_str, 0))
 
         temp_date += relativedelta(days=1)
 
