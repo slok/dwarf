@@ -345,6 +345,36 @@ class ShortLinkModelTest(TestCase):
         self.assertRaises(ShortLinkNotFoundError,
                     ShortLink.decr_clicks, something)
 
+    def test_disable_link(self):
+        clicks = random.randrange(0, 100000)
+        counter = random.randrange(0, 100000)
+        url = "xlarrakoetxea.org"
+
+        sl = ShortLink(counter=counter, url=url, clicks=clicks)
+        sl.save()
+
+        sl.disable()
+
+        #Find
+        sl2 = ShortLink.find(token=sl.token)
+        self.assertTrue(sl2.disabled)
+
+    def test_enable_link(self):
+        clicks = random.randrange(0, 100000)
+        counter = random.randrange(0, 100000)
+        url = "xlarrakoetxea.org"
+
+        sl = ShortLink(counter=counter, url=url, clicks=clicks)
+        sl.save()
+
+        sl.disable()
+
+        sl2 = ShortLink.find(token=sl.token)
+        self.assertTrue(sl2.disabled)
+
+        sl2.enable()
+        sl2 = ShortLink.find(token=sl.token)
+        self.assertFalse(sl2.disabled)
 
 # Override testing settings in 1.4, run task test without workers
 # http://docs.celeryproject.org/en/latest/configuration.html#celery-always-eager

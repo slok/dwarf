@@ -310,6 +310,20 @@ class ShortLink(object):
 
         return pipe.execute()
 
+    def disable(self):
+
+        r = get_redis_connection()
+        key = ShortLink.REDIS_TOKEN_KEY.format(self.token)
+        self.disabled = True
+        r.hset(key, "disabled", 1)
+
+    def enable(self):
+        r = get_redis_connection()
+        key = ShortLink.REDIS_TOKEN_KEY.format(self.token)
+        self.disabled = False
+        r.hset(key, "disabled", 0)
+
+
     @classmethod
     def get_counter(cls):
         """Gets the global counter of links stored in database"""
