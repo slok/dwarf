@@ -27,7 +27,7 @@ class ShortLink(object):
     REDIS_COUNTER_KEY = "ShortLink:counter"
     REDIS_TOKEN_KEY = "ShortLink:{0}"
     REDIS_URL_KEY = "ShortLink:{0}:tokens"
-    OBJECT_STR_FORMAT = "[<{0}> <{1}> <{2}> <{3}> <{4}> <{5}> <{6}>]"
+    OBJECT_STR_FORMAT = "[<{0}> <{1}> <{2}> <{3}> <{4}> <{5}> <{6}> <{7}>]"
 
     def __init__(self, counter=None, url=None, token=None, creation_date=None,
                     clicks=0, title=None, host=None):
@@ -62,6 +62,7 @@ class ShortLink(object):
         self._clicks = clicks
         self._title = title
         self._host = host
+        self._disabled = False
         # UNIX format UTC/GMT
         #self._creation_date = calendar.timegm(time.gmtime())
         self._creation_date = creation_date
@@ -75,7 +76,8 @@ class ShortLink(object):
                                                 self._creation_date,
                                                 self._clicks,
                                                 self._title,
-                                                self._host)
+                                                self._host,
+                                                self._disabled)
 
     def __cmp__(self, other):
         """Comparation method of links, equals, lesser and greater"""
@@ -86,7 +88,8 @@ class ShortLink(object):
             self.creation_date == other.creation_date and\
             self.clicks == other.clicks and\
             self.title == other.title and\
-            self.host == other.host:
+            self.host == other.host and\
+            self.disabled == other.disabled:
             return 0
         elif self.counter < other.counter:
                 return -1
@@ -153,6 +156,14 @@ class ShortLink(object):
     def creation_date(self, value):
         self._creation_date = value
 
+    @property
+    def disabled(self):
+        return self._disabled
+
+    @disabled.setter
+    def disabled(self, value):
+        self._disabled = value
+
     def _find_by_token(self):
         """Private method that searches a shortlink in the database by it's
         token and returns a ShortLink redis raw data.
@@ -193,9 +204,10 @@ class ShortLink(object):
             aux_self.clicks = int(data.get('clicks', 0))
             aux_self.title = data.get('title')
             aux_self.host = data.get('host')
-
+            aux_self.disabled = True if int(data.get('disabled')) else False
 
             return aux_self
+
         elif token is not None:
             aux_self.token = token
             aux_self.counter = token_to_counter(token)
@@ -210,6 +222,7 @@ class ShortLink(object):
             aux_self.clicks = int(data.get('clicks', 0))
             aux_self.title = data.get('title')
             aux_self.host = data.get('host')
+            aux_self.disabled = True if int(data.get('disabled')) else False
 
             return aux_self
         elif url:
@@ -239,8 +252,11 @@ class ShortLink(object):
                 sl.url = data.get('url')
                 sl.creation_date = int(data.get('creation_date', 0))
                 sl.clicks = int(data.get('clicks', 0))
-                aux_self.title = data.get('title')
-                aux_self.host = data.get('host')
+                sl.title = data.get('title')
+                sl.host = data.get('host')
+                #aux_self.title = data.get('title')
+                #aux_self.host = data.get('host')
+                sl.disabled = True if int(data.get('disabled')) else False
                 short_links.append(sl)
             return short_links
 
@@ -280,11 +296,14 @@ class ShortLink(object):
         if not self.creation_date:
             self.creation_date = dateutils.unix_now_utc()
 
+        disabled = 1 if self.disabled else 0
+
         mappings = {'url': self.url,
                 'creation_date': self.creation_date,
                 'clicks': self.clicks,
                 'title': self.title,
-                'host': self.host}
+                'host': self.host,
+                'disabled': disabled}
 
         pipe.hmset(ShortLink.REDIS_TOKEN_KEY.format(self.token), mappings)
         pipe.sadd(ShortLink.REDIS_URL_KEY.format(self.url), self.token)

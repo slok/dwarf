@@ -83,6 +83,7 @@ class ShortLinkModelTest(TestCase):
         clicks = 0
         title = "This is a title"
         host = url
+        disabled = True
 
         format = ShortLink.OBJECT_STR_FORMAT.format(counter,
                                                 token,
@@ -90,9 +91,11 @@ class ShortLinkModelTest(TestCase):
                                                 creation_date,
                                                 clicks,
                                                 title,
-                                                host)
+                                                host,
+                                                disabled)
 
         sl = ShortLink(counter=counter, url=url, title=title, host=host)
+        sl.disabled = disabled
 
         self.assertEquals(format, str(sl))
 
@@ -118,9 +121,11 @@ class ShortLinkModelTest(TestCase):
         clicks = 0
         title = "This is a title"
         host = url
+        disabled = True
 
         # Setters from counter
         sl = ShortLink(counter=counter, url=url, title=title, host=host)
+        sl.disabled = disabled
 
         # Getters
         self.assertEquals(url, sl.url)
@@ -130,6 +135,7 @@ class ShortLinkModelTest(TestCase):
         self.assertEquals(clicks, sl.clicks)
         self.assertEquals(title, sl.title)
         self.assertEquals(host, sl.host)
+        self.assertEquals(disabled, sl.disabled)
 
         # Setters from token
         sl2 = ShortLink(token=token, url=url)
@@ -139,6 +145,7 @@ class ShortLinkModelTest(TestCase):
         sl2.clicks = clicks
         sl2.title = title
         sl2.host = host
+        sl2.disabled = disabled
 
         # Getters
         self.assertEquals(url, sl2.url)
@@ -148,6 +155,7 @@ class ShortLinkModelTest(TestCase):
         self.assertEquals(clicks, sl2.clicks)
         self.assertEquals(title, sl2.title)
         self.assertEquals(host, sl2.host)
+        self.assertEquals(disabled, sl2.disabled)
 
     def test_stored_counter_set_get(self):
         counter = random.randrange(0, 100000)
@@ -170,10 +178,12 @@ class ShortLinkModelTest(TestCase):
         clicks = 20
         title = "This is a title"
         host = url
+        disabled = True
 
         # Save the links
         sl = ShortLink(counter=counter, url=url, creation_date=creation_date,
                         clicks=clicks, title=title, host=host)
+        sl.disabled = disabled
         sl.save()
 
         r = redis.StrictRedis(host=settings.REDIS_HOST,
@@ -366,6 +376,10 @@ class ShortLinkTasksTest(TestCase):
         # creation_date is trap!! :P
         sl2 = ShortLink(counter=counter + 1, url=url,
                     creation_date=sl.creation_date)
+        
+        # The host and title are set after the instance was created so we add
+        sl2.host = sl.host
+        sl2.title = sl.title
 
         self.assertEquals(sl2, sl)
 
@@ -396,6 +410,10 @@ class ShortLinkTasksTest(TestCase):
         # creation_date is trap!! :P
         sl2 = ShortLink(counter=counter + 1, url=url,
                     creation_date=sl.creation_date)
+
+        # The host and title are set after the instance was created so we add
+        sl2.host = sl.host
+        sl2.title = sl.title
 
         self.assertEquals(sl2, sl)
 
