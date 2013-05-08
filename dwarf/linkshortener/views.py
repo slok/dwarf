@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 
 from linkshortener.forms import ShortUrlForm
 from linkshortener.tasks import create_token
+from forwarder.views import forward
 
 logger = logging.getLogger("dwarf")
 
@@ -34,7 +35,17 @@ def create_link(request):
             # Get user
             user_id = request.user.id
             token = create_link_helper(data['url'], user_id)
-            messages.success(request, "Your link Has been created: {0}".format(token))
+            #messages.success(request, "Your link Has been created: {0}".format(token))
+
+            context = {
+                'shortlink_url': request.build_absolute_uri(
+                                                reverse(forward, args=[token]))
+            }
+
+            return render_to_response('linkshortener/create_success_link.html',
+                            context,
+                            context_instance=RequestContext(request))
+
     else:
         form = ShortUrlForm()
 
