@@ -3,7 +3,7 @@ import logging
 
 from django.shortcuts import (render_to_response,
                              RequestContext, redirect)
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
@@ -45,17 +45,13 @@ def create_link(request):
             return render_to_response('linkshortener/create_success_link.html',
                             context,
                             context_instance=RequestContext(request))
+        else:
+            messages.error(request, "Bad URL, try again please :)")
+            return HttpResponseRedirect(request.POST["next"])
 
-    else:
-        form = ShortUrlForm()
+    raise Http404
 
-    context = {
-        'form': form,
-    }
 
-    return render_to_response('linkshortener/create_link.html',
-                            context,
-                            context_instance=RequestContext(request))
 
 #def ajax_create_link(request):
 #    """Ajax view that checks if the user exists. If the username is already
