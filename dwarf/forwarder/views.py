@@ -1,6 +1,7 @@
 import re
 
 from django.shortcuts import redirect
+from django.http import Http404
 
 from linkshortener.models import ShortLink
 from clickmanager.tasks import click_link
@@ -12,11 +13,15 @@ from notifications.models import LevelNotification
 
 def forward(request, token):
 
+    # get the forwarding Forward
+    sl = ShortLink.find(token=token)
+
+    if sl.disabled:
+        raise Http404
+
     # Click :)
     click_link(token, request.META)
 
-    # get the forwarding Forward
-    sl = ShortLink.find(token=token)
     if not re.search("^https?://.+", sl.url):
         forward_url = "http://{0}".format(sl.url)
     else:
