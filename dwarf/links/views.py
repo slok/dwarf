@@ -199,9 +199,21 @@ def disable_link(request):
             else:
                 sl.enable()
 
-            return redirect(reverse(links_info, args=[link_token]))
-    else:
-        return  redirect(reverse(user_dashboard))
+    return redirect(reverse(links_info, args=[link_token]))
+
 
 def delete_link(request):
-    pass
+    if request.method == "POST":
+        form = DisableLinkForm(data=request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            link_token = data['token']
+
+            # Delete the token
+
+            ul = UserLink.objects.get(token=link_token)
+            ul.delete()
+            #TODO: Delete also all the data?
+            return redirect(reverse(links_index))
+    else:
+        return redirect(reverse(links_info, args=[link_token]))

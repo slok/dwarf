@@ -92,12 +92,48 @@
         chart.draw(data, options);
       }
 
+    // catch delete event
+    var confirmed = false;
+    $(document).ready(function() {
+      $("#delete-form").submit(function(e) {
+          if (!confirmed){
+            $('#delete-modal').modal();
+            return false;
+          }
+      });
 
+      // modal event catcher
+      $('#confirm-not-delete').click(function () {
+        $('#delete-modal').modal('hide');
+      });
+
+       $('#confirm-delete').click(function () {
+        confirmed = true;
+        $("#delete-form").submit();
+      });
+    });
+
+    
     </script>
 {% endblock js %}
 
 
 {% block body %}
+
+<!--Modal-->
+<div class="modal hide fade" id="delete-modal">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h3>Delete link</h3>
+  </div>
+  <div class="modal-body">
+    <p>The link will be deleted forever. Are you sure?</p>
+  </div>
+  <div class="modal-footer">
+    <a id="confirm-not-delete" href="#" class="btn">No</a>
+    <a id="confirm-delete" href="#" class="btn btn-danger">Yes</a>
+  </div>
+</div>
 
 <h2>Actions</h2>
 <div class="row">
