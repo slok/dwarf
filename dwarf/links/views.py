@@ -2,16 +2,18 @@ import logging
 import math
 
 from dateutil.relativedelta import relativedelta
-from django.shortcuts import render_to_response, RequestContext
+from django.shortcuts import render_to_response, RequestContext, redirect
 from django.http import Http404
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext as _
+from django.core.urlresolvers import reverse
 
 from linkshortener.models import UserLink, ShortLink
 from dwarfutils.dateutils import unix_to_datetime, datetime_now_utc
 from clickmanager.models import Click
 from dwarfutils.googlechartutils import (pie_chart_json_transform,
                                     single_linechart_json_transform_with_list)
+from links.forms import DisableLinkForm
 
 logger = logging.getLogger("dwarf")
 
@@ -181,3 +183,25 @@ def links_info(request, token):
     return render_to_response('links/link_info.html',
                               context,
                               context_instance=RequestContext(request))
+
+
+def disable_link(request):
+    if request.method == "POST":
+        form = DisableLinkForm(data=request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            link_token = data['token']
+
+            # Disable the token
+            sl = ShortLink.find(token=link_token)
+            if not sl.disabled:
+                sl.disable()
+            else:
+                sl.enable()
+
+            return redirect(reverse(links_info, args=[link_token]))
+    else:
+        return  redirect(reverse(user_dashboard))
+
+def delete_link(request):
+    pass

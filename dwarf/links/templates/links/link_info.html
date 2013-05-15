@@ -98,6 +98,26 @@
 
 
 {% block body %}
+
+<h2>Actions</h2>
+<div class="row">
+  <div class="span1">
+    <form id="disable-form" action="{% url 'links-disable' %}" method="post">{% csrf_token %}
+        <input type="hidden" name="token" value="{{ short_link.token }}" />
+        {% if short_link.disabled %}
+          <button type="submit" class="btn btn-success">Enable</button>
+        {% else %}
+          <button type="submit" class="btn btn-warning">Disable</button>
+        {% endif %}
+    </form>
+  </div>
+  <div class="span1">
+    <form id="delete-form" action="{% url 'links-delete' %}" method="post">{% csrf_token %}
+        <input type="hidden" name="token" value="{{ short_link.token }}" />
+          <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+  </div>
+</div>
 <h2>Basic information:</h2>
  <table class="table table-bordered">
 <tbody>
