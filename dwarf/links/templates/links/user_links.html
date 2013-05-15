@@ -13,11 +13,16 @@
         <tbody>
 
             {% for link in group %}
-            <tr>
+            <tr {% if link.disabled%} style="background-color: #F7F7F7;" {%endif%}>
                 <th> <img src="{{ link.host|host_favicon }}" alt="{{link.host}} favicon"></th>
                 <th>{{link.clicks}}</th>
                 <th>{{link.counter}}</th>
-                <td><a href="{% url "forwarder-forward" link.token %}">{{link.token}}</a></td>
+                <td>{% if link.disabled%}
+                    {{link.token}}
+                    {% else %}
+                    <a href="{% url "forwarder-forward" link.token %}">{{link.token}}</a>
+                    {%endif%}
+                </td>
                 <th>{{link.title}}</th>
                 <td><a href="http://{{link.url}}">{{link.url}}</a></td>
                 <td><a href="http://{{link.host}}">{{link.host}}</a></td>
