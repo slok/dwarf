@@ -270,9 +270,9 @@ class CounterMetrics(object):
     """ Abstract class for metrics represented by counts, this means that the
     representation of the metrics is done by a counter
     """
-    def __init__(self, total=None):
+    def __init__(self, total=None,  metrics_key_format=None):
         self._total = total
-        self._key = None
+        self._key = metrics_key_format
 
     @property
     def key(self):
@@ -288,9 +288,16 @@ class CounterMetrics(object):
         r = get_redis_connection()
         return r.decr(self._key, count)
 
+    def count(self):
+        r = get_redis_connection()
+        try:
+            return int(r.get(self.key))
+        except TypeError:
+            return 0
+
+    # Easyer for counter time metrics
     @classmethod
     def get_count(cls, key):
-        """ Decrements the counter and returns the result"""
         r = get_redis_connection()
         try:
             return int(r.get(key))
@@ -378,3 +385,10 @@ class ClickMetrics(CounterTimeMetrics):
 
     def count_hours_clicks(self):
         return self.total_counts_per_hours()
+
+class TotalClickMetrics(CounterMetrics):
+    def __init__(self,
+                 total=None,
+                 metrics_key_format="Metrics:totalclicks:{0}"):
+        super(TotalClickMetrics, self).__init__(total=total,
+                                    metrics_key_format=metrics_key_format)

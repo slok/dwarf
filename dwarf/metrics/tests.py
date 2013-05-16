@@ -6,7 +6,8 @@ from datetime import datetime
 
 from dwarfutils.redisutils import get_redis_connection
 from dwarfutils.dateutils import datetime_now_utc
-from metrics.models import LoginMetrics, SharedLinkMetrics, AchievementMetrics
+from metrics.models import (LoginMetrics, SharedLinkMetrics, AchievementMetrics,
+                            TotalClickMetrics)
 
 
 class LoginMetricsTest(TestCase):
@@ -546,3 +547,13 @@ class LoginMetricsTest(TestCase):
 
         a = AchievementMetrics(achievement_id)
         self.assertEquals(len(users), a.total_users())
+
+    def test_click_total_counter(self):
+        times = random.randrange(0, 1000)
+
+        self.assertEquals(0, TotalClickMetrics().count())
+
+        for i in range(times):
+            TotalClickMetrics().increment()
+
+        self.assertEquals(times, TotalClickMetrics().count())
