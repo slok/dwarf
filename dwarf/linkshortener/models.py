@@ -7,7 +7,7 @@ from dwarfutils import dateutils
 from dwarfutils.redisutils import get_redis_connection
 
 
-# This is a Django model 
+# This is a Django model
 class UserLink(models.Model):
     user = models.ForeignKey(User)
     token = models.CharField(max_length=100)
@@ -323,6 +323,34 @@ class ShortLink(object):
         self.disabled = False
         r.hset(key, "disabled", 0)
 
+    def delete(self):
+        lua_script = """
+            local token = ARGV[1]
+
+            --Delete all the data
+            --Clicks
+            local i = 0
+            local result = 1
+            while result > 0 do
+                i = i + 1
+                result = redis.call('del',KEYS[3] .. tostring(i))
+            end
+
+            --Token
+            redis.call('del',KEYS[1])
+            return redis.call('srem',KEYS[2], token)
+        """
+
+        r = get_redis_connection()
+        delete = r.register_script(lua_script)
+
+        token_key = ShortLink.REDIS_TOKEN_KEY.format(self.token)
+        url_key = ShortLink.REDIS_URL_KEY.format(self.url)
+        #Circular dependency destroyer!
+        from clickmanager.models import Click
+        click_key = Click.REDIS_CLICK_KEY.format(self.token, "")
+
+        delete(keys=[token_key, url_key, click_key], args=[self.token, ])
 
     @classmethod
     def get_counter(cls):

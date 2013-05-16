@@ -13,6 +13,7 @@ from linkshortener.models import ShortLink, UserLink
 from linkshortener import tasks
 from dwarfutils import dateutils
 from dwarfutils.redisutils import get_redis_connection
+from clickmanager.models import Click
 
 
 class UtilTest(TestCase):
@@ -375,6 +376,36 @@ class ShortLinkModelTest(TestCase):
         sl2.enable()
         sl2 = ShortLink.find(token=sl.token)
         self.assertFalse(sl2.disabled)
+
+    def test_delete_link(self):
+        counter = random.randrange(0, 100000)
+        url = "xlarrakoetxea.org"
+
+        sl = ShortLink(counter=counter, url=url)
+        sl.save()
+
+        r = get_redis_connection()
+
+        times = random.randrange(10, 100)
+
+        for i in range(times):
+            c = Click(token=sl.token)
+            c.save()
+
+        self.assertTrue(r.exists(ShortLink.REDIS_TOKEN_KEY.format(sl.token)))
+        self.assertTrue(r.sismember(ShortLink.REDIS_URL_KEY.format(sl.url),
+                                    sl.token))
+        self.assertEquals(times, len(r.keys(
+                                Click.REDIS_CLICK_KEY.format(sl.token, "*"))))
+
+        sl.delete()
+
+        self.assertFalse(r.exists(ShortLink.REDIS_TOKEN_KEY.format(sl.token)))
+        self.assertFalse(r.sismember(ShortLink.REDIS_URL_KEY.format(sl.url),
+                                     sl.token))
+        self.assertEquals(0, len(r.keys(
+                                Click.REDIS_CLICK_KEY.format(sl.token, "*"))))
+
 
 # Override testing settings in 1.4, run task test without workers
 # http://docs.celeryproject.org/en/latest/configuration.html#celery-always-eager

@@ -213,7 +213,8 @@ def delete_link(request):
 
             ul = UserLink.objects.get(token=link_token)
             ul.delete()
-            #TODO: Delete also all the data?
+            sl = ShortLink.find(token=link_token)
+            sl.delete()
             return redirect(reverse(links_index))
     else:
         return redirect(reverse(links_info, args=[link_token]))
