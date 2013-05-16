@@ -3,7 +3,7 @@ from celery import task
 from clickmanager.models import Click
 from requestdataextractor.extractors import (detect_browser_and_OS,
                                     detect_country_location_with_geoip)
-from metrics.models import ClickMetrics
+from metrics.models import ClickMetrics, TotalClickMetrics
 
 
 @task()
@@ -20,8 +20,9 @@ def click_link(token, request_meta_dict):
     #TODO: remote host
 
     c = Click(token=token, browser=data[1], os=data[2], ip=ip,
-            language=language, location=location)
+              language=language, location=location)
 
     # Metrics
     ClickMetrics().increment()
+    TotalClickMetrics().increment()
     c.save()
