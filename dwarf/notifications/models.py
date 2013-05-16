@@ -5,7 +5,7 @@ from dwarfutils.redisutils import (get_redis_push_notifications_connection,
                                    get_redis_connection)
 from dwarfutils.dateutils import unix_now_utc
 from achievements.templatetags.achievementfilters import achievement_image_url
-
+from linkshortener.exceptions import ShortLinkNotFoundError
 
 ACHIEVEMENT = 'achievement'
 SHORTLINK = 'shortlink'
@@ -100,7 +100,12 @@ class Notification(object):
         r = get_redis_push_notifications_connection()
         func = r.zrange if not desc else r.zrevrange
         key = Notification.STORE_KEY_FORMAT.format(user.id)
-        result = map(Notification._notification_factory, func(key, offset, limit))
+        # result = map(Notification._notification_factory, func(key, offset, limit))
+        result = []
+        for i in func(key, offset, limit):
+            res = Notification._notification_factory(i)
+            if res:
+                result.append(res)
         return result
 
     @classmethod
@@ -226,12 +231,16 @@ class ShortLinkNotification(Notification):
         # Avoid circular dependency of the signals
         from linkshortener.models import ShortLink
 
-        short_link = ShortLink.find(token=json_dict['token'])
+        # Maybe the link has been deleted, so we catch the exception
+        try:
+            short_link = ShortLink.find(token=json_dict['token'])
 
-        sl = ShortLinkNotification(short_link, user_id=json_dict['user_id'])
-        sl.date = json_dict['date']
+            sl = ShortLinkNotification(short_link, user_id=json_dict['user_id'])
+            sl.date = json_dict['date']
+            return sl
 
-        return sl
+        except ShortLinkNotFoundError:
+            pass
 
 
 class LevelNotification(Notification):
