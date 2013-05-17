@@ -1,6 +1,7 @@
 import json
 import logging
 import math
+import datetime
 
 from django.shortcuts import (render_to_response,
                              RequestContext, redirect)
@@ -23,11 +24,14 @@ from django.shortcuts import resolve_url
 from django.conf import settings
 from django.contrib.sites.models import get_current_site
 from django.template.response import TemplateResponse
+from dateutil.relativedelta import relativedelta
 
 from userprofile.models import Profile
-from userprofile.forms import SignupForm, ResetPasswordForm
+from userprofile.forms import (SignupForm, AskResetPasswordForm,
+                              ResetPasswordForm)
 from linkshortener.models import UserLink, ShortLink
 from dwarfutils.hashutils import get_random_hash
+from dwarfutils.dateutils import datetime_now_utc
 from metrics.models import LoginMetrics
 from achievements.signals.signals import user_signup
 from notifications.models import Notification
@@ -232,13 +236,65 @@ def user_dashboard(request):
                               context_instance=RequestContext(request))
 
 
-def reset_password(request, user, token):
-    pass
+def reset_password(request, user_id, token):
 
+    context = {
+        'user_id': user_id,
+        'token': token
+    }
+    user = User.objects.get(id=user_id)
+
+    # Means that the form has been submitted
+    if request.method == 'POST':
+        form = ResetPasswordForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            user.set_password(data['password1'])
+            user.profile.password_reset_token = ""
+            user.profile.password_reset_token_date = None
+
+            user.profile.save()
+            user.save()
+
+            messages.success(request, "Password changed!")
+        else:
+            context['form'] = form
+
+            return render_to_response('userprofile/reset-password.html',
+                        context,
+                        context_instance=RequestContext(request))
+
+    else:
+        # check the token correct
+        if user.profile.password_reset_token == token:
+            # Check the date correct
+            now = datetime_now_utc()
+            temp_date = user.profile.password_reset_token_date
+            rel_delta = relativedelta(now, temp_date)
+
+            # We need to compare, relativedelta can't and timedelta yes
+            rel_delta = datetime.timedelta(days=rel_delta.days,
+                                           minutes=rel_delta.minutes,
+                                           seconds=rel_delta.seconds)
+
+            if settings.PASSWORD_RESET_TOKEN_MAX_TIME > rel_delta:
+
+                context['form'] = ResetPasswordForm()
+
+                return render_to_response('userprofile/reset-password.html',
+                            context,
+                            context_instance=RequestContext(request))
+            else:
+                messages.error(request,
+                            "Your token has expired, ask for a new one")
+        else:
+            messages.error(request, "Error changing password, try again")
+
+    return redirect("/")
 
 def ask_reset_password(request):
     if request.method == 'POST':
-        form = ResetPasswordForm(request.POST)
+        form = AskResetPasswordForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
             user = User.objects.get(email=data['email'])
@@ -246,7 +302,7 @@ def ask_reset_password(request):
 
             # Set hash and date
             profile.password_reset_token = get_random_hash()
-            profile.password_reset_token_date = timezone.now()
+            profile.password_reset_token_date = datetime_now_utc()
             profile.save()
 
             logger.debug("Reset password in: " +\
@@ -254,13 +310,14 @@ def ask_reset_password(request):
 
             # Send email
             messages.success(request, "An email has been sent to your account")
+            return redirect("/")
     else:
-        form = ResetPasswordForm()
+        form = AskResetPasswordForm()
 
     context = {
         'form': form,
     }
 
-    return render_to_response('userprofile/reset-password.html',
+    return render_to_response('userprofile/ask-reset-password.html',
                             context,
                             context_instance=RequestContext(request))

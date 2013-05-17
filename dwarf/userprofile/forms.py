@@ -58,7 +58,7 @@ class SignupForm(forms.Form):
         raise forms.ValidationError(_(u"This email is already taken"))
 
 
-class ResetPasswordForm(forms.Form):
+class AskResetPasswordForm(forms.Form):
     email = forms.EmailField(label=_(u'email'))
 
     def clean_email(self):
@@ -69,3 +69,24 @@ class ResetPasswordForm(forms.Form):
             return email
         except ObjectDoesNotExist:
             raise forms.ValidationError(_(u"This email doesn't exists"))
+
+
+class ResetPasswordForm(forms.Form):
+    password1 = forms.CharField(label=_(u"password"),
+                                widget=forms.PasswordInput)
+    password2 = forms.CharField(label=_(u"Repeat password"),
+                                widget=forms.PasswordInput)
+
+    def clean_password2(self):
+        """Checks if the length is correct and both passwords are the same"""
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+
+        if password1 and password2 and len(password1) < 7 or len(password2) < 7:
+            raise forms.ValidationError(_(u"Password length needs to be 7 or more"))
+
+        if not password2:
+            raise forms.ValidationError(_(u"You must confirm your password"))
+        if password1 != password2:
+            raise forms.ValidationError(_(u"Your passwords do not match"))
+        return password2

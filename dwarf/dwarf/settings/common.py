@@ -1,4 +1,5 @@
 from os.path import abspath, dirname, basename
+import datetime
 
 
 #-------------------------PATH CONFIGURATION-----------------------------------
@@ -350,3 +351,7 @@ PUSH_NOTIFICATIONS_SERVER_URL = "http://{0}:{1}/{2}".format(
     PUSH_NOTIFICATIONS_SERVER_TYPE
 )
 #-----------------------END ACHIEVEMENTS CONFIGURATION-------------------------
+
+#-------------------------PASSWORD RESET CONFIGURATION-------------------------
+PASSWORD_RESET_TOKEN_MAX_TIME = datetime.timedelta(hours=36)
+#---------------------END PASSWORD RESET CONFIGURATION-------------------------
