@@ -360,7 +360,7 @@ class ShortLink(object):
         key = ShortLink.REDIS_COUNTER_KEY
 
         if not r.exists(key):
-            raise ShortLinkNotFoundError("The counter doesn't exists")
+            r.set(key, 0)  # Initialize the counter
 
         return int(r.get(key))
 
