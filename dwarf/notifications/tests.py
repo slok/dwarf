@@ -6,6 +6,7 @@ Replace this with more appropriate tests for your application.
 """
 import time
 import json
+import random
 
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -23,7 +24,6 @@ from level.models import Level
 
 class AchievementNotificationTest(TestCase):
     fixtures = ['achievement.json', 'user.json']
-    STORE_KEY_FORMAT = "Notifications:{0}"
 
     def tearDown(self):
         r = get_redis_connection()
@@ -37,7 +37,7 @@ class AchievementNotificationTest(TestCase):
 #            notif = AchievementNotification(achievement=i, user=user)
 #            notif.send_push()
 
-    def test_achievement_notification_store(self):
+    def test_achievement_notification_store_unread(self):
         #with three we have enought to test
         achieves = Achievement.objects.all()[:3]
         user = User.objects.get(id=1)
@@ -51,7 +51,7 @@ class AchievementNotificationTest(TestCase):
 
         r = get_redis_connection()
         res = r.zrange(
-            AchievementNotificationTest.STORE_KEY_FORMAT.format(user.id), 0, -1)
+                Notification.STORE_KEY_UNREAD_FORMAT.format(user.id), 0, -1)
 
         self.assertEquals(a_len, len(res))
 
@@ -60,6 +60,111 @@ class AchievementNotificationTest(TestCase):
             after = json.loads(res[i])
 
             self.assertEquals(before.id, after['achievement_id'])
+
+    def test_achievement_notification_store_read(self):
+        #with three we have enought to test
+        achieves = Achievement.objects.all()[:3]
+        user = User.objects.get(id=1)
+
+        a_len = len(achieves)
+
+        for i in achieves:
+            notif = AchievementNotification(achievement=i, user=user)
+            time.sleep(1)
+            notif.save(read=True)
+
+        r = get_redis_connection()
+        res = r.zrange(
+                Notification.STORE_KEY_READ_FORMAT.format(user.id), 0, -1)
+
+        self.assertEquals(a_len, len(res))
+
+        for i in range(len(res)):
+            before = achieves[i]
+            after = json.loads(res[i])
+
+            self.assertEquals(before.id, after['achievement_id'])
+
+    def test_achievement_notification_get_unread(self):
+        #with three we have enought to test
+        achieves = Achievement.objects.all()[:3]
+        user = User.objects.get(id=1)
+        r = get_redis_connection()
+
+        a_len = len(achieves)
+
+        for i in achieves:
+            notif = AchievementNotification(achievement=i, user=user)
+            time.sleep(1)
+            key = Notification.STORE_KEY_UNREAD_FORMAT.format(user.id)
+            r.zadd(key, notif.date, notif.to_json())
+
+        # Get notifications
+        res = Notification.unreads(user)[::-1]
+
+        self.assertEquals(a_len, len(res))
+
+        for i in range(len(res)):
+            before = achieves[i]
+            after = res[i]
+
+            self.assertEquals(before.id, after.achievement_id)
+
+    def test_achievement_notification_get_read(self):
+        #with three we have enought to test
+        achieves = Achievement.objects.all()[:3]
+        user = User.objects.get(id=1)
+        r = get_redis_connection()
+
+        a_len = len(achieves)
+
+        for i in achieves:
+            notif = AchievementNotification(achievement=i, user=user)
+            time.sleep(1)
+            key = Notification.STORE_KEY_READ_FORMAT.format(user.id)
+            r.zadd(key, notif.date, notif.to_json())
+
+        # Get notifications
+        res = Notification.reads(user)[::-1]
+
+        self.assertEquals(a_len, len(res))
+
+        for i in range(len(res)):
+            before = achieves[i]
+            after = res[i]
+
+            self.assertEquals(before.id, after.achievement_id)
+
+    def test_achievement_notification_get_all(self):
+        #with three we have enought to test
+        achieves = Achievement.objects.all()
+        user = User.objects.get(id=1)
+        r = get_redis_connection()
+
+        a_len = len(achieves)
+
+        for i in achieves:
+            notif = AchievementNotification(achievement=i, user=user)
+
+            time.sleep(1)
+
+            if random.randrange(100) % 2:
+                key = Notification.STORE_KEY_UNREAD_FORMAT.format(user.id)
+            else:
+                key = Notification.STORE_KEY_READ_FORMAT.format(user.id)
+
+            r.zadd(key, notif.date, notif.to_json())
+
+        # Get notifications
+        res = Notification.all(user)[::-1]
+
+        self.assertEquals(a_len, len(res))
+
+        for i in range(len(res)):
+            before = achieves[i]
+            after = res[i]
+
+            self.assertEquals(before.id, after.achievement_id)
 
     def test_achievement_notification_get_all_desc(self):
         #with three we have enought to test
@@ -72,7 +177,12 @@ class AchievementNotificationTest(TestCase):
         for i in achieves:
             notif = AchievementNotification(achievement=i, user=user)
             time.sleep(1)
-            key = AchievementNotificationTest.STORE_KEY_FORMAT.format(user.id)
+
+            if random.randrange(100) % 2:
+                key = Notification.STORE_KEY_UNREAD_FORMAT.format(user.id)
+            else:
+                key = Notification.STORE_KEY_READ_FORMAT.format(user.id)
+
             r.zadd(key, notif.date, notif.to_json())
 
         # Get notifications
@@ -88,7 +198,7 @@ class AchievementNotificationTest(TestCase):
 
     def test_achievement_notification_get_all_asc(self):
         #with three we have enought to test
-        achieves = Achievement.objects.all()[:3]
+        achieves = Achievement.objects.all()
         user = User.objects.get(id=1)
         r = get_redis_connection()
 
@@ -97,7 +207,12 @@ class AchievementNotificationTest(TestCase):
         for i in achieves:
             notif = AchievementNotification(achievement=i, user=user)
             time.sleep(1)
-            key = AchievementNotificationTest.STORE_KEY_FORMAT.format(user.id)
+
+            if random.randrange(100) % 2:
+                key = Notification.STORE_KEY_UNREAD_FORMAT.format(user.id)
+            else:
+                key = Notification.STORE_KEY_READ_FORMAT.format(user.id)
+
             r.zadd(key, notif.date, notif.to_json())
 
         # Get notifications
@@ -111,7 +226,7 @@ class AchievementNotificationTest(TestCase):
 
             self.assertEquals(before.id, after.achievement_id)
 
-    def test_achievement_notification_find_with_limits(self):
+    def test_achievement_notification_find_all_with_limits(self):
         achieves = Achievement.objects.all()[:5]
         user = User.objects.get(id=1)
         r = get_redis_connection()
@@ -119,11 +234,16 @@ class AchievementNotificationTest(TestCase):
         for i in achieves:
             notif = AchievementNotification(achievement=i, user=user)
             time.sleep(1)
-            key = AchievementNotificationTest.STORE_KEY_FORMAT.format(user.id)
+
+            if random.randrange(100) % 2:
+                key = Notification.STORE_KEY_UNREAD_FORMAT.format(user.id)
+            else:
+                key = Notification.STORE_KEY_READ_FORMAT.format(user.id)
+
             r.zadd(key, notif.date, notif.to_json())
 
         # Get notifications
-        res = Notification.find(user, offset=2, limit=3, desc=False)
+        res = Notification.find(user, offset=2, limit=3, desc=False, mode=2)
 
         achieves = achieves[2:4]  # 2 and 3 only
         a_len = len(achieves)
@@ -145,7 +265,12 @@ class AchievementNotificationTest(TestCase):
         for i in achieves:
             notif = AchievementNotification(achievement=i, user=user)
             time.sleep(1)
-            key = AchievementNotificationTest.STORE_KEY_FORMAT.format(user.id)
+
+            if random.randrange(100) % 2:
+                key = Notification.STORE_KEY_UNREAD_FORMAT.format(user.id)
+            else:
+                key = Notification.STORE_KEY_READ_FORMAT.format(user.id)
+
             r.zadd(key, notif.date, notif.to_json())
             notifs.append(notif)
 
@@ -156,7 +281,8 @@ class AchievementNotificationTest(TestCase):
         res = Notification.time_range(user,
                                       lowerbound=notifs[2].date,
                                       upperbound=notifs[4].date,
-                                      desc=False)
+                                      desc=False,
+                                      mode=2)
 
         self.assertEquals(a_len, len(res))
 
@@ -166,6 +292,7 @@ class AchievementNotificationTest(TestCase):
 
             self.assertEquals(before.id, after.achievement_id)
 
+
     def test_achievement_notification_count(self):
         achieves = Achievement.objects.all()
         user = User.objects.get(id=1)
@@ -173,12 +300,18 @@ class AchievementNotificationTest(TestCase):
 
         for i in achieves:
             notif = AchievementNotification(achievement=i, user=user)
-            key = AchievementNotificationTest.STORE_KEY_FORMAT.format(user.id)
+
+            if random.randrange(100) % 2:
+                key = Notification.STORE_KEY_UNREAD_FORMAT.format(user.id)
+            else:
+                key = Notification.STORE_KEY_READ_FORMAT.format(user.id)
+
             r.zadd(key, notif.date, notif.to_json())
 
         a_len = len(achieves)
 
-        self.assertEquals(a_len, AchievementNotification.count(user))
+        self.assertEquals(a_len, AchievementNotification.count(user, mode=2))
+
 
     def test_achievement_notification_count_range(self):
         achieves = Achievement.objects.all()[:5]
@@ -189,7 +322,12 @@ class AchievementNotificationTest(TestCase):
         for i in achieves:
             notif = AchievementNotification(achievement=i, user=user)
             time.sleep(1)
-            key = AchievementNotificationTest.STORE_KEY_FORMAT.format(user.id)
+
+            if random.randrange(100) % 2:
+                key = Notification.STORE_KEY_UNREAD_FORMAT.format(user.id)
+            else:
+                key = Notification.STORE_KEY_READ_FORMAT.format(user.id)
+
             r.zadd(key, notif.date, notif.to_json())
             notifs.append(notif)
 
@@ -199,7 +337,10 @@ class AchievementNotificationTest(TestCase):
         lowerbound = notifs[2].date
         upperbound = notifs[4].date
 
-        result = AchievementNotification.count(user, lowerbound, upperbound)
+        result = AchievementNotification.count(user,
+                                               lowerbound,
+                                               upperbound,
+                                               mode=2)
         self.assertEquals(a_len, result)
 
 
@@ -232,7 +373,7 @@ class ShortLinkNotificationTest(TestCase):
 
         r = get_redis_connection()
         res = r.zrange(
-            ShortLinkNotificationTest.STORE_KEY_FORMAT.format(user.id), 0, -1)
+            Notification.STORE_KEY_UNREAD_FORMAT.format(user.id), 0, -1)
 
         self.assertEquals(a_len, len(res))
 
@@ -265,7 +406,7 @@ class LevelNotificationTest(TestCase):
 
         r = get_redis_connection()
         res = r.zrange(
-            LevelNotificationTest.STORE_KEY_FORMAT.format(user.id), 0, -1)
+            Notification.STORE_KEY_UNREAD_FORMAT.format(user.id), 0, -1)
 
         self.assertEquals(a_len, len(res))
 

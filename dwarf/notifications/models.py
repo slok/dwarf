@@ -14,7 +14,10 @@ LEVEL = 'level'
 
 class Notification(object):
     PUSH_KEY_FORMAT = "Push:notifications:{0}"
-    STORE_KEY_FORMAT = "Notifications:{0}"
+    STORE_KEY_READ_FORMAT = "Notifications:read:{0}"
+    STORE_KEY_UNREAD_FORMAT = "Notifications:unread:{0}"
+    STORE_KEY_ALL_FORMAT = "Notifications:all:{0}"
+
     __metaclass__ = abc.ABCMeta
 
     def __init__(self,
@@ -24,19 +27,25 @@ class Notification(object):
                  image=None,
                  date=None,
                  user_id=None,
-                 key=None,
-                 push_key=None):
+                 key_read=None,
+                 key_unread=None,
+                 push_key=None,
+                 read=False):
         self._notification_type = notification_type
         self._title = title
         self._description = description
         self._image = image
         self.date = unix_now_utc()
         self._user_id = user_id
+        self._read = read
 
         if not push_key:
             self._push_key = Notification.PUSH_KEY_FORMAT.format(user_id)
-        if not key:
-            self._key = Notification.STORE_KEY_FORMAT.format(user_id)
+        if not key_read:
+            self._key_read = Notification.STORE_KEY_READ_FORMAT.format(user_id)
+        if not key_unread:
+            self._key_unread = Notification.STORE_KEY_UNREAD_FORMAT.format(
+                                                                    user_id)
 
     @property
     def notification_type(self):
@@ -58,6 +67,10 @@ class Notification(object):
     def user_id(self):
         return self._user_id
 
+    @property
+    def read(self):
+        return self._read
+
     @abc.abstractmethod
     def to_json(self):
         return None
@@ -67,9 +80,12 @@ class Notification(object):
     def from_json(cls, json_dict):
         return None
 
-    def save(self):
+    def save(self, read=False):
         r = get_redis_connection()
-        r.zadd(self._key, self.date, self.to_json())
+
+        # Save in the unread or read notification zset
+        key = self._key_read if read else self._key_unread
+        r.zadd(key, self.date, self.to_json())
 
     def send_push(self):
         # Publish in redis
@@ -95,11 +111,44 @@ class Notification(object):
         return result
 
     @classmethod
-    def find(cls, user, offset=0, limit=-1, desc=True):
-        """The offset starts in 0"""
+    def _select_get_mode(cls, user, mode, redis_client=None):
+
+        if mode > 2 and mode < 0:
+            raise ValueError(
+                "Mode needs to be between 0 and 2 -> 0:unread, 1:read, 2:all")
+
+        if not redis_client:
+            redis_client = get_redis_push_notifications_connection()
+
+        # Select the key to make the query
+        if mode == 0:
+            key = Notification.STORE_KEY_UNREAD_FORMAT.format(user.id)
+
+        elif mode == 1:
+            key = Notification.STORE_KEY_READ_FORMAT.format(user.id)
+
+        elif mode == 2:
+            # Save in an union to check later
+            key_read = Notification.STORE_KEY_READ_FORMAT.format(user.id)
+            key_unread = Notification.STORE_KEY_UNREAD_FORMAT.format(user.id)
+            key = Notification.STORE_KEY_ALL_FORMAT.format(user.id)
+            redis_client.zunionstore(key, (key_read, key_unread))
+
+        return key
+
+    @classmethod
+    def find(cls, user, offset=0, limit=-1, desc=True, mode=0):
+        """The offset starts in 0.
+        The mode is:
+            0 - unread
+            1 - read
+            2 - all
+        """
         r = get_redis_push_notifications_connection()
+
+        key = Notification._select_get_mode(user, mode, r)
+
         func = r.zrange if not desc else r.zrevrange
-        key = Notification.STORE_KEY_FORMAT.format(user.id)
         # result = map(Notification._notification_factory, func(key, offset, limit))
         result = []
         for i in func(key, offset, limit):
@@ -109,22 +158,39 @@ class Notification(object):
         return result
 
     @classmethod
-    def time_range(cls, user, lowerbound, upperbound, desc=True):
-        """lowbound and upperbound in unixtimestamp"""
+    def time_range(cls, user, lowerbound, upperbound, desc=True, mode=0):
+        """lowbound and upperbound in unixtimestamp
+        The mode is:
+            0 - unread
+            1 - read
+            2 - all
+        """
+
         r = get_redis_push_notifications_connection()
-        key = Notification.STORE_KEY_FORMAT.format(user.id)
+
+        key = Notification._select_get_mode(user, mode, r)
+
         func = r.zrangebyscore if not desc else r.zrevrangebyscore
         result = map(Notification._notification_factory, func(key, lowerbound, upperbound))
         return result
 
     @classmethod
-    def all(cls, user, desc=True):
-        return Notification.find(user, desc=desc)
+    def unreads(cls, user, desc=True):
+        return Notification.find(user, desc=desc, mode=0)
 
     @classmethod
-    def count(cls, user, min_time="-inf", max_time="+inf"):
+    def reads(cls, user, desc=True):
+        return Notification.find(user, desc=desc, mode=1)
+
+    @classmethod
+    def all(cls, user, desc=True):
+        return Notification.find(user, desc=desc, mode=2)
+
+    @classmethod
+    def count(cls, user, min_time="-inf", max_time="+inf", mode=0):
         r = get_redis_push_notifications_connection()
-        key = Notification.STORE_KEY_FORMAT.format(user.id)
+
+        key = Notification._select_get_mode(user, mode, r)
         return int(r.zcount(key, min_time, max_time))
 
 
