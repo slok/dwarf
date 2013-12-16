@@ -3,7 +3,8 @@ dwarf
 
 Dwarf is a link shortener made in python and Django, also has statistics and has achievements
 
-Status:
+Status
+======
 
 This project is in stand by for now :)
 
